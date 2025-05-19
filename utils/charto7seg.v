@@ -1,6 +1,6 @@
 module charto7seg (
-  output reg [6:0] 7seg_o, 		  // Output for 7-segment (gfedcba, 0=ON, 1=OFF)
-  input      [5:0] char_i  // Input character code
+  output reg [6:0] 7seg_o, // Output for 7-segment (gfedcba, 0=ON, 1=OFF)
+  input [5:0]      char_i  // Input character code
 );
   localparam _0 = 7'b1000000; // 0
   localparam _1 = 7'b1111001; // 1

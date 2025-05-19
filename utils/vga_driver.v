@@ -1,7 +1,7 @@
 module vga_driver (
   input        clock,    // 25 MHz
   input        reset,    // Active high
-  input [7:0]  color_in, // Pixel color data (RRRGGGBB)
+  input  [7:0] color_in, // Pixel color data (RRRGGGBB)
   output [9:0] next_x,   // x-coordinate of NEXT pixel that will be drawn
   output [9:0] next_y,   // y-coordinate of NEXT pixel that will be drawn
   output       hsync,    // HSYNC (to VGA connector)

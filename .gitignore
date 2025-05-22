@@ -1,13 +1,31 @@
-.DS_Store
-
 synthesis/db/
 synthesis/incremental_db/
+synthesis/c5_pin_model_dump.txt
 synthesis/demoman_assignment_defaults.qdf
 synthesis/demoman.done
 synthesis/demoman.flow.rpt
 synthesis/demoman.map.rpt
 synthesis/demoman.map.summary
+synthesis/demoman.qws
+synthesis/demoman.asm.rpt
+synthesis/demoman.fit.rpt
+synthesis/demoman.fit.smsg
+synthesis/demoman.jdi
+synthesis/demoman.pin
+synthesis/demoman.sld
+synthesis/demoman.sof
+synthesis/demoman.sta.summary
+synthesis/demoman.sta.rpt
+synthesis/demoman.fit.summary
+*.bak
 
 obj_dir/
 
-*.bak
+.venv/
+.env
+
+sim_build/
+__pycache__/
+results.xml
+
+.DS_Store

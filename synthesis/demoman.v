@@ -60,7 +60,7 @@ wire [7:0] color_to_vga_driver; // Input color to VGA driver
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       is_active_display;   // From vga_driver's "blank" output
-reg        clk_25mhz;
+wire       clk_25mhz;
 
 //=======================================================
 //  Structural coding
@@ -70,11 +70,10 @@ assign DEBUG_X = current_pixel_x;
 assign DEBUG_Y = current_pixel_y;
 
 clock_divider #(
-  .DIV_FACTOR_WIDTH(2)
+  .DIV(2)
 ) clk_vga_inst (
   .clk_i(CLOCK_50),
   .rst_i(reset),
-  .div_factor_input(2'd2),
   .clk_o(clk_25mhz)
 );
 

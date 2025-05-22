@@ -1,0 +1,74 @@
+name: Build and Deploy Verilator Wasm to GitHub Pages
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten toolchain
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Install Verilator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y verilator
+
+      - name: Replace Verilator include file with custom version
+        run: |
+          VERILATOR_INCLUDE_DIR=$(verilator --getenv VERILATOR_ROOT)/include
+          if [ -z "$VERILATOR_INCLUDE_DIR" ] || [ ! -d "$VERILATOR_INCLUDE_DIR" ]; then
+            echo "VERILATOR_ROOT/include not found, trying common default /usr/share/verilator/include"
+            VERILATOR_INCLUDE_DIR="/usr/share/verilator/include"
+          fi
+
+          if [ ! -d "$VERILATOR_INCLUDE_DIR" ]; then
+            echo "Error: Verilator include directory not found at $VERILATOR_INCLUDE_DIR"
+            exit 1
+          fi
+
+          echo "Verilator include directory found at: $VERILATOR_INCLUDE_DIR"
+
+          CUSTOM_VERILATEDOS_PATH="simulation/verilatedos.h"
+
+          if [ -f "$CUSTOM_VERILATEDOS_PATH" ]; then
+            echo "Copying custom $CUSTOM_VERILATEDOS_PATH to $VERILATOR_INCLUDE_DIR/verilatedos.h"
+            sudo cp "$CUSTOM_VERILATEDOS_PATH" "$VERILATOR_INCLUDE_DIR/verilatedos.h"
+          else
+            echo "Error: Custom verilatedos.h not found at $CUSTOM_VERILATEDOS_PATH"
+            exit 1
+          fi
+
+      - name: Build WebAssembly application
+        run: make wasm
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './build_wasm'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

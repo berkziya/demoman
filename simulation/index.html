@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Verilator VGA Simulation</title>
+  <style>
+    body {
+      font-family: arial;
+      margin: 0;
+      padding: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #333;
+      color: #fff;
+    }
+
+    .emscripten_canvas_container {
+      margin-top: 20px;
+      border: 1px solid #555;
+    }
+
+    /* The canvas will be created by SDL/Emscripten */
+  </style>
+</head>
+
+<body>
+  <h1>Verilog VGA Simulation (WebAssembly)</h1>
+  <div class="emscripten_canvas_container">
+    <!-- Emscripten will often create the canvas here if one with id "canvas" is not found, or you can explicitly define it: -->
+    <canvas id="canvas" width="640" height="480" oncontextmenu="event.preventDefault()"></canvas>
+  </div>
+  <p>Status: <span id="status">Loading...</span></p>
+  <textarea id="output" rows="8"
+    style="width: 80%; margin-top:10px; background-color: #222; color: #ddd; border: 1px solid #555;"
+    readonly></textarea>
+
+  <script type='text/javascript'>
+    var statusElement = document.getElementById('status');
+    var outputElement = document.getElementById('output');
+
+    var Module = {
+      preRun: [],
+      postRun: [function () {
+        statusElement.innerHTML = 'Simulation Running.';
+        console.log("Emscripten module loaded and postRun executed.");
+      }],
+      print: (function () {
+        return function (text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          console.log(text);
+          outputElement.value += text + "\n";
+          outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
+        };
+      })(),
+      printErr: function (text) {
+        if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+        console.error(text);
+        outputElement.value += "ERROR: " + text + "\n";
+        outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
+      },
+      canvas: (function () {
+        var canvas = document.getElementById('canvas');
+        // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+        // application robust, you may want to override this behavior before shipping!
+        // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+        canvas.addEventListener("webglcontextlost", function (e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+        return canvas;
+      })(),
+      setStatus: function (text) {
+        if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+        if (text === Module.setStatus.last.text) return;
+        var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+        var now = Date.now();
+        if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+        Module.setStatus.last.time = now;
+        Module.setStatus.last.text = text;
+        statusElement.innerHTML = text;
+      },
+      totalDependencies: 0,
+      monitorRunDependencies: function (left) {
+        this.totalDependencies = Math.max(this.totalDependencies, left);
+        Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+      }
+    };
+    Module.setStatus('Downloading...');
+    window.onerror = function (event) {
+      Module.setStatus('Exception thrown, see JavaScript console');
+      Module.printErr('Exception thrown: ' + event);
+    };
+  </script>
+  {{{ SCRIPT }}}
+</body>
+
+</html>

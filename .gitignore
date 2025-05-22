@@ -20,6 +20,8 @@ synthesis/demoman.fit.summary
 *.bak
 
 obj_dir/
+build_wasm/
+build_native/
 
 .venv/
 .env

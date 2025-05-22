@@ -1,0 +1,13 @@
+.DS_Store
+
+synthesis/db/
+synthesis/incremental_db/
+synthesis/demoman_assignment_defaults.qdf
+synthesis/demoman.done
+synthesis/demoman.flow.rpt
+synthesis/demoman.map.rpt
+synthesis/demoman.map.summary
+
+obj_dir/
+
+*.bak

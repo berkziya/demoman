@@ -48,16 +48,6 @@ jobs:
 
           echo "Verilator include directory found at: $VERILATOR_INCLUDE_DIR"
 
-          CUSTOM_VERILATEDOS_PATH="simulation/verilatedos.h"
-
-          if [ -f "$CUSTOM_VERILATEDOS_PATH" ]; then
-            echo "Copying custom $CUSTOM_VERILATEDOS_PATH to $VERILATOR_INCLUDE_DIR/verilatedos.h"
-            sudo cp "$CUSTOM_VERILATEDOS_PATH" "$VERILATOR_INCLUDE_DIR/verilatedos.h"
-          else
-            echo "Error: Custom verilatedos.h not found at $CUSTOM_VERILATEDOS_PATH"
-            exit 1
-          fi
-
       - name: Build WebAssembly application
         run: make wasm
 

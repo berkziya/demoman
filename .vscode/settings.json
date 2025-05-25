@@ -1,0 +1,6 @@
+{
+    "clang-format.language.cpp.style": "WebKit",
+    "clang-format.language.c.style": "WebKit",
+    "clang-format.style": "WebKit",
+    "clang-format.fallbackStyle": "WebKit"
+}

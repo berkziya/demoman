@@ -52,10 +52,10 @@ OBJ_DIR_VERILATED_WASM := $(BUILD_DIR_WASM)/obj_verilated_wasm
 SIM_MAIN_WASM      := $(SIM_DIR)/sim_main_wasm.cpp
 HTML_SHELL_FILE    := $(SIM_DIR)/index.html
 
-VERILATOR_FLAGS_WASM ?= -Wall --cc --prefix V$(VERILOG_TOP_MODULE) --Mdir $(OBJ_DIR_VERILATED_WASM) -Wno-fatal --top-module $(VERILOG_TOP_MODULE) --debug
+VERILATOR_FLAGS_WASM ?= -Wall --cc --prefix V$(VERILOG_TOP_MODULE) --Mdir $(OBJ_DIR_VERILATED_WASM) -Wno-fatal --top-module $(VERILOG_TOP_MODULE)
 
 EMCC               ?= em++
-EMCC_COMMON_FLAGS  ?= -O2 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s MINIFY_HTML=0 -s WARN_ON_UNDEFINED_SYMBOLS=0 -D'VL_CPU_RELAX()=' -std=c++17
+EMCC_COMMON_FLAGS  ?= -O2 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s WARN_ON_UNDEFINED_SYMBOLS=0 -DVL_CPU_RELAX\(\)= -std=c++17
 EMCC_INCLUDE_FLAGS_WASM ?= -I$(VERILATOR_INCLUDE_PATH) -I$(OBJ_DIR_VERILATED_WASM)
 EMCC_LINK_FLAGS_WASM ?= -s USE_SDL=2 -s USE_SDL_TTF=2 --shell-file $(HTML_SHELL_FILE)
 ifeq ($(wildcard $(FONT_FILE)),)
@@ -135,7 +135,7 @@ else
 		$(VERILATED_CPP_FILE) \
 		$(EMCC_LINK_FLAGS_WASM) \
 		-o $(TARGET_HTML)"
-		
+
 	$(EMCC) $(EMCC_COMMON_FLAGS) $(EMCC_INCLUDE_FLAGS_WASM) \
 		$(SIM_MAIN_WASM) \
 		$(wildcard $(OBJ_DIR_VERILATED_WASM)/V$(VERILOG_TOP_MODULE)__*.cpp) \
@@ -206,13 +206,3 @@ clean_native:
 # --- Common Targets ---
 clean: clean_wasm clean_native
 	@echo "All clean complete."
-
-help:
-	@echo "Unified Makefile for Verilator + Emscripten (Wasm) AND Native SDL Simulation"
-	# ... (help text, ensure it's complete) ...
-	@echo "Configuration Variables (can be overridden on the command line):"
-	@echo "  VERILOG_TOP_MODULE      (default: $(VERILOG_TOP_MODULE))"
-	# ... other help vars ...
-	@echo "    VERILATOR_FLAGS_WASM    (current: $(VERILATOR_FLAGS_WASM))"
-	# ...
-	@echo ""

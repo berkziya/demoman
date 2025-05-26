@@ -1,5 +1,4 @@
 module demoman(
-
   /////////// CLOCK ///////////
   input CLOCK2_50,
   input CLOCK3_50,
@@ -45,6 +44,9 @@ module demoman(
   output [7:0] VGA_R,
   output       VGA_SYNC_N,
   output       VGA_VS,
+
+  //////////// GPIO_0, GPIO_0 connect to GPIO Default //////////
+	inout [35:0] GPIO,
 
   /////////// SIM ///////////
   output [9:0] DEBUG_X,

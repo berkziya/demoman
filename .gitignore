@@ -17,6 +17,7 @@ synthesis/*.sof
 synthesis/*.sta.summary
 synthesis/*.sta.rpt
 synthesis/*.fit.summary
+synthesis/*.jditmp
 *.bak
 
 obj_dir/

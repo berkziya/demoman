@@ -98,15 +98,4 @@ vga_driver vga_inst (
 
 assign clk_60hz = current_pixel_y == 10'd479 && current_pixel_x == 10'd639;
 
-// color test
-reg [7:0] color_reg;
-always @(posedge clk_60hz or posedge reset) begin
-  if (reset) begin
-    color_reg <= 8'h00; // Reset color to black
-  end else begin
-    color_reg <= color_reg + 8'h01; // Increment color value
-  end
-end
-assign color_to_vga_driver = color_reg; // Assign the color to the VGA driver
-
 endmodule

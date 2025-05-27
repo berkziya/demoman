@@ -129,9 +129,9 @@ always @(posedge clk_25mhz) begin
     end
 end
 
-assign r_component = SW[0] ? 3'b111 : (SW[1] ? SW[4:2] : ( (~KEY[3]) ? 3'b100 : pattern_r ) );
-assign g_component = SW[6] ? 3'b111 : (SW[7] ? SW[9:7] : ( (~KEY[2]) ? 3'b010 : pattern_g ) );
-assign b_component = (~KEY[1]) ? ( (~KEY[0]) ? 2'b11 : 2'b10) : pattern_b;
+assign r_component = SW[0] ? 3'b111 : (SW[1] ? SW[4:2] : ((~KEY[3]) ? 3'b100 : pattern_r));
+assign g_component = SW[6] ? 3'b111 : (SW[7] ? SW[9:7] : ((~KEY[2]) ? 3'b010 : pattern_g));
+assign b_component = (~KEY[1]) ? ((~KEY[0]) ? 2'b11 : 2'b10) : pattern_b;
 
 assign color_to_vga_driver = {r_component, g_component, b_component};
 

@@ -170,16 +170,7 @@ int main(int argc, char* argv[])
 
     TTF_Font* font = TTF_OpenFont("Roboto_Condensed-Regular.ttf", 18);
     if (!font) {
-        font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 18);
-        if (!font) {
-            font = TTF_OpenFont("/System/Library/Fonts/Helvetica.ttc", 18);
-        }
-        if (!font) {
-            font = TTF_OpenFont("/Library/Fonts/Arial.ttf", 18);
-        }
-        if (!font) {
-            std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        }
+        std::cerr << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
 
     // Main Simulation Window & Renderer
@@ -370,7 +361,7 @@ int main(int argc, char* argv[])
         for (int vga_clk_cycle = 0; vga_clk_cycle < cycles_per_vga_frame && running; ++vga_clk_cycle) {
             tick(dut, contextp);
 
-            bool active_display = (dut->VGA_BLANK_N == 0);
+            bool active_display = (dut->VGA_BLANK_N == 1);
             if (active_display && dut->DEBUG_X >= 0 && dut->DEBUG_X < SCREEN_WIDTH && dut->DEBUG_Y >= 0 && dut->DEBUG_Y < SCREEN_HEIGHT) {
                 pixel_buffer[dut->DEBUG_Y * SCREEN_WIDTH + dut->DEBUG_X] = (0xFFU << 24) | (dut->VGA_R << 16) | (dut->VGA_G << 8) | dut->VGA_B;
             }

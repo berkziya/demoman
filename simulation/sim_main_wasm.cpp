@@ -151,7 +151,7 @@ void main_loop_iteration()
             return;
         }
 
-        bool active_display = (dut_global->VGA_BLANK_N == 0);
+        bool active_display = (dut_global->VGA_BLANK_N == 1);
 
         if (active_display) {
             int x = dut_global->DEBUG_X;

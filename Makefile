@@ -47,17 +47,17 @@ endif
 
 
 # --- WebAssembly (Wasm) Target Configuration ---
-BUILD_DIR_WASM     ?= build_wasm
-OBJ_DIR_VERILATED_WASM := $(BUILD_DIR_WASM)/obj_verilated_wasm
-SIM_MAIN_WASM      := $(SIM_DIR)/sim_main_wasm.cpp
-HTML_SHELL_FILE    := $(SIM_DIR)/index.html
+BUILD_DIR_WASM          ?= build_wasm
+OBJ_DIR_VERILATED_WASM  := $(BUILD_DIR_WASM)/obj_verilated_wasm
+SIM_MAIN_WASM           := $(SIM_DIR)/sim_main_wasm.cpp
+HTML_SHELL_FILE         := $(SIM_DIR)/index.html
 
-VERILATOR_FLAGS_WASM ?= -Wall --cc --prefix V$(VERILOG_TOP_MODULE) --Mdir $(OBJ_DIR_VERILATED_WASM) -Wno-fatal --top-module $(VERILOG_TOP_MODULE)
+VERILATOR_FLAGS_WASM    ?= -Wall --cc --prefix V$(VERILOG_TOP_MODULE) --Mdir $(OBJ_DIR_VERILATED_WASM) -Wno-fatal --top-module $(VERILOG_TOP_MODULE)
 
-EMCC               ?= em++
-EMCC_COMMON_FLAGS  ?= -O2 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s WARN_ON_UNDEFINED_SYMBOLS=0 -DVL_IGNORE_UNKNOWN_ARCH -DVL_CPU_RELAX\(\)= -std=c++17
+EMCC                    ?= em++
+EMCC_COMMON_FLAGS       ?= -O2 -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s WARN_ON_UNDEFINED_SYMBOLS=0 -DVL_IGNORE_UNKNOWN_ARCH -DVL_CPU_RELAX\(\)=
 EMCC_INCLUDE_FLAGS_WASM ?= -I$(VERILATOR_INCLUDE_PATH) -I$(OBJ_DIR_VERILATED_WASM)
-EMCC_LINK_FLAGS_WASM ?= -s USE_SDL=2 -s USE_SDL_TTF=2 --shell-file $(HTML_SHELL_FILE)
+EMCC_LINK_FLAGS_WASM    ?= -s USE_SDL=2 -s USE_SDL_TTF=2 --shell-file $(HTML_SHELL_FILE)
 ifeq ($(wildcard $(FONT_FILE)),)
     $(warning Font file '$(FONT_FILE)' not found. Wasm build might fail to preload it or app might fail to load it.)
 else
@@ -76,10 +76,10 @@ SIM_MAIN_NATIVE    := $(SIM_DIR)/sim_main_native.cpp
 EXECUTABLE_NATIVE  := $(OBJ_DIR_NATIVE)/V$(strip $(VERILOG_TOP_MODULE))
 
 CXX_NATIVE         ?= g++
-SDL2_CFLAGS := $(shell sdl2-config --cflags)
-SDL2_LIBS   := $(shell sdl2-config --libs)
-SDL2_TTF_CFLAGS := $(shell pkg-config SDL2_ttf --cflags)
-SDL2_TTF_LIBS   := $(shell pkg-config SDL2_ttf --libs)
+SDL2_CFLAGS        := $(shell sdl2-config --cflags)
+SDL2_LIBS          := $(shell sdl2-config --libs)
+SDL2_TTF_CFLAGS    := $(shell pkg-config SDL2_ttf --cflags)
+SDL2_TTF_LIBS      := $(shell pkg-config SDL2_ttf --libs)
 
 ifeq ($(strip $(SDL2_TTF_CFLAGS)),)
     $(warning WARNING: 'pkg-config SDL2_ttf --cflags' returned empty for native build. Check SDL2_ttf installation and pkg-config setup.)
@@ -88,10 +88,10 @@ ifeq ($(strip $(SDL2_TTF_LIBS)),)
     $(warning WARNING: 'pkg-config SDL2_ttf --libs' returned empty for native build. Check SDL2_ttf installation and pkg-config setup.)
 endif
 
-CXXFLAGS_NATIVE    ?= -std=c++17 $(SDL2_CFLAGS) $(SDL2_TTF_CFLAGS) -I$(VERILATOR_INCLUDE_PATH)
+CXXFLAGS_NATIVE    ?= $(SDL2_CFLAGS) $(SDL2_TTF_CFLAGS) -I$(VERILATOR_INCLUDE_PATH)
 LDFLAGS_NATIVE     ?= $(SDL2_LIBS) $(SDL2_TTF_LIBS)
 
-VERILATOR_FLAGS_NATIVE ?= --cc --exe --build -j 0 --timing --top-module $(strip $(VERILOG_TOP_MODULE))
+VERILATOR_FLAGS_NATIVE ?= --cc --exe --build --timing --top-module $(strip $(VERILOG_TOP_MODULE))
 
 # --- Targets ---
 .PHONY: all wasm run_wasm clean_wasm verilate_wasm native run_native clean_native clean help test_vars test_wildcard
@@ -119,13 +119,6 @@ ifeq ($(wildcard $(VERILATED_CPP_FILE)),)
 else
 	@echo "Rule Check: Found verilated.cpp at '$(VERILATED_CPP_FILE)' for Emscripten compilation."
 	@mkdir -p $(BUILD_DIR_WASM)
-
-	@echo "Listing files in $(OBJ_DIR_VERILATED_WASM):"
-	@ls -la $(OBJ_DIR_VERILATED_WASM)
-
-	@echo "Verilated .cpp files to be compiled by emcc:"
-	@echo "$(wildcard $(OBJ_DIR_VERILATED_WASM)/V$(VERILOG_TOP_MODULE)__*.cpp) $(OBJ_DIR_VERILATED_WASM)/V$(VERILOG_TOP_MODULE).cpp"
-	@echo "Other .cpp files for emcc: $(SIM_MAIN_WASM) $(VERILATED_CPP_FILE)"
 
 	@echo "Compiling Wasm with Emscripten..."
 	@echo "Full emcc command:"
@@ -162,8 +155,7 @@ wasm: $(TARGET_HTML)
 
 run_wasm: wasm
 	@echo "Starting web server in $(BUILD_DIR_WASM)..."
-	@echo "Open http://localhost:8000 in your browser (usually from the root of your project, and navigate to $(BUILD_DIR_WASM)/index.html)."
-	@echo "Or, more reliably: cd $(BUILD_DIR_WASM) && python3 -m http.server 8000"
+	@echo "Open http://localhost:8000 in your browser."
 	cd $(BUILD_DIR_WASM) && python3 -m http.server 8000 || (cd $(BUILD_DIR_WASM) && python -m SimpleHTTPServer 8000)
 
 clean_wasm:

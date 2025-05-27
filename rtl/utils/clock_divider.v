@@ -1,39 +1,39 @@
 module clock_divider # (
   parameter DIV = 50 // DIV > 1
 ) (
-  input      clk_i,
-  input      rst_i,
+  input      clk,
+  input      rst,
   output reg clk_o
 );
   localparam INC = 2'b01;
   localparam DEC = 2'b10;
 
-  reg   [1:0] STATE;
+  reg   [1:0] state;
   wire [31:0] count;
 
   counter #(.W(32)) cntr (
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .control_i(STATE),
-    .count_o(count)
+    .clk(clk),
+    .rst(rst),
+    .control(state),
+    .count(count)
   );
 
-  always @(posedge clk_i or posedge rst_i) begin
-    if (rst_i) begin
-      STATE <= INC;
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      state <= INC;
       clk_o <= 1'b0;
     end
-    case (STATE)
+    case (state)
       INC:if (count == DIV - 1'b1) begin
-        STATE <= DEC;
+        state <= DEC;
         clk_o <= 1'b1;
       end
       DEC:if (count == 32'b1) begin
-        STATE <= INC;
+        state <= INC;
         clk_o <= 1'b0;
       end
       default: begin
-        STATE <= INC;
+        state <= INC;
         clk_o <= 1'b0;
       end
     endcase

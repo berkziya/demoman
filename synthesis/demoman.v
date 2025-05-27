@@ -46,7 +46,7 @@ module demoman(
   output       VGA_VS,
 
   //////////// GPIO_0, GPIO_0 connect to GPIO Default //////////
-	inout [35:0] GPIO,
+  inout [35:0] GPIO,
 
   /////////// SIM ///////////
   output [9:0] DEBUG_X,
@@ -61,7 +61,6 @@ module demoman(
 wire [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
-wire       is_active_display;   // From vga_driver's "blank" output (HIGH for active)
 wire       clk_25mhz;
 
 //=======================================================
@@ -74,8 +73,8 @@ assign DEBUG_Y = current_pixel_y;
 clock_divider #(
   .DIV(2)
 ) clk_vga_inst (
-  .clk_i(CLOCK_50),
-  .rst_i(reset),
+  .clk(CLOCK_50),
+  .rst(reset),
   .clk_o(clk_25mhz)
 );
 
@@ -93,11 +92,8 @@ vga_driver vga_inst (
   .blue(VGA_B),                   // Output: Blue component
   .sync(),                        // vga_driver's composite sync output (can be left unconnected)
   .clk(VGA_CLK),                  // vga_driver passes its clock input to this VGA connector pin
-  .blank(is_active_display)       // Output: High during active display period
+  .blank(VGA_BLANK_N)             // Output: High during active display period
 );
-
-// Ensure VGA_BLANK_N is correctly driven (active LOW for blanking)
-assign VGA_BLANK_N = ~is_active_display;
 
 // LEDR assignment (Example: reflect SW state)
 assign LEDR = SW;

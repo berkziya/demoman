@@ -100,24 +100,32 @@ vga_driver vga_inst (
   .blank(VGA_BLANK_N)             // Output: High during active display period
 );
 
-assign clk_60hz = current_pixel_y > 10'd300;
+assign clk_60hz = current_pixel_y == 10'd479 && current_pixel_x == 10'd639;
 
-assign effective_clk = SW[1] ? clk_60hz : ~KEY[0];
+assign effective_clk = SW[1] ? ~KEY[0]: clk_60hz;
 
 wire [3:0] currentstate;
 player #(1'b0) Player1 (
   .clk(effective_clk),
-  .rst(1'b0),
+  .rst(reset),
   .left(~KEY[3]),
   .right(~KEY[2]),
   .attack(~KEY[1]),
   .posx(posx),
   .posy(posy),
-  .current_state(currentstate)
+  .current_state(currentstate),
+  .basic_hithurtbox_x1(),
+  .basic_hithurtbox_x2(),
+  .basic_hithurtbox_y1(),
+  .basic_hithurtbox_y2(),
+  .main_hurtbox_x1(),
+  .main_hurtbox_x2(),
+  .main_hurtbox_y1(),
+  .main_hurtbox_y2()
 );
 
 always @(*) begin
-  color_to_vga_driver = {current_pixel_x[9:7], ~KEY[0] ,{2{SW[1]}}, current_pixel_y[9:8]}; // Default color (black)
+  color_to_vga_driver = 8'h00; // Default color (black)
   if (current_pixel_x >= posx && current_pixel_x < posx + 100 &&
       current_pixel_y >= posy && current_pixel_y < posy + 100) begin
     color_to_vga_driver =  currentstate == 4'd0 ? 8'b11100000 : // Idle state color (red)

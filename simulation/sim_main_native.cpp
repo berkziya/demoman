@@ -1,134 +1,25 @@
 #include "DutController.h"
 #include "InputHandler.h" // Include the new InputHandler
 #include "SdlVideo.h"
-#include "SimConfig.h"
+#include "SimConfig.h" // Still needed for SCREEN_WIDTH, SCREEN_HEIGHT, CYCLES_PER_VGA_FRAME etc.
 
-#include <SDL_ttf.h>
+// TTF includes are no longer needed if the status window was the only user
+// #include <SDL_ttf.h>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
-TTF_Font* g_status_font_native = nullptr;
-SdlVideo* g_status_window_native = nullptr;
+// Removed global variables for the status window and its font
+// TTF_Font* g_status_font_native = nullptr;
+// SdlVideo* g_status_window_native = nullptr;
 
-// Helper function to render text (specific to native status window)
-void renderTextNative(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, int x, int y, SDL_Color color)
-{
-    if (!font || !renderer)
-        return;
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), color);
-    if (!surface) {
-        std::cerr << "Native Status: Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        return;
-    }
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (!texture) {
-        std::cerr << "Native Status: Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << std::endl;
-        SDL_FreeSurface(surface);
-        return;
-    }
-    SDL_Rect dstRect = { x, y, surface->w, surface->h };
-    SDL_RenderCopy(renderer, texture, nullptr, &dstRect);
-    SDL_FreeSurface(surface);
-    SDL_DestroyTexture(texture);
-}
+// Removed helper function renderTextNative as it was specific to the status window
+// void renderTextNative(...) { ... }
 
-// Function to render the status of DUT inputs (specific to native)
-void renderDutStatusNative(SdlVideo* status_display, TTF_Font* font, DutController& dut_ctrl)
-{
-    if (!status_display || !status_display->is_initialized() || !font)
-        return;
-
-    SDL_Renderer* renderer = status_display->get_renderer();
-    SDL_SetRenderDrawColor(renderer, 0x33, 0x33, 0x33, 0xFF); // Dark grey background
-    SDL_RenderClear(renderer);
-
-    SDL_Color textColor = { 0xFF, 0xFF, 0xFF, 0xFF }; // White
-    SDL_Color keyLowColor = { 0xFF, 0x00, 0x00, 0xFF }; // Red for KEY LOW
-    SDL_Color keyHighColor = { 0x00, 0xFF, 0x00, 0xFF }; // Green for KEY HIGH
-    SDL_Color swOnColor = { 0x00, 0xFF, 0x00, 0xFF }; // Green for SW ON
-    SDL_Color swOffColor = { 0xFF, 0x00, 0x00, 0xFF }; // Red for SW OFF
-
-    Vdemoman* dut_instance = dut_ctrl.get_dut_instance();
-    if (!dut_instance)
-        return;
-
-    int y_offset = 10;
-    const int line_height = FONT_SIZE + 2; // Adjust based on font size
-    const int item_padding_y = 5;
-    const int section_spacing_y = line_height + 10;
-    const int text_x_start = 15;
-
-    renderTextNative(renderer, font, "Inputs Status:", text_x_start, y_offset, textColor);
-    y_offset += line_height + section_spacing_y;
-
-    renderTextNative(renderer, font, "Switches (Kbd: 1-9 for SW9-1, 0 for SW0 - Toggle):", text_x_start, y_offset, textColor);
-    y_offset += line_height + item_padding_y;
-
-    int current_x = text_x_start;
-    const int switch_block_width = 48;
-
-    for (int i = 9; i >= 0; --i) { // Render SW9 down to SW0
-        char kbd_char = (i == 0) ? '0' : ('0' + (10 - i));
-        renderTextNative(renderer, font, std::string(1, kbd_char), current_x + (switch_block_width / 2) - (FONT_SIZE / 3), y_offset, textColor);
-        // Move current_x for the next character
-        current_x += switch_block_width;
-    }
-    y_offset += line_height; // Move to next line for "SWx" labels
-
-    current_x = text_x_start; // Reset x for "SWx" labels
-    for (int i = 9; i >= 0; --i) {
-        std::string sw_label_str = "SW" + std::to_string(i);
-        renderTextNative(renderer, font, sw_label_str, current_x + 2, y_offset, textColor);
-        current_x += switch_block_width;
-    }
-    y_offset += line_height; // Move to next line for "ON/OFF" status
-
-    current_x = text_x_start; // Reset x for "ON/OFF" status
-    for (int i = 9; i >= 0; --i) {
-        bool swIsActive = (dut_instance->SW >> i) & 1;
-        std::string status_text = swIsActive ? "ON" : "OFF";
-        // Approximate centering
-        int text_width_approx = status_text.length() * FONT_SIZE / 2; // Rough estimate
-        renderTextNative(renderer, font, status_text, current_x + (switch_block_width / 2) - (text_width_approx / 2), y_offset, swIsActive ? swOnColor : swOffColor);
-        current_x += switch_block_width;
-    }
-    y_offset += line_height + section_spacing_y; // Move to next section
-
-    renderTextNative(renderer, font, "Keys (Kbd: U,I,O,P for KEY3-0 - Press/Release):", text_x_start, y_offset, textColor);
-    y_offset += line_height + item_padding_y;
-    current_x = text_x_start; // Reset x for KEY section
-    const int key_block_width = 75;
-    char key_kbd_map[] = { 'U', 'I', 'O', 'P' }; // For KEY3, KEY2, KEY1, KEY0
-
-    for (int i = 3; i >= 0; --i) { // KEY3 down to KEY0
-        renderTextNative(renderer, font, std::string(1, key_kbd_map[3 - i]), current_x + (key_block_width / 2) - (FONT_SIZE / 3), y_offset, textColor);
-        // Move current_x for the next character
-        current_x += key_block_width;
-    }
-    y_offset += line_height; // Move to next line for "KEYx" labels
-
-    current_x = text_x_start; // Reset x for "KEYx" labels
-    for (int i = 3; i >= 0; --i) {
-        std::string key_label_str = "KEY" + std::to_string(i);
-        renderTextNative(renderer, font, key_label_str, current_x + 2, y_offset, textColor);
-        current_x += key_block_width;
-    }
-    y_offset += line_height; // Move to next line for "LOW/HIGH" status
-
-    current_x = text_x_start; // Reset x for "LOW/HIGH" status
-    for (int i = 3; i >= 0; --i) {
-        bool isLow = (~(dut_instance->KEY >> i) & 1); // KEYs are active low
-        std::string status_text = isLow ? "LOW" : "HIGH";
-        // Approximate centering
-        int text_width_approx = status_text.length() * FONT_SIZE / 2; // Rough estimate
-        renderTextNative(renderer, font, status_text, current_x + (key_block_width / 2) - (text_width_approx / 2), y_offset, isLow ? keyLowColor : keyHighColor);
-        current_x += key_block_width;
-    }
-    SDL_RenderPresent(renderer);
-}
+// Removed function to render the status of DUT inputs as it's for the status window
+// void renderDutStatusNative(...) { ... }
 
 int main(int argc, char* argv[])
 {
@@ -136,36 +27,38 @@ int main(int argc, char* argv[])
         std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
         return 1;
     }
-    if (TTF_Init() == -1) {
-        std::cerr << "TTF_Init failed: " << TTF_GetError() << std::endl;
-        SDL_Quit();
-        return 1;
-    }
+    // TTF_Init is no longer needed if it was only for the status window
+    // if (TTF_Init() == -1) {
+    //     std::cerr << "TTF_Init failed: " << TTF_GetError() << std::endl;
+    //     SDL_Quit();
+    //     return 1;
+    // }
 
-    // Use FONT_PATH and FONT_SIZE from SimConfig.h
-    g_status_font_native = TTF_OpenFont(FONT_PATH, FONT_SIZE);
-    if (!g_status_font_native) {
-        std::cerr << "Failed to load font '" << FONT_PATH << "': " << TTF_GetError() << std::endl;
-    }
+    // Removed font loading for the status window
+    // g_status_font_native = TTF_OpenFont(FONT_PATH, FONT_SIZE);
+    // if (!g_status_font_native) {
+    //     std::cerr << "Failed to load font '" << FONT_PATH << "': " << TTF_GetError() << std::endl;
+    // }
 
     DutController dut_controller(argc, argv);
     SdlVideo main_screen("Native Verilator VGA Sim", SCREEN_WIDTH, SCREEN_HEIGHT, true);
     InputHandler input_handler; // Create InputHandler instance
 
     if (!main_screen.initialize(false)) {
-        if (g_status_font_native)
-            TTF_CloseFont(g_status_font_native);
-        TTF_Quit();
+        // Removed font cleanup here as font is not loaded
+        // if (g_status_font_native) TTF_CloseFont(g_status_font_native);
+        // TTF_Quit(); // Remove if TTF is not used elsewhere
         SDL_Quit();
         return 1;
     }
 
-    g_status_window_native = new SdlVideo("Verilog Inputs Status", STATUS_WINDOW_WIDTH, STATUS_WINDOW_HEIGHT, false);
-    if (g_status_font_native && !g_status_window_native->initialize(false)) {
-        std::cerr << "Failed to initialize status window. Continuing without it." << std::endl;
-        delete g_status_window_native;
-        g_status_window_native = nullptr;
-    }
+    // Removed creation and initialization of the status window
+    // g_status_window_native = new SdlVideo("Verilog Inputs Status", STATUS_WINDOW_WIDTH, STATUS_WINDOW_HEIGHT, false);
+    // if (g_status_font_native && !g_status_window_native->initialize(false)) {
+    //     std::cerr << "Failed to initialize status window. Continuing without it." << std::endl;
+    //     delete g_status_window_native;
+    //     g_status_window_native = nullptr;
+    // }
 
     std::vector<uint32_t> pixel_buffer(static_cast<size_t>(SCREEN_WIDTH) * SCREEN_HEIGHT, 0xFF000000);
     bool running = true;
@@ -194,13 +87,15 @@ int main(int argc, char* argv[])
                 running = false; // Quit signaled by InputHandler (SDL_QUIT, ESC)
             }
 
-            // Handle specific window events separately
+            // Handle specific window events
             if (e.type == SDL_WINDOWEVENT) {
                 if (main_screen.get_window() && e.window.windowID == SDL_GetWindowID(main_screen.get_window()) && e.window.event == SDL_WINDOWEVENT_CLOSE) {
                     running = false; // Main window closed
-                } else if (g_status_window_native && g_status_window_native->get_window() && e.window.windowID == SDL_GetWindowID(g_status_window_native->get_window()) && e.window.event == SDL_WINDOWEVENT_CLOSE) {
-                    SDL_HideWindow(g_status_window_native->get_window()); // Just hide status window
                 }
+                // Removed event handling for the status window closure
+                // else if (g_status_window_native && g_status_window_native->get_window() && e.window.windowID == SDL_GetWindowID(g_status_window_native->get_window()) && e.window.event == SDL_WINDOWEVENT_CLOSE) {
+                //     SDL_HideWindow(g_status_window_native->get_window()); // Just hide status window
+                // }
             }
         }
         if (!running)
@@ -219,11 +114,13 @@ int main(int argc, char* argv[])
             uint8_t r, g, b;
             bool active_display;
             if (dut_controller.get_vga_pixel_state(x, y, r, g, b, active_display)) {
-                pixel_buffer[static_cast<size_t>(y) * SCREEN_WIDTH + x] = (0xFFU << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
+                if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) { // Bounds check
+                    pixel_buffer[static_cast<size_t>(y) * SCREEN_WIDTH + x] = (0xFFU << 24) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(g) << 8) | static_cast<uint32_t>(b);
+                }
             }
 
             bool current_vsync = dut_controller.is_vsync_active();
-            if (last_vsync_state && !current_vsync) {
+            if (last_vsync_state && !current_vsync) { // Falling edge of VSYNC
                 main_screen.update_frame(pixel_buffer);
                 frame_rendered_on_vsync = true;
                 frame_counter++;
@@ -234,14 +131,17 @@ int main(int argc, char* argv[])
         if (!running)
             break;
 
+        // If the frame wasn't rendered due to VSYNC timing (e.g., simulation ended mid-frame)
+        // still update to show the last state.
         if (!frame_rendered_on_vsync) {
             main_screen.update_frame(pixel_buffer);
             frame_counter++;
         }
 
-        if (g_status_window_native && g_status_window_native->is_initialized() && g_status_font_native && (SDL_GetWindowFlags(g_status_window_native->get_window()) & SDL_WINDOW_SHOWN)) {
-            renderDutStatusNative(g_status_window_native, g_status_font_native, dut_controller);
-        }
+        // Removed rendering call for the status window
+        // if (g_status_window_native && g_status_window_native->is_initialized() && g_status_font_native && (SDL_GetWindowFlags(g_status_window_native->get_window()) & SDL_WINDOW_SHOWN)) {
+        //     renderDutStatusNative(g_status_window_native, g_status_font_native, dut_controller);
+        // }
 
         Uint32 current_time_ms = SDL_GetTicks();
         if (current_time_ms - fps_timer_start_ms >= FPS_UPDATE_INTERVAL_MS) {
@@ -262,10 +162,12 @@ int main(int argc, char* argv[])
     }
 
     std::cout << "Native simulation loop finished. Cleaning up..." << std::endl;
-    if (g_status_font_native)
-        TTF_CloseFont(g_status_font_native);
-    delete g_status_window_native;
-    TTF_Quit();
+    // Removed cleanup for status window font and object
+    // if (g_status_font_native) TTF_CloseFont(g_status_font_native);
+    // delete g_status_window_native;
+
+    // TTF_Quit is no longer needed if it was only for the status window
+    // TTF_Quit();
     SDL_Quit();
     return 0;
 }

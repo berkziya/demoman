@@ -6,8 +6,30 @@ module player #(
   input            left, right, attack,
   output reg [9:0] posx,
   output reg [9:0] posy,
-  output reg [3:0] current_state
+  output reg [3:0] current_state,
+  
+  output wire [9:0] basic_hithurtbox_x1,
+  output wire [9:0] basic_hithurtbox_x2,
+  output wire [9:0] basic_hithurtbox_y1,
+  output wire [9:0] basic_hithurtbox_y2,
+
+  output wire [9:0] main_hurtbox_x1,
+  output wire [9:0] main_hurtbox_x2,
+  output wire [9:0] main_hurtbox_y1,
+  output wire [9:0] main_hurtbox_y2
 );
+
+assign basic_hithurtbox_x1 = posx + 37;
+assign basic_hithurtbox_x2 = posx + 113;
+assign basic_hithurtbox_y1 = posy + 24;
+assign basic_hithurtbox_y2 = posy + 57;
+
+assign main_hurtbox_x1 = (~SIDE) ? (posx + 37) : (posx + 86);
+assign main_hurtbox_x2 = (~SIDE) ? (posx + 86) : (posx + 37);
+assign main_hurtbox_y1 = posy;
+assign main_hurtbox_y2 = posy + 150;
+
+
 parameter LEFT = 1'b0;
 parameter RIGHT = 1'b1;
 
@@ -33,6 +55,8 @@ counter #(
   .control(2'b01),
   .count(counter)
 );
+
+
 
 always @(posedge clk or posedge rst) begin
   if (rst) current_state <= S_IDLE;

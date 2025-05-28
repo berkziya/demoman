@@ -59,9 +59,7 @@ module demoman(
 //=======================================================
 
 wire left, right, attack;
-assign left = ~KEY[3];   // Left key pressed
-assign right = ~KEY[2];  // Right key pressed
-assign attack = ~KEY[1]; // Attack key pressed
+
 
 wire effective_clk;
 wire [9:0] posx; // Player's X position
@@ -73,9 +71,21 @@ wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
 wire       clk_60hz;
 
+wire [15:0] pixel_data, pixel_data_idle, pixel_data_move, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull;
+wire [15:0] sprite_height, sprite_width;
+wire [15:0] sprite_height_idle, sprite_width_idle;
+wire [15:0] sprite_height_move, sprite_width_move;
+wire [15:0] sprite_height_attack_start, sprite_width_attack_start;
+wire [15:0] sprite_height_attack_end, sprite_width_attack_end;
+wire [15:0] sprite_height_attack_pull, sprite_width_attack_pull;
+
 //=======================================================
 //  Structural coding
 //=======================================================
+assign left = ~KEY[3];   // Left key pressed
+assign right = ~KEY[2];  // Right key pressed
+assign attack = ~KEY[1]; // Attack key pressed
+
 
 assign DEBUG_X = current_pixel_x;
 assign DEBUG_Y = current_pixel_y;
@@ -118,6 +128,7 @@ vga_driver vga_inst (
 assign effective_clk = SW[1] ? clk_60hz : ~KEY[0];
 
 wire [3:0] currentstate;
+
 player #(1'b0) Player1 (
   .clk(effective_clk),
   .rst(1'b0),
@@ -142,5 +153,86 @@ always @(*) begin
                            8'h00; // Default color
   end
 end
+
+
+rom #(HEX_FILE("rom_data_idle.hex")) rom_inst (
+  .clk(effective_clk),
+  .rst(1'b0),
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .posx(posx), // Player's X position
+  .posy(posy), // Player's Y position
+  .sprite_height(sprite_height_idle), // Height of the sprite
+  .sprite_width(sprite_width_idle), // Width of the sprite
+  .data(pixel_data_idle)
+);
+
+rom #(HEX_FILE("rom_data_move.hex")) rom_move_inst (
+  .clk(effective_clk),
+  .rst(1'b0),
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .posx(posx), // Player's X position
+  .posy(posy), // Player's Y position
+  .sprite_height(sprite_height_move), // Height of the sprite
+  .sprite_width(sprite_width_move), // Width of the sprite
+  .data(pixel_data_move)
+);
+
+rom #(HEX_FILE("rom_data_attack_start.hex")) rom_attack_start_inst (
+  .clk(effective_clk),
+  .rst(1'b0),
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .posx(posx), // Player's X position
+  .posy(posy), // Player's Y position
+  .sprite_height(sprite_height_attack_start), // Height of the sprite
+  .sprite_width(sprite_width_attack_start), // Width of the sprite
+  .data(pixel_data_attack_start)
+);
+
+rom #(HEX_FILE("rom_data_attack_end.hex")) rom_attack_end_inst (
+  .clk(effective_clk),
+  .rst(1'b0),
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .posx(posx), // Player's X position
+  .posy(posy), // Player's Y position
+  .sprite_height(sprite_height_attack_end), // Height of the sprite
+  .sprite_width(sprite_width_attack_end), // Width of the sprite
+  .data(pixel_data_attack_end)
+);
+rom #(HEX_FILE("rom_data_attack_pull.hex")) rom_attack_pull_inst (
+  .clk(effective_clk),
+  .rst(1'b0),
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .posx(posx), // Player's X position
+  .posy(posy), // Player's Y position
+  .sprite_height(sprite_height_attack_pull), // Height of the sprite
+  .sprite_width(sprite_width_attack_pull), // Width of the sprite
+  .data(pixel_data_attack_pull)
+);
+
+always @(*) begin
+  case (currentstate)
+    4'd0: begin pixel_data = pixel_data_idle; sprite_height = sprite_height_idle; sprite_width = sprite_width_idle; end // Idle state
+    4'd1 | 4'd2: begin pixel_data = pixel_data_move; sprite_height = sprite_height_move; sprite_width = sprite_width_move; end // Move forward/backward
+    4'd3: begin pixel_data = pixel_data_attack_start; sprite_height = sprite_height_attack_start; sprite_width = sprite_width_attack_start; end // Attack start
+    4'd4: begin pixel_data = pixel_data_attack_end; sprite_height = sprite_height_attack_end; sprite_width = sprite_width_attack_end; end // Attack end
+    4'd5: begin pixel_data = pixel_data_attack_pull; sprite_height = sprite_height_attack_pull; sprite_width = sprite_width_attack_pull; end // Attack pull
+    default: pixel_data = 16'h0000_1111_1111; // Default color (black)
+  endcase
+end
+
+
+assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
+                          current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
+
+assign color_to_vga_driver = inside_sprite ? {
+  pixel_data[15:11], // Red component
+  pixel_data[10:5],  // Green component
+  pixel_data[4:0]    // Blue component
+} : 8'h00; // Background color (dark gray)
 
 endmodule

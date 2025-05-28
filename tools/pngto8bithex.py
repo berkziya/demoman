@@ -19,9 +19,16 @@ def image_to_hex(image_path, output_path):
     try:
         # Open the image and convert to RGBA to access the alpha channel
         img = Image.open(image_path).convert("RGBA")
+        width, height = img.size  # Get image dimensions
         pixels = list(img.getdata())  # Get data as (R, G, B, A) tuples
 
         with open(output_path, "w") as f:
+            # Write width and height as 4-character hex strings each
+            # This allows for dimensions up to 65535x65535
+            f.write(f"{width:02X}")
+            f.write(f"{height:02X}")
+
+            # Write pixel data
             for r, g, b, a in pixels:
                 if a == 0:  # Check if the pixel is fully transparent
                     f.write(TRANSPARENT_HEX_CODE)
@@ -29,6 +36,10 @@ def image_to_hex(image_path, output_path):
                     # For non-transparent or semi-transparent pixels, use RRRGGGBB
                     hex_val_numeric = rgb_to_rrrgggbb(r, g, b)
                     f.write(f"{hex_val_numeric:02X}")
+
+        print(
+            f"Successfully converted '{image_path}' ({width}x{height}) to '{output_path}'"
+        )
 
     except FileNotFoundError:
         print(f"Error: Input image '{image_path}' not found.")
@@ -50,6 +61,7 @@ if __name__ == "__main__":
         print(f"Error: Input file '{input_path}' does not exist or is not a file.")
         sys.exit(1)
 
+    # Generate output path based on input path
     output_path = os.path.splitext(input_path)[0] + ".hex"
 
     image_to_hex(input_path, output_path)

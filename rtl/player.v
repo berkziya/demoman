@@ -5,7 +5,8 @@ module player #(
   input            rst,
   input            left, right, attack,
   output reg [9:0] posx,
-  output reg [9:0] posy
+  output reg [9:0] posy,
+  output [3:0] currentstate
 );
 parameter LEFT = 1'b0;
 parameter RIGHT = 1'b1;
@@ -19,7 +20,8 @@ parameter S_B_ATTACK_PULL = 3'd5;
 
 reg [2:0] CS, NS;
 
-wire [4:0] counter;
+wire [10:0] counter;
+
 reg        rst_counter;
 
 counter #(
@@ -36,11 +38,9 @@ parameter P_SPEED = 1;
 always @(posedge clk or posedge rst) begin
   if (rst) CS <= S_IDLE;
   else CS <= NS;
-  rst_counter = 1'b0;
 end
 
-always @(posedge clk or posedge rst) begin
-  NS = S_IDLE;
+always @(*) begin
   case (CS)
     S_IDLE, S_MOVEFORWARD, S_MOVEBACKWARDS: begin
       if (left && ~right) NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
@@ -52,22 +52,36 @@ always @(posedge clk or posedge rst) begin
       end else NS = S_IDLE;
     end
     S_B_ATTACK_START: begin
+	  rst_counter = 1'b0;
       if (counter < 4) NS = S_B_ATTACK_START;
-      else NS = S_B_ATTACK_END;
+      else 
+		begin
+			rst_counter = 1'b1;
+			NS = S_B_ATTACK_END;
+		end
     end
     S_B_ATTACK_END: begin
       if (counter < 1) NS = S_B_ATTACK_END;
-      else NS = S_B_ATTACK_PULL;
+      else 
+		begin
+			rst_counter = 1'b1;
+			NS = S_B_ATTACK_PULL;
+		end
     end
     S_B_ATTACK_PULL: begin
+	  rst_counter = 1'b0;
       if (counter < 15) NS = S_B_ATTACK_PULL;
-      else NS = S_IDLE;
+      else 
+		begin
+			rst_counter = 1'b1;
+			NS = S_IDLE;
+		end
     end
     default: NS = S_IDLE;
   endcase
 end
 
-always @(posedge clk or posedge rst) begin
+always @(*) begin
   if (rst) begin
     posx <= SIDE == LEFT ? 10'd210 : 10'd420;
     posy <= 10'd240;
@@ -75,26 +89,25 @@ always @(posedge clk or posedge rst) begin
     case (CS)
       S_IDLE: begin
         posx <= posx;
-        posy <= posy;
       end
       S_MOVEFORWARD: begin
-        // if (SIDE == LEFT) posx <= posx - P_SPEED;
-        // else posx <= posx + P_SPEED;
-        // posy <= posy;
+        if (SIDE == LEFT) posx <= posx - P_SPEED;
+        else posx <= posx + P_SPEED;
+
       end
       S_MOVEBACKWARDS: begin
-        // if (SIDE == LEFT) posx <= posx + P_SPEED;
-        // else posx <= posx - P_SPEED;
-        // posy <= posy;
+        if (SIDE == LEFT) posx <= posx + P_SPEED;
+        else posx <= posx - P_SPEED;
+
       end
       S_B_ATTACK_START: begin
-        // todo
+        posx <= posx;
       end
       S_B_ATTACK_END: begin
-        // todo
+        posx <= posx;
       end
       S_B_ATTACK_PULL: begin
-        // todo
+        posx <= posx;
       end
       default: begin
         posx <= posx;

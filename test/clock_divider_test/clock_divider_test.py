@@ -14,11 +14,11 @@ async def clock_divider_test(dut):
 
     cocotb.start_soon(clock.start(start_high=False))
 
-    dut.rst_i.value = 0
+    dut.rst.value = 0
     await Timer(1, units="us")
-    dut.rst_i.value = 1
+    dut.rst.value = 1
     await Timer(1, units="us")
-    dut.rst_i.value = 0
+    dut.rst.value = 0
 
     for i in range(1, DIV * 10):
         await RisingEdge(dut.clk)

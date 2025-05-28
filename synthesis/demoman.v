@@ -59,18 +59,15 @@ module demoman(
 //=======================================================
 
 wire left, right, attack;
-assign left = ~KEY[0];   // Left key pressed
-assign right = ~KEY[1];  // Right key pressed
-assign attack = ~KEY[2]; // Attack key pressed
+assign left = ~KEY[3];   // Left key pressed
+assign right = ~KEY[2];  // Right key pressed
+assign attack = ~KEY[1]; // Attack key pressed
 
 wire effective_clk;
 wire [9:0] posx; // Player's X position
 wire [9:0] posy; // Player's Y position
 
-wire [7:0] char_color;
-
-
-wire [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
+reg  [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
@@ -91,6 +88,14 @@ clock_divider #(
   .clk_o(clk_25mhz)
 );
 
+clock_divider #(
+  .DIV(83333) // 50 MHz to 60 Hz
+) clk_60hz_inst (
+  .clk(CLOCK_50),
+  .rst(reset),
+  .clk_o(clk_60hz)
+);
+
 // Instantiate the VGA driver
 vga_driver vga_inst (
   .clock(clk_25mhz),
@@ -108,30 +113,34 @@ vga_driver vga_inst (
   .blank(VGA_BLANK_N)             // Output: High during active display period
 );
 
-assign clk_60hz = current_pixel_y == 10'd479 && current_pixel_x == 10'd639;
+// assign clk_60hz = current_pixel_y == 10'd479;
 
-assign effective_clk = SW[1] ? clk_60hz : KEY[3];
+assign effective_clk = SW[1] ? clk_60hz : ~KEY[0];
 
-player #(1'b0) Player1(
-		.clk(effective_clk),
-		.rst(1'b0),
-		.left(left),
-		.right(right),
-		.attack(attack),
-		.posx(posx),
-		.posy(posy)
-	);
+wire [3:0] currentstate;
+player #(1'b0) Player1 (
+  .clk(effective_clk),
+  .rst(1'b0),
+  .left(left),
+  .right(right),
+  .attack(attack),
+  .posx(posx),
+  .posy(posy),
+  .current_state(currentstate)
+);
 
-  always @(*) begin
-    // Set the color based on the player's position
-    if (current_pixel_x >= posx && current_pixel_x < posx + 10 &&
-        current_pixel_y >= posy && current_pixel_y < posy + 10) begin
-      color_to_vga_driver = char_color; // Player's color (white)
-    end else begin
-      color_to_vga_driver = 8'h00; // Background color (black)
-    end
+always @(*) begin
+  color_to_vga_driver = 8'h00; // Background color (dark gray)
+  if (current_pixel_x >= posx && current_pixel_x < posx + 100 &&
+      current_pixel_y >= posy && current_pixel_y < posy + 100) begin
+    color_to_vga_driver =  currentstate == 4'd0 ? 8'b11100000 : // Idle state color (red)
+                           currentstate == 4'd1 ? 8'b00001111 : // Move forward (blue)
+                           currentstate == 4'd2 ? 8'b11110000 : // Move backward (yellow)
+                           currentstate == 4'd3 ? 8'b00011111 : // Attack start (cyan)
+                           currentstate == 4'd4 ? 8'b11111100 : // Attack end (light green)
+                           currentstate == 4'd5 ? 8'b11111111 : // Attack pull (white)
+                           8'h00; // Default color
   end
-
-  
+end
 
 endmodule

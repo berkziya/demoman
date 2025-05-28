@@ -43,7 +43,8 @@ player #(
   .right(GPIO[6]),
   .attack(GPIO[8]),
   .posx(player1_posx),
-  .posy(player1_posy)
+  .posy(player1_posy),
+  .current_state()
 );
 
 wire player2_left, player2_right, player2_attack;
@@ -61,7 +62,8 @@ player #(
   .right(player2_right),
   .attack(player2_attack),
   .posx(player2_posx),
-  .posy(player2_posy)
+  .posy(player2_posy),
+  .current_state()
 );
 
 always @(posedge effective_clk or posedge reset) begin

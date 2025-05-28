@@ -3,7 +3,7 @@ CWD=$(shell pwd)
 SIM ?= icarus
 TOPLEVEL_LANG ?=verilog
 
-VERILOG_SOURCES = $(wildcard ../../rtl/*.v ../../rtl/*/*.v ../../rtl/*/*/*.v ../../synthesis/demoman.v)
+VERILOG_SOURCES = $(wildcard ../../rtl/utils/clock_divider.v ../../rtl/utils/counter.v)
 
 TOPLEVEL = clock_divider
 MODULE := clock_divider_test

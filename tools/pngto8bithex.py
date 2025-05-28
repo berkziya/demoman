@@ -23,7 +23,8 @@ def image_to_hex(image_path, output_path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        input_path = sys.argv[1]
-        output_path = os.path.splitext(input_path)[0] + ".hex"
-        image_to_hex(input_path, output_path)
+    if len(sys.argv) < 2:
+        exit("Usage: python pngto8bithex.py <image_file>")
+    input_path = sys.argv[1]
+    output_path = os.path.splitext(input_path)[0] + ".hex"
+    image_to_hex(input_path, output_path)

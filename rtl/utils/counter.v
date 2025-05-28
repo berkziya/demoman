@@ -15,7 +15,7 @@ module counter # (
       case (control)
         INC: count <= count + 1'b1;
         DEC: count <= count - 1'b1;
-        default: count <= count; // hold
+        default: ; // hold
       endcase
     end
   end

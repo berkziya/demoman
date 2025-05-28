@@ -58,6 +58,18 @@ module demoman(
 //  REG/WIRE declarations
 //=======================================================
 
+wire left, right, attack;
+assign left = ~KEY[0];   // Left key pressed
+assign right = ~KEY[1];  // Right key pressed
+assign attack = ~KEY[2]; // Attack key pressed
+
+wire effective_clk;
+wire [9:0] posx; // Player's X position
+wire [9:0] posy; // Player's Y position
+
+wire [7:0] char_color;
+
+
 wire [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
@@ -97,5 +109,29 @@ vga_driver vga_inst (
 );
 
 assign clk_60hz = current_pixel_y == 10'd479 && current_pixel_x == 10'd639;
+
+assign effective_clk = SW[1] ? clk_60hz : KEY[3];
+
+player #(1'b0) Player1(
+		.clk(effective_clk),
+		.rst(1'b0),
+		.left(left),
+		.right(right),
+		.attack(attack),
+		.posx(posx),
+		.posy(posy)
+	);
+
+  always @(*) begin
+    // Set the color based on the player's position
+    if (current_pixel_x >= posx && current_pixel_x < posx + 10 &&
+        current_pixel_y >= posy && current_pixel_y < posy + 10) begin
+      color_to_vga_driver = char_color; // Player's color (white)
+    end else begin
+      color_to_vga_driver = 8'h00; // Background color (black)
+    end
+  end
+
+  
 
 endmodule

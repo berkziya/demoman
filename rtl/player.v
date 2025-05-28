@@ -57,7 +57,7 @@ counter #(
 );
 
 always @(posedge clk or posedge rst) begin
-  $display("State: %d, Counter: %d, Counter Reset: %b", current_state, counter, rst_counter);
+  // $display("State: %d, Counter: %d, Counter Reset: %b", current_state, counter, rst_counter);
   if (rst) current_state <= S_IDLE;
   else current_state <= NS;
   rst_counter = 1'b0;

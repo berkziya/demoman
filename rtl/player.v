@@ -5,7 +5,7 @@ module player #(
   input            rst,
   input            left, right, attack,
   output reg [9:0] posx,
-  output [9:0] posy,
+  output     [9:0] posy,
   output reg [3:0] current_state,
 
   output wire [9:0] basic_hithurtbox_x1,
@@ -19,9 +19,7 @@ module player #(
   output wire [9:0] main_hurtbox_y2
 );
 
-
 assign posy = 10'd170; // Fixed Y position for the player
-
 
 assign basic_hithurtbox_x1 = posx + 37;
 assign basic_hithurtbox_x2 = posx + 113;
@@ -33,17 +31,17 @@ assign main_hurtbox_x2 = (~SIDE) ? (posx + 86) : (posx + 37);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
-parameter LEFT = 1'b0;
-parameter RIGHT = 1'b1;
+localparam LEFT = 1'b0;
+localparam RIGHT = 1'b1;
 
-parameter S_IDLE = 4'd0;
-parameter S_MOVEFORWARD = 4'd1;
-parameter S_MOVEBACKWARDS = 4'd2;
-parameter S_B_ATTACK_START = 4'd3;
-parameter S_B_ATTACK_END = 4'd4;
-parameter S_B_ATTACK_PULL = 4'd5;
+localparam S_IDLE = 4'd0;
+localparam S_MOVEFORWARD = 4'd1;
+localparam S_MOVEBACKWARDS = 4'd2;
+localparam S_B_ATTACK_START = 4'd3;
+localparam S_B_ATTACK_END = 4'd4;
+localparam S_B_ATTACK_PULL = 4'd5;
 
-parameter P_SPEED = 15;
+localparam P_SPEED = 15;
 
 reg [3:0] NS;
 

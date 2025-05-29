@@ -15,13 +15,13 @@ module rom #(parameter MIF_FILE = ".hex") (
 	wire [7:0] rom_sprite;
     wire [9:0] relative_x = current_pixel_x - posx;
     wire [9:0] relative_y = current_pixel_y - posy;
-    wire [15:0] addr;
+    wire [14:0] addr;
 
     localparam [7:0] TRANSPARENT_COLOR = 8'b11100011; // Transparent color value
     
     wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width) &&
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-    assign addr = (relative_y * 150) + relative_x; // Calculate address in ROM
+    assign addr = (relative_y * 15'd150) + relative_x; // Calculate address in ROM
     
     rom_demo rom_demo_inst (
         .address(addr),

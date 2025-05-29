@@ -13,32 +13,32 @@ module vga_driver (
   output       clk,      // CLK to VGA connector
   output       blank     // BLANK to VGA connector
 );
-  // Horizontal parameters (measured in clock cycles)
-  parameter [9:0] H_ACTIVE = 10'd639;
-  parameter [9:0] H_FRONT  = 10'd15;
-  parameter [9:0] H_PULSE  = 10'd95;
-  parameter [9:0] H_BACK   = 10'd47;
+  // Horizontal localparams (measured in clock cycles)
+  localparam [9:0] H_ACTIVE = 10'd639;
+  localparam [9:0] H_FRONT  = 10'd15;
+  localparam [9:0] H_PULSE  = 10'd95;
+  localparam [9:0] H_BACK   = 10'd47;
 
-  // Vertical parameters (measured in lines)
-  parameter [9:0] V_ACTIVE =  10'd479;
-  parameter [9:0] V_FRONT  =  10'd9;
-  parameter [9:0] V_PULSE  =  10'd1;
-  parameter [9:0] V_BACK   =  10'd32;
+  // Vertical localparams (measured in lines)
+  localparam [9:0] V_ACTIVE =  10'd479;
+  localparam [9:0] V_FRONT  =  10'd9;
+  localparam [9:0] V_PULSE  =  10'd1;
+  localparam [9:0] V_BACK   =  10'd32;
 
-  // Parameters for readability
-  parameter LOW  = 1'b0;
-  parameter HIGH = 1'b1;
+  // localparams for readability
+  localparam LOW  = 1'b0;
+  localparam HIGH = 1'b1;
 
   // States (more readable)
-  parameter [1:0] H_ACTIVE_STATE = 2'd0;
-  parameter [1:0] H_FRONT_STATE  = 2'd1;
-  parameter [1:0] H_PULSE_STATE  = 2'd2;
-  parameter [1:0] H_BACK_STATE   = 2'd3;
+  localparam [1:0] H_ACTIVE_STATE = 2'd0;
+  localparam [1:0] H_FRONT_STATE  = 2'd1;
+  localparam [1:0] H_PULSE_STATE  = 2'd2;
+  localparam [1:0] H_BACK_STATE   = 2'd3;
 
-  parameter [1:0] V_ACTIVE_STATE = 2'd0;
-  parameter [1:0] V_FRONT_STATE  = 2'd1;
-  parameter [1:0] V_PULSE_STATE  = 2'd2;
-  parameter [1:0] V_BACK_STATE   = 2'd3;
+  localparam [1:0] V_ACTIVE_STATE = 2'd0;
+  localparam [1:0] V_FRONT_STATE  = 2'd1;
+  localparam [1:0] V_PULSE_STATE  = 2'd2;
+  localparam [1:0] V_BACK_STATE   = 2'd3;
 
   // Clocked registers
   reg       hysnc_reg;

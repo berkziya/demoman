@@ -58,7 +58,18 @@ module demoman(
 //  REG/WIRE declarations
 //=======================================================
 
+<<<<<<< Updated upstream
 wire [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
+=======
+//wire left, right, attack;
+wire [3:0] currentstate;
+
+wire effective_clk;
+wire [9:0] posx; // Player's X position
+wire [9:0] posy; // Player's Y position
+
+reg  [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
+>>>>>>> Stashed changes
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;

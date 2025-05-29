@@ -23,6 +23,7 @@ module clock_divider # (
       state <= INC;
       clk_o <= 1'b0;
     end
+	 else begin
     case (state)
       INC:if (count == DIV - 1'b1) begin
         state <= DEC;
@@ -37,5 +38,6 @@ module clock_divider # (
         clk_o <= 1'b0;
       end
     endcase
+	 end
   end
 endmodule

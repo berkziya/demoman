@@ -23,10 +23,6 @@ def image_to_hex(image_path, output_path):
         pixels = list(img.getdata())  # Get data as (R, G, B, A) tuples
 
         with open(output_path, "w") as f:
-            # Write width and height as 4-character hex strings each
-            # This allows for dimensions up to 65535x65535
-            f.write(f"{width:04X}")
-            f.write(f"{height:04X}")
 
             # Write pixel data
             for r, g, b, a in pixels:

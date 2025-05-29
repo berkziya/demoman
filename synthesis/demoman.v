@@ -143,20 +143,6 @@ player #(1'b0) Player1 (
 //   end
 // end
 
-rom #(.MIF_FILE("../sprites/aaa7.mif")) rom_idle_inst (
-  // ROM for idle state
-  .clk(CLOCK_50),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_idle), // Visibility flag for idle state
-  .data(pixel_data_idle)
-);
-
 rom #(.MIF_FILE("../sprites/aaa8.mif")) rom_move_forward_inst (
   // ROM for move forward state
   .clk(CLOCK_50),
@@ -169,6 +155,20 @@ rom #(.MIF_FILE("../sprites/aaa8.mif")) rom_move_forward_inst (
   .sprite_width(sprite_width), // Width of the sprite
   .visible_flag(pixel_visible_flag_move_forward), // Visibility flag for move forward state
   .data(pixel_data_move_forward)
+);
+
+rom #(.MIF_FILE("../sprites/aaa7.mif")) rom_idle_inst (
+  // ROM for idle state
+  .clk(CLOCK_50),
+  .rst(1'b0),
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .posx(posx), // Player's X position
+  .posy(posy), // Player's Y position
+  .sprite_height(sprite_height), // Height of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .visible_flag(pixel_visible_flag_idle), // Visibility flag for idle state
+  .data(pixel_data_idle)
 );
 
 rom #(.MIF_FILE("../sprites/aaa9.mif")) rom_move_backward_inst (
@@ -269,14 +269,14 @@ always @(*) begin
     if (currentstate == 4'd4) begin // If the player is in the attack end state
       color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
     end else if (currentstate == 4'd5) begin // If the player is in the attack pull state
-      color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
+      color_to_vga_driver = 8'b11110001; // Yellow color for basic hit hurtbox border
     end
   end else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
-    color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
+    color_to_vga_driver = 8'b00111110; // Yellow color for main hurtbox border
   end else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
     color_to_vga_driver = pixel_data;
   end else begin
-    color_to_vga_driver = 8'b11100111; // Pink color
+    color_to_vga_driver = 8'b00100101; // Default color (yellow) for background
   end
 end
 

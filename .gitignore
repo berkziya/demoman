@@ -1,10 +1,12 @@
 synthesis/db/
 synthesis/incremental_db/
+synthesis/greybox_tmp/
 synthesis/c5_pin_model_dump.txt
 synthesis/*_assignment_defaults.qdf
 synthesis/*.done
 synthesis/*.flow.rpt
 synthesis/*.map.rpt
+synthesis/*.map.smsg
 synthesis/*.map.summary
 synthesis/*.qws
 synthesis/*.asm.rpt

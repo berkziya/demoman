@@ -37,7 +37,7 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module rom_demo #(parameter MIF_FILE = "../sprites/aaa7.mif") (
+module rom_demo #(parameter MIF_FILE = "../sprites/aaa9.mif") (
 	address,
 	clock,
 	q);

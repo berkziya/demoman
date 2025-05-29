@@ -1,4 +1,6 @@
-module rom #( parameter HEX_FILE = "rom_data.hex") (
+module rom #( parameter HEX_FILE = "rom_data.hex",
+            parameter SPRITE_HEIGHT = 32,
+            parameter SPRITE_WIDTH = 32) (
     input clk,
     input rst,
     input [9:0] current_pixel_x, // Current pixel X position
@@ -11,17 +13,20 @@ module rom #( parameter HEX_FILE = "rom_data.hex") (
 );
     // ROM data initialization
     reg [15:0] rom_sprite [0:1023]; // 1024 entries of 16-bit data
-    wire [9:0] addr; // Address for ROM
+    wire [9:0] relative_x = current_pixel_x - posx;
+    wire [9:0] relative_y = current_pixel_y - posy;
+    wire [15:0] addr;
+
+    assign sprite_height = SPRITE_HEIGHT; // Assign sprite height
+    assign sprite_width = SPRITE_WIDTH; // Assign sprite width
+    assign addr = (relative_y * sprite_width) + relative_x; // Calculate address in ROM
+
 
     initial begin
-        $readmemh("rom_data.hex", rom_sprite); // Load ROM data from a hex file
+        $readmemh(HEX_FILE, rom_sprite); // Load ROM data from a hex file
     end
 
-    assign sprite_width = rom_sprite[0][15:0]; // Assuming the first entry contains width
-    assign sprite_height = rom_sprite[1][15:0]; // Assuming the second entry contains height
     
-    addr = (current_pixel_y - posy) * sprite_width + (current_pixel_x - posx); // Calculate address based on pixel position
-
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin

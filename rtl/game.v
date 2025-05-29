@@ -34,18 +34,18 @@ random_num random_gen (
   .rand_o(random_number)
 );
 
-player #(
-  .SIDE(1'b0)
-) player1 (
-  .clk(effective_clk),
-  .rst(~KEY[0]),
-  .left(GPIO[4]),
-  .right(GPIO[6]),
-  .attack(GPIO[8]),
-  .posx(player1_posx),
-  .posy(player1_posy),
-  .current_state()
-);
+// player #(
+//   .SIDE(1'b0)
+// ) player1 (
+//   .clk(effective_clk),
+//   .rst(~KEY[0]),
+//   .left(GPIO[4]),
+//   .right(GPIO[6]),
+//   .attack(GPIO[8]),
+//   .posx(player1_posx),
+//   .posy(player1_posy),
+//   .current_state()
+// );
 
 wire player2_left, player2_right, player2_attack;
 
@@ -53,18 +53,18 @@ assign player2_left = (CS == S_PvP) ? GPIO[10] : random_number[0];
 assign player2_right = (CS == S_PvP) ? GPIO[12] : random_number[1];
 assign player2_attack = (CS == S_PvP) ? GPIO[14] : random_number[2];
 
-player #(
-  .SIDE(1'b1)
-) player2 (
-  .clk(effective_clk),
-  .rst(~KEY[0]),
-  .left(player2_left),
-  .right(player2_right),
-  .attack(player2_attack),
-  .posx(player2_posx),
-  .posy(player2_posy),
-  .current_state()
-);
+// player #(
+//   .SIDE(1'b1)
+// ) player2 (
+//   .clk(effective_clk),
+//   .rst(~KEY[0]),
+//   .left(player2_left),
+//   .right(player2_right),
+//   .attack(player2_attack),
+//   .posx(player2_posx),
+//   .posy(player2_posy),
+//   .current_state()
+// );
 
 always @(posedge effective_clk or posedge reset) begin
   if (reset) CS <= S_IDLE;

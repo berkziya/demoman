@@ -71,8 +71,10 @@ wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
 wire       clk_60hz;
 
-reg [15:0] pixel_data, pixel_data_idle, pixel_data_move_forward, pixel_data_move_backward, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull;
-reg pixel_visible_flag, pixel_visible_flag_idle, pixel_visible_flag_move_forward, pixel_visible_flag_move_backward, pixel_visible_flag_attack_start, pixel_visible_flag_attack_end, pixel_visible_flag_attack_pull;
+reg [15:0] pixel_data;
+wire [15:0] pixel_data_idle, pixel_data_move_forward, pixel_data_move_backward, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull;
+reg pixel_visible_flag;
+wire pixel_visible_flag_idle, pixel_visible_flag_move_forward, pixel_visible_flag_move_backward, pixel_visible_flag_attack_start, pixel_visible_flag_attack_end, pixel_visible_flag_attack_pull;
 wire [9:0] sprite_height = 10'd157; // Height of the sprite
 wire [9:0] sprite_width = 10'd150;  // Width of the sprite
 

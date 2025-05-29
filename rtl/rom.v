@@ -21,7 +21,7 @@ module rom #(parameter MIF_FILE = ".hex") (
     
     wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width) &&
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-    assign addr = (relative_y * 150) + relative_x; // Calculate address in ROM
+    assign addr = (relative_y * 16'd150) + relative_x; // Calculate address in ROM
     
     rom_demo rom_demo_inst (
         .address(addr),

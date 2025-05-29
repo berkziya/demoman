@@ -118,7 +118,7 @@ vga_driver vga_inst (
   .blank(VGA_BLANK_N)             // Output: High during active display period
 );
 
-assign clk_60hz = current_pixel_y == 10'd479 && current_pixel_x == 10'd639;
+assign clk_60hz = current_pixel_y == 10'd479;
 
 assign effective_clk = SW[1] ? ~KEY[0]: clk_60hz;
 
@@ -269,11 +269,11 @@ end
 // assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
 //                           current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
 // assign on_hithurt_border = (((current_pixel_x == hithurt_x1 || current_pixel_x == hithurt_x2) &&
-//                            (current_pixel_y >= hithurt_y1 && current_pixel_y <= hithurt_y2)) || 
+//                            (current_pixel_y >= hithurt_y1 && current_pixel_y <= hithurt_y2)) ||
 //                            ((current_pixel_y == hithurt_y1 || current_pixel_y == hithurt_y2) &&
 //                            (current_pixel_x >= hithurt_x1 && current_pixel_x <= hithurt_x2)));
 // assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt_x2) &&
-//                            (current_pixel_y >= hurt_y1 && current_pixel_y <= hurt_y2)) || 
+//                            (current_pixel_y >= hurt_y1 && current_pixel_y <= hurt_y2)) ||
 //                            ((current_pixel_y == hurt_y1 || current_pixel_y == hurt_y2) &&
 //                            (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));
 // always @(*) begin

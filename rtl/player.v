@@ -5,7 +5,7 @@ module player #(
   input            rst,
   input            left, right, attack,
   output reg [9:0] posx,
-  output [9:0] posy,
+  output     [9:0] posy,
   output reg [3:0] current_state,
 
   output wire [9:0] basic_hithurtbox_x1,
@@ -19,9 +19,7 @@ module player #(
   output wire [9:0] main_hurtbox_y2
 );
 
-
 assign posy = 10'd170; // Fixed Y position for the player
-
 
 assign basic_hithurtbox_x1 = posx + 37;
 assign basic_hithurtbox_x2 = posx + 113;

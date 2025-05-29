@@ -46,8 +46,10 @@ module demoman(
   output       VGA_VS,
 
   //////////// GPIO_0, GPIO_0 connect to GPIO Default //////////
-  inout [35:0] GPIO,
+  inout [35:0] GPIO
 );
+
+localparam reset = 1'b0;
 
 //=======================================================
 //  REG/WIRE declarations
@@ -73,6 +75,8 @@ wire [9:0] sprite_width = 10'd150;  // Width of the sprite
 wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox coordinates
 wire [9:0] hurt_x1, hurt_x2, hurt_y1, hurt_y2; // Main hurtbox coordinates
 wire inside_sprite; // Flag to check if the current pixel is inside the sprite
+wire on_hithurt_border;
+wire on_hurt_border;
 
 //=======================================================
 //  Structural coding
@@ -82,7 +86,6 @@ clock_divider #(
   .DIV(2)
 ) clk_vga_inst (
   .clk(CLOCK_50),
-  .rst(reset),
   .clk_o(clk_25mhz)
 );
 
@@ -250,13 +253,13 @@ always @(*) begin
   endcase
 end
 
-wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
+assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
                         current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-wire on_hithurt_border = (((current_pixel_x == hithurt_x1 || current_pixel_x == hithurt_x2) &&
+assign on_hithurt_border = (((current_pixel_x == hithurt_x1 || current_pixel_x == hithurt_x2) &&
                              (current_pixel_y >= hithurt_y1 && current_pixel_y <= hithurt_y2)) ||
                             ((current_pixel_y == hithurt_y1 || current_pixel_y == hithurt_y2) &&
                              (current_pixel_x >= hithurt_x1 && current_pixel_x <= hithurt_x2)));
-wire on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt_x2) &&
+assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt_x2) &&
                           (current_pixel_y >= hurt_y1 && current_pixel_y <= hurt_y2)) ||
                          ((current_pixel_y == hurt_y1 || current_pixel_y == hurt_y2) &&
                           (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));

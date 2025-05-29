@@ -1,22 +1,43 @@
-module counter # (
-  parameter W = 8
-) (
-  input              clk,
-  input              rst,
-  input        [1:0] control,
-  output reg [W-1:0] count
+module counter #(parameter W=4)(
+	input clk,
+	input rst,
+    input [1:0] control, //control
+    output reg [W-1:0] count //counter value
 );
-  localparam INC = 2'b01;
-  localparam DEC = 2'b10;
 
-  always @(posedge clk) begin
-    if (rst) count <= {W{1'b0}};
-    else begin
-      case (control)
-        INC: count <= count + 1'b1;
-        DEC: count <= count - 1'b1;
-        default: ; // hold
-      endcase
-    end
-  end
+	localparam
+	stateHold = 2'b00,
+	stateReset = 2'b11,
+	stateIncrement = 2'b01,
+	stateDecrement = 2'b10;
+	
+	always @(posedge clk)
+		
+		begin
+			if (rst)
+				count <= {W{1'b0}};
+			else
+				case(control)
+				
+					stateHold: //hold current counter value
+						begin
+						end
+						
+					stateIncrement: //increment counter
+						count <= count + 1;
+						
+					stateDecrement: //decrement Counter
+						count <= count -1;
+					
+					stateReset: //reset Counter
+						count <= {W{1'b0}};
+						
+				endcase
+			
+
+		
+		end
+	
+	
+
 endmodule

@@ -1,41 +1,35 @@
-module clock_divider # (
-  parameter DIV = 50 // DIV > 1
-) (
-  input      clk,
-  input      rst,
-  output reg clk_o
+module clock_divider #(parameter DIV=33'd4294967296)(
+	input clk, //original clock (50MHz)
+    output reg clk_o //divided, slower clock
 );
-  localparam INC = 2'b01;
-  localparam DEC = 2'b10;
 
-  reg   [1:0] state;
-  wire [31:0] count;
+	
+	wire [31:0] currentCount ;
+	
+	reg [31:0] lastSwitchedAt ;
+	
+	
+	counter #(.W(32)) counter_cont_inst(
+	.clk(clk),
+	.rst(1'b0),
+	.control(2'b01),
+	.count(currentCount)
+	);
+	
+	always @(posedge clk)
+		begin
+		
+			if ((currentCount-lastSwitchedAt)>=((DIV>>1)))
+				begin
+					lastSwitchedAt <= currentCount;
+					clk_o <= ~clk_o;
+				end
+			else
+				begin
+				end
+				
+		end
+	
+	
 
-  counter #(.W(32)) cntr (
-    .clk(clk),
-    .rst(rst),
-    .control(state),
-    .count(count)
-  );
-
-  always @(posedge clk or posedge rst) begin
-    if (rst) begin
-      state <= INC;
-      clk_o <= 1'b0;
-    end
-    case (state)
-      INC:if (count == DIV - 1'b1) begin
-        state <= DEC;
-        clk_o <= 1'b1;
-      end
-      DEC:if (count == 32'b1) begin
-        state <= INC;
-        clk_o <= 1'b0;
-      end
-      default: begin
-        state <= INC;
-        clk_o <= 1'b0;
-      end
-    endcase
-  end
 endmodule

@@ -16,11 +16,11 @@ module game (
   output  [9:0] player2_posx,
   output  [9:0] player2_posy
 );
-parameter S_IDLE = 3'd0;
-parameter S_INTRO = 3'd1;
-parameter S_PvP = 3'd2;
-parameter S_PvAI = 3'd3;
-parameter S_GAME_OVER = 3'd4;
+localparam S_IDLE = 3'd0;
+localparam S_INTRO = 3'd1;
+localparam S_PvP = 3'd2;
+localparam S_PvAI = 3'd3;
+localparam S_GAME_OVER = 3'd4;
 
 reg [2:0] CS, NS;
 

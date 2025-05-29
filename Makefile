@@ -23,7 +23,7 @@ SIM_MAIN_NATIVE  := $(SIM_DIR)/sim_main_native.cpp
 SIM_MAIN_WASM    := $(SIM_DIR)/sim_main_wasm.cpp
 
 # Find all .v files in RTL_DIR and its subdirectories, and add the top module file
-VERILOG_SOURCES    := $(wildcard $(RTL_DIR)/*.v $(RTL_DIR)/*/*.v $(RTL_DIR)/*/*/*.v) $(VERILOG_TOP_MODULE_FILE)
+VERILOG_SOURCES    := $(wildcard $(RTL_DIR)/*.v $(RTL_DIR)/*/*.v $(RTL_DIR)/*/*/*.v ./synthesis/rom_demo.v) $(VERILOG_TOP_MODULE_FILE)
 
 # --- Verilator Configuration ---
 VERILATOR          ?= verilator

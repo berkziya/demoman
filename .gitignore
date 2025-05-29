@@ -21,8 +21,7 @@ synthesis/*.jditmp
 *.bak
 
 obj_dir/
-build_wasm/
-build_native/
+build/
 
 .venv/
 .env

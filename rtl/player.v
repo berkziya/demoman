@@ -7,7 +7,7 @@ module player #(
   output reg [9:0] posx,
   output reg [9:0] posy,
   output reg [3:0] current_state,
-  
+
   output wire [9:0] basic_hithurtbox_x1,
   output wire [9:0] basic_hithurtbox_x2,
   output wire [9:0] basic_hithurtbox_y1,
@@ -18,6 +18,7 @@ module player #(
   output wire [9:0] main_hurtbox_y1,
   output wire [9:0] main_hurtbox_y2
 );
+assign posy = 10'd170; // Fixed Y position for the player
 
 assign basic_hithurtbox_x1 = posx + 37;
 assign basic_hithurtbox_x2 = posx + 113;
@@ -29,7 +30,6 @@ assign main_hurtbox_x2 = (~SIDE) ? (posx + 86) : (posx + 37);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
-
 parameter LEFT = 1'b0;
 parameter RIGHT = 1'b1;
 
@@ -40,7 +40,7 @@ parameter S_B_ATTACK_START = 4'd3;
 parameter S_B_ATTACK_END = 4'd4;
 parameter S_B_ATTACK_PULL = 4'd5;
 
-parameter P_SPEED = 10;
+parameter P_SPEED = 15;
 
 reg [3:0] NS;
 
@@ -56,13 +56,13 @@ counter #(
   .count(counter)
 );
 
-
-
 always @(posedge clk or posedge rst) begin
+  // $display("State: %d, Counter: %d, Counter Reset: %b", current_state, counter, rst_counter);
   if (rst) current_state <= S_IDLE;
   else current_state <= NS;
+  rst_counter = 1'b0;
 end
-/* verilator lint_off LATCH */
+
 always @(*) begin
   case (current_state)
     S_IDLE, S_MOVEFORWARD, S_MOVEBACKWARDS: begin
@@ -71,37 +71,43 @@ always @(*) begin
         rst_counter = 1'b1;
       end else if (left && right) begin
         NS = S_MOVEBACKWARDS;
-        rst_counter = 1'b0;
+        rst_counter = 1'b1;
       end else if (left && ~right) begin
         NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
-        rst_counter = 1'b0;
+        rst_counter = 1'b1;
       end else if (~left && right) begin
-        NS = (SIDE == LEFT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
-        rst_counter = 1'b0;
+        NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+        rst_counter = 1'b1;
       end else begin
         NS = S_IDLE;
         rst_counter = 1'b0;
       end
     end
     S_B_ATTACK_START: begin
-      if (counter < 4) NS = S_B_ATTACK_START;
-      else begin
+      if (counter < 4) begin
+        NS = S_B_ATTACK_START;
+        rst_counter = 1'b0;
+      end else begin
         NS = S_B_ATTACK_END;
         rst_counter = 1'b1;
       end
     end
     S_B_ATTACK_END: begin
-      if (counter < 1) NS = S_B_ATTACK_END;
-      else begin
-        rst_counter = 1'b1;
+      if (counter < 1) begin
+        NS = S_B_ATTACK_END;
+        rst_counter = 1'b0;
+      end else begin
         NS = S_B_ATTACK_PULL;
+        rst_counter = 1'b1;
       end
     end
     S_B_ATTACK_PULL: begin
-      if (counter < 15) NS = S_B_ATTACK_PULL;
-      else begin
-        rst_counter = 1'b1;
+      if (counter < 15) begin
+        NS = S_B_ATTACK_PULL;
+        rst_counter = 1'b0;
+      end else begin
         NS = S_IDLE;
+        rst_counter = 1'b1;
       end
     end
     default: begin
@@ -110,11 +116,10 @@ always @(*) begin
     end
   endcase
 end
-/* verilator lint_off LATCH */
-always @(posedge clk or posedge rst) begin
+
+always @(posedge clk) begin
   if (rst) begin
     posx <= (SIDE == LEFT) ? 10'd210 : 10'd420;
-    posy <= 10'd140;
   end else begin
     case (current_state)
       S_IDLE: begin
@@ -139,12 +144,11 @@ always @(posedge clk or posedge rst) begin
       end
       default: begin
         posx <= posx;
-        posy <= posy;
       end
     endcase
   end
-  if (posx < 50) posx <= 240;
-  else if (posx > 590) posx <= 240;
+  if (posx < 50) posx <= 50;
+  else if (posx > 490) posx <= 490;
 end
 
 endmodule

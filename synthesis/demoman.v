@@ -59,7 +59,7 @@ module demoman(
 //=======================================================
 
 wire left, right, attack;
-
+wire [3:0] currentstate;
 
 wire effective_clk;
 wire [9:0] posx; // Player's X position
@@ -71,10 +71,12 @@ wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
 wire       clk_60hz;
 
-reg [15:0] pixel_data, pixel_data_idle, pixel_data_move, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull, sprite_height, sprite_width;
+reg [15:0] pixel_data, pixel_data_idle, pixel_data_move_forward, pixel_data_move_backward, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull;
+reg pixel_visible_flag, pixel_visible_flag_idle, pixel_visible_flag_move_forward, pixel_visible_flag_move_backward, pixel_visible_flag_attack_start, pixel_visible_flag_attack_end, pixel_visible_flag_attack_pull;
+wire [9:0] sprite_height = 10'd157; // Height of the sprite
+wire [9:0] sprite_width = 10'd150;  // Width of the sprite
 
-reg [15:0] sprite_widths [0:4];
-reg [15:0] sprite_heights [0:4];
+wire inside_sprite; // Flag to check if the current pixel is inside the sprite
 
 //=======================================================
 //  Structural coding
@@ -86,6 +88,7 @@ assign attack = ~KEY[1]; // Attack key pressed
 
 assign DEBUG_X = current_pixel_x;
 assign DEBUG_Y = current_pixel_y;
+
 
 clock_divider #(
   .DIV(2)
@@ -115,8 +118,6 @@ vga_driver vga_inst (
 assign clk_60hz = current_pixel_y == 10'd479 && current_pixel_x == 10'd639;
 
 assign effective_clk = SW[1] ? ~KEY[0]: clk_60hz;
-
-wire [3:0] currentstate;
 
 player #(1'b0) Player1 (
   .clk(effective_clk),
@@ -151,24 +152,8 @@ always @(*) begin
   end
 end
 
-initial begin
-  sprite_widths[0] = 100; // Width for idle state
-  sprite_heights[0] = 100; // Height for idle state
 
-  sprite_widths[1] = 100; // Width for move
-  sprite_heights[1] = 100; // Height for move
-
-  sprite_widths[2] = 100; // Width for attack start
-  sprite_heights[2] = 100; // Height for attack start
-
-  sprite_widths[3] = 100; // Width for attack end
-  sprite_heights[3] = 100; // Height for attack end
-
-  sprite_widths[4] = 100; // Width for attack pull
-  sprite_heights[4] = 100; // Height for attack pull
-end
-
-rom #(.HEX_FILE("rom_data_idle.hex")) rom_idle_inst (
+rom #(.HEX_FILE("aaa7.hex")) rom_idle_inst (
   // ROM for idle state
   .clk(effective_clk),
   .rst(1'b0),
@@ -176,25 +161,41 @@ rom #(.HEX_FILE("rom_data_idle.hex")) rom_idle_inst (
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_heights[0]), // Height of the sprite
-  .sprite_width(sprite_widths[0]), // Width of the sprite
+  .sprite_height(sprite_height), // Height of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .visible_flag(pixel_visible_flag_idle), // Visibility flag for idle state
   .data(pixel_data_idle)
 );
 
-rom #(.HEX_FILE("rom_data_move.hex")) rom_move_inst (
-  // ROM for move state
+rom #(.HEX_FILE("aaa8.hex")) rom_move_forward_inst (
+  // ROM for move forward state
   .clk(effective_clk),
   .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_heights[1]), // Height of the sprite
-  .sprite_width(sprite_widths[1]), // Width of the sprite
-  .data(pixel_data_move)
+  .sprite_height(sprite_height), // Height of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .visible_flag(pixel_visible_flag_move_forward), // Visibility flag for move forward state
+  .data(pixel_data_move_forward)
 );
 
-rom #(.HEX_FILE("rom_data_attack_start.hex")) rom_attack_start_inst (
+rom #(.HEX_FILE("aaa9.hex")) rom_move_backward_inst (
+  // ROM for move backward state
+  .clk(effective_clk),
+  .rst(1'b0),
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .posx(posx), // Player's X position
+  .posy(posy), // Player's Y position
+  .sprite_height(sprite_height), // Height of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .visible_flag(pixel_visible_flag_move_backward), // Visibility flag for move backward state
+  .data(pixel_data_move_backward)
+);
+
+rom #(.HEX_FILE("aaa10.hex")) rom_attack_start_inst (
   // ROM for attack start state
   .clk(effective_clk),
   .rst(1'b0),
@@ -202,12 +203,13 @@ rom #(.HEX_FILE("rom_data_attack_start.hex")) rom_attack_start_inst (
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_heights[2]), // Height of the sprite
-  .sprite_width(sprite_widths[2]), // Width of the sprite
+  .sprite_height(sprite_height), // Height of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .visible_flag(pixel_visible_flag_attack_start), // Visibility flag for attack start state
   .data(pixel_data_attack_start)
 );
 
-rom #(.HEX_FILE("rom_data_attack_end.hex")) rom_attack_end_inst (
+rom #(.HEX_FILE("aaa11.hex")) rom_attack_end_inst (
   // ROM for attack end state
   .clk(effective_clk),
   .rst(1'b0),
@@ -215,12 +217,13 @@ rom #(.HEX_FILE("rom_data_attack_end.hex")) rom_attack_end_inst (
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_heights[3]), // Height of the sprite
-  .sprite_width(sprite_widths[3]), // Width of the sprite
+  .sprite_height(sprite_height), // Height of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .visible_flag(pixel_visible_flag_attack_end), // Visibility flag for attack end state
   .data(pixel_data_attack_end)
 );
 
-rom #(.HEX_FILE("rom_data_attack_pull.hex")) rom_attack_pull_inst (
+rom #(.HEX_FILE("aaa12.hex")) rom_attack_pull_inst (
   // ROM for attack pull state
   .clk(effective_clk),
   .rst(1'b0),
@@ -228,31 +231,43 @@ rom #(.HEX_FILE("rom_data_attack_pull.hex")) rom_attack_pull_inst (
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_heights[4]), // Height of the sprite
-  .sprite_width(sprite_widths[4]), // Width of the sprite
+  .sprite_height(sprite_height), // Height of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .visible_flag(pixel_visible_flag_attack_pull), // Visibility flag for attack pull state
   .data(pixel_data_attack_pull)
 );
 
 always @(*) begin
   case (currentstate)
-    4'd0: begin pixel_data = pixel_data_idle; sprite_height = sprite_heights[0]; sprite_width = sprite_widths[0]; end // Idle state
-    4'd1 | 4'd2: begin pixel_data = pixel_data_move; sprite_height = sprite_heights[1]; sprite_width = sprite_widths[1]; end // Move forward or backward
-    4'd3: begin pixel_data = pixel_data_attack_start; sprite_height = sprite_heights[2]; sprite_width = sprite_widths[2]; end // Attack start
-    4'd4: begin pixel_data = pixel_data_attack_end; sprite_height = sprite_heights[3]; sprite_width = sprite_widths[3]; end // Attack end
-    4'd5: begin pixel_data = pixel_data_attack_pull; sprite_height = sprite_heights[4]; sprite_width = sprite_widths[4]; end // Attack pull
-    default: begin pixel_data = 16'h0FFF; // Default color (white) sprite
-              sprite_height = 100; // Default height
-              sprite_width = 100; // Default width
-             end
+    4'd0: begin 
+      pixel_data = pixel_data_idle; 
+      pixel_visible_flag = pixel_visible_flag_idle; end // Idle state
+    4'd1: begin 
+      pixel_data = pixel_data_move_forward; 
+      pixel_visible_flag = pixel_visible_flag_move_forward; end // Move forward state
+    4'd2: begin 
+      pixel_data = pixel_data_move_backward; 
+      pixel_visible_flag = pixel_visible_flag_move_backward; end // Move backward state
+    4'd3: begin 
+      pixel_data = pixel_data_attack_start; 
+      pixel_visible_flag = pixel_visible_flag_attack_start; end // Attack start state
+    4'd4: begin 
+      pixel_data = pixel_data_attack_end; 
+      pixel_visible_flag = pixel_visible_flag_attack_end; end // Attack end state
+    4'd5: begin 
+      pixel_data = pixel_data_attack_pull;
+      pixel_visible_flag = pixel_visible_flag_attack_pull; end // Attack pull state
+    default: begin
+      pixel_data = 16'h0FFF; // Default color (white) sprite
+      pixel_visible_flag = 1'b1; end // Visible 
   endcase
 end
-
 
 assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
                           current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
 
 always @(*) begin
-  if (inside_sprite) begin
+  if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
     color_to_vga_driver = {
       pixel_data[15:13], // Red (3 bits)
       pixel_data[10:8], // Green (3 bits)

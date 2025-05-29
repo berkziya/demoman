@@ -7,13 +7,17 @@ module rom #(parameter HEX_FILE = "rom_data.hex") (
     input [9:0] posy, // Player's Y position
     input [9:0] sprite_height, // Height of the sprite
     input [9:0] sprite_width, // Width of the sprite
+    output reg visible_flag, // Flag to indicate if the sprite is visible
     output reg [15:0] data
 );
     // ROM data initialization
-    reg [15:0] rom_sprite [0:23999]; // 24000 entries for a sprite of 100x240 pixels (16 bits per pixel)
+    reg [15:0] rom_sprite [0:23999]; // enough for 150*157 sprites (23549 entries)
     wire [9:0] relative_x = current_pixel_x - posx;
     wire [9:0] relative_y = current_pixel_y - posy;
     wire [15:0] addr;
+
+    localparam [15:0] TRANSPARENT_COLOR = 16'hFFFF;
+    
     wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width) &&
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
     assign addr = (relative_y * sprite_width) + relative_x; // Calculate address in ROM
@@ -28,11 +32,14 @@ module rom #(parameter HEX_FILE = "rom_data.hex") (
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             data <= 16'h0000; // Reset output data
+            visible_flag <= 1'b0; // Reset visibility flag
         end else if (inside_sprite && addr < 24000) begin
             // Ensure the address is within bounds of the ROM
             data <= rom_sprite[addr]; // Read data from ROM at the specified address
+            visible_flag <= (rom_sprite[addr] != TRANSPARENT_COLOR); // Set visibility flag based on color
         end else begin
             data <= 16'h0000; // Default value if outside sprite bounds or address out of range
+            visible_flag <= 1'b0; // Not visible if outside sprite bounds
         end
     end
 

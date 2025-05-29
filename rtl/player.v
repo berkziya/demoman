@@ -41,7 +41,7 @@ localparam S_B_ATTACK_START = 4'd3;
 localparam S_B_ATTACK_END = 4'd4;
 localparam S_B_ATTACK_PULL = 4'd5;
 
-localparam P_SPEED = 15;
+localparam P_SPEED = 5;
 
 reg [3:0] NS;
 

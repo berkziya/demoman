@@ -7,8 +7,6 @@ module rom #( parameter HEX_FILE = "rom_data.hex",
     input [9:0] current_pixel_y, // Current pixel Y position
     input [9:0] posx, // Player's X position
     input [9:0] posy, // Player's Y position
-    output [15:0] sprite_height,
-    output [15:0] sprite_width,
     output reg [15:0] data
 );
     // ROM data initialization

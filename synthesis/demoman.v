@@ -79,6 +79,9 @@ wire [15:0] sprite_height_attack_start, sprite_width_attack_start;
 wire [15:0] sprite_height_attack_end, sprite_width_attack_end;
 wire [15:0] sprite_height_attack_pull, sprite_width_attack_pull;
 
+reg [15:0] sprite_widths [0:4];
+reg [15:0] sprite_heights [0:4];
+
 //=======================================================
 //  Structural coding
 //=======================================================
@@ -154,63 +157,80 @@ always @(*) begin
   end
 end
 
+initial begin
+  sprite_widths[0] = 100; // Width for idle state
+  sprite_heights[0] = 100; // Height for idle state
 
-rom #(HEX_FILE("rom_data_idle.hex")) rom_inst (
+  sprite_widths[1] = 100; // Width for move
+  sprite_heights[1] = 100; // Height for move
+
+  sprite_widths[2] = 100; // Width for attack start
+  sprite_heights[2] = 100; // Height for attack start
+
+  sprite_widths[3] = 100; // Width for attack end
+  sprite_heights[3] = 100; // Height for attack end
+
+  sprite_widths[4] = 100; // Width for attack pull
+  sprite_heights[4] = 100; // Height for attack pull
+end
+
+rom #(.HEX_FILE("rom_data_idle.hex"),
+  .SPRITE_HEIGHT(sprite_heights[0]),
+  .SPRITE_WIDTH(sprite_widths[0])) rom_inst (
   .clk(effective_clk),
   .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_height_idle), // Height of the sprite
-  .sprite_width(sprite_width_idle), // Width of the sprite
   .data(pixel_data_idle)
 );
 
-rom #(HEX_FILE("rom_data_move.hex")) rom_move_inst (
+rom #(.HEX_FILE("rom_data_move.hex"),
+  .SPRITE_HEIGHT(sprite_heights[1]),
+  .SPRITE_WIDTH(sprite_widths[1])) rom_move_inst (
   .clk(effective_clk),
   .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_height_move), // Height of the sprite
-  .sprite_width(sprite_width_move), // Width of the sprite
   .data(pixel_data_move)
 );
 
-rom #(HEX_FILE("rom_data_attack_start.hex")) rom_attack_start_inst (
+rom #(.HEX_FILE("rom_data_attack_start.hex")
+  .SPRITE_HEIGHT(sprite_heights[2]),
+  .SPRITE_WIDTH(sprite_widths[2])) rom_attack_start_inst (
   .clk(effective_clk),
   .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_height_attack_start), // Height of the sprite
-  .sprite_width(sprite_width_attack_start), // Width of the sprite
   .data(pixel_data_attack_start)
 );
 
-rom #(HEX_FILE("rom_data_attack_end.hex")) rom_attack_end_inst (
+rom #(.HEX_FILE("rom_data_attack_end.hex")
+  .SPRITE_HEIGHT(sprite_heights[3]),
+  .SPRITE_WIDTH(sprite_widths[3])) rom_attack_end_inst (
   .clk(effective_clk),
   .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_height_attack_end), // Height of the sprite
-  .sprite_width(sprite_width_attack_end), // Width of the sprite
   .data(pixel_data_attack_end)
 );
-rom #(HEX_FILE("rom_data_attack_pull.hex")) rom_attack_pull_inst (
+
+rom #(.HEX_FILE("rom_data_attack_pull.hex")
+  .SPRITE_HEIGHT(sprite_heights[4]),
+  .SPRITE_WIDTH(sprite_widths[4])) rom_attack_pull_inst (
   .clk(effective_clk),
   .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
-  .sprite_height(sprite_height_attack_pull), // Height of the sprite
-  .sprite_width(sprite_width_attack_pull), // Width of the sprite
   .data(pixel_data_attack_pull)
 );
 

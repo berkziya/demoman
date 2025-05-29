@@ -251,10 +251,16 @@ end
 assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
                           current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
 
-assign color_to_vga_driver = inside_sprite ? {
-  pixel_data[15:11], // Red component
-  pixel_data[10:5],  // Green component
-  pixel_data[4:0]    // Blue component
-} : 8'h00; // Background color (dark gray)
+always @(*) begin
+  if (inside_sprite) begin
+    color_to_vga_driver = {
+      pixel_data[15:13], // Red (3 bits)
+      pixel_data[10:8], // Green (3 bits)
+      pixel_data[4:3]  // Blue (2 bits)
+    };
+  end else begin
+    color_to_vga_driver = 8'b00000000; // Default color (black)
+  end
+end
 
 endmodule

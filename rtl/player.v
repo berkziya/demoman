@@ -126,7 +126,7 @@ always @(posedge clk) begin
   end else begin
     case (current_state)
       S_IDLE: begin
-        posx = posx;
+        posx <= posx;
       end
       S_MOVEFORWARD: begin
         if (SIDE == LEFT) posx <= posx + P_SPEED;

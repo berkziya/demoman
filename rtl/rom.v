@@ -1,4 +1,4 @@
-module rom #(parameter HEX_FILE = "rom_data.hex") (
+module rom #(parameter MIF_FILE = ".hex") (
     input clk,
     input rst,
     input [9:0] current_pixel_x, // Current pixel X position
@@ -8,37 +8,38 @@ module rom #(parameter HEX_FILE = "rom_data.hex") (
     input [9:0] sprite_height, // Height of the sprite
     input [9:0] sprite_width, // Width of the sprite
     output reg visible_flag, // Flag to indicate if the sprite is visible
-    output reg [15:0] data
+    output reg [7:0] data
 );
     // ROM data initialization
-    reg [15:0] rom_sprite [0:23999]; // enough for 150*157 sprites (23549 entries)
+    localparam image_size = 150 * 157; // Size of the sprite in pixels
+	wire [7:0] rom_sprite;
     wire [9:0] relative_x = current_pixel_x - posx;
     wire [9:0] relative_y = current_pixel_y - posy;
     wire [15:0] addr;
 
-    localparam [15:0] TRANSPARENT_COLOR = 16'hFFFF;
+    localparam [7:0] TRANSPARENT_COLOR = 8'b11100011; // Transparent color value
     
     wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width) &&
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-    assign addr = (relative_y * sprite_width) + relative_x; // Calculate address in ROM
+    assign addr = (relative_y * 150) + relative_x; // Calculate address in ROM
     
+    rom_demo rom_demo_inst (
+        .address(addr),
+        .clock(clk),
+        .q(rom_sprite)
+    );
 
-    initial begin
-        $readmemh(HEX_FILE, rom_sprite); // Load ROM data from a hex file
-    end
-
-    
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            data <= 16'h0000; // Reset output data
+            data <= 8'b00000000; // Reset output data
             visible_flag <= 1'b0; // Reset visibility flag
-        end else if (inside_sprite && addr < 24000) begin
+        end else if (inside_sprite && addr > 0 && addr < image_size) begin
             // Ensure the address is within bounds of the ROM
-            data <= rom_sprite[addr]; // Read data from ROM at the specified address
-            visible_flag <= (rom_sprite[addr] != TRANSPARENT_COLOR); // Set visibility flag based on color
+            data <= rom_sprite; // Read data from ROM at the specified address
+            visible_flag <= (rom_sprite != TRANSPARENT_COLOR); // Set visibility flag based on color
         end else begin
-            data <= 16'h0000; // Default value if outside sprite bounds or address out of range
+            data <= 8'b00000000; // Default value if outside sprite bounds or address out of range
             visible_flag <= 1'b0; // Not visible if outside sprite bounds
         end
     end

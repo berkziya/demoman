@@ -77,7 +77,8 @@ reg pixel_visible_flag;
 wire pixel_visible_flag_idle, pixel_visible_flag_move_forward, pixel_visible_flag_move_backward, pixel_visible_flag_attack_start, pixel_visible_flag_attack_end, pixel_visible_flag_attack_pull;
 wire [9:0] sprite_height = 10'd157; // Height of the sprite
 wire [9:0] sprite_width = 10'd150;  // Width of the sprite
-
+wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox coordinates
+wire [9:0] hurt_x1, hurt_x2, hurt_y1, hurt_y2; // Main hurtbox coordinates
 wire inside_sprite; // Flag to check if the current pixel is inside the sprite
 
 //=======================================================
@@ -130,32 +131,19 @@ player #(1'b0) Player1 (
   .posx(posx),
   .posy(posy),
   .current_state(currentstate),
-  .basic_hithurtbox_x1(),
-  .basic_hithurtbox_x2(),
-  .basic_hithurtbox_y1(),
-  .basic_hithurtbox_y2(),
-  .main_hurtbox_x1(),
-  .main_hurtbox_x2(),
-  .main_hurtbox_y1(),
-  .main_hurtbox_y2()
+  .basic_hithurtbox_x1(hithurt_x1),
+  .basic_hithurtbox_x2(hithurt_x2),
+  .basic_hithurtbox_y1(hithurt_y1),
+  .basic_hithurtbox_y2(hithurt_y2),
+  .main_hurtbox_x1(hurt_x1),
+  .main_hurtbox_x2(hurt_x2),
+  .main_hurtbox_y1(hurt_y1),
+  .main_hurtbox_y2(hurt_y2)
 );
 
-always @(*) begin
-  color_to_vga_driver = 8'h00; // Default color (black)
-  if (current_pixel_x >= posx && current_pixel_x < posx + 100 &&
-      current_pixel_y >= posy && current_pixel_y < posy + 100) begin
-    color_to_vga_driver =  currentstate == 4'd0 ? 8'b11100000 : // Idle state color (red)
-                           currentstate == 4'd1 ? 8'b00001111 : // Move forward (blue)
-                           currentstate == 4'd2 ? 8'b11110000 : // Move backward (yellow)
-                           currentstate == 4'd3 ? 8'b00011111 : // Attack start (cyan)
-                           currentstate == 4'd4 ? 8'b11111100 : // Attack end (light green)
-                           currentstate == 4'd5 ? 8'b11111111 : // Attack pull (white)
-                           8'h00; // Default color
-  end
-end
 
 
-rom #(.HEX_FILE("aaa7.hex")) rom_idle_inst (
+rom #(.MIF_FILE("../sprites/aaa7.mif")) rom_idle_inst (
   // ROM for idle state
   .clk(effective_clk),
   .rst(1'b0),
@@ -169,7 +157,7 @@ rom #(.HEX_FILE("aaa7.hex")) rom_idle_inst (
   .data(pixel_data_idle)
 );
 
-rom #(.HEX_FILE("aaa8.hex")) rom_move_forward_inst (
+rom #(.MIF_FILE("../sprites/aaa8.mif")) rom_move_forward_inst (
   // ROM for move forward state
   .clk(effective_clk),
   .rst(1'b0),
@@ -183,7 +171,7 @@ rom #(.HEX_FILE("aaa8.hex")) rom_move_forward_inst (
   .data(pixel_data_move_forward)
 );
 
-rom #(.HEX_FILE("aaa9.hex")) rom_move_backward_inst (
+rom #(.MIF_FILE("../sprites/aaa9.mif")) rom_move_backward_inst (
   // ROM for move backward state
   .clk(effective_clk),
   .rst(1'b0),
@@ -197,7 +185,7 @@ rom #(.HEX_FILE("aaa9.hex")) rom_move_backward_inst (
   .data(pixel_data_move_backward)
 );
 
-rom #(.HEX_FILE("aaa10.hex")) rom_attack_start_inst (
+rom #(.MIF_FILE("../sprites/aaa10.mif")) rom_attack_start_inst (
   // ROM for attack start state
   .clk(effective_clk),
   .rst(1'b0),
@@ -211,7 +199,7 @@ rom #(.HEX_FILE("aaa10.hex")) rom_attack_start_inst (
   .data(pixel_data_attack_start)
 );
 
-rom #(.HEX_FILE("aaa11.hex")) rom_attack_end_inst (
+rom #(.MIF_FILE("../sprites/aaa11.mif")) rom_attack_end_inst (
   // ROM for attack end state
   .clk(effective_clk),
   .rst(1'b0),
@@ -225,7 +213,7 @@ rom #(.HEX_FILE("aaa11.hex")) rom_attack_end_inst (
   .data(pixel_data_attack_end)
 );
 
-rom #(.HEX_FILE("aaa12.hex")) rom_attack_pull_inst (
+rom #(.MIF_FILE("../sprites/aaa12.mif")) rom_attack_pull_inst (
   // ROM for attack pull state
   .clk(effective_clk),
   .rst(1'b0),
@@ -267,9 +255,25 @@ end
 
 assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
                           current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-
+assign on_hithurt_border = (((current_pixel_x == hithurt_x1 || current_pixel_x == hithurt_x2) &&
+                           (current_pixel_y >= hithurt_y1 && current_pixel_y <= hithurt_y2)) || 
+                           ((current_pixel_y == hithurt_y1 || current_pixel_y == hithurt_y2) &&
+                           (current_pixel_x >= hithurt_x1 && current_pixel_x <= hithurt_x2)));
+assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt_x2) &&
+                           (current_pixel_y >= hurt_y1 && current_pixel_y <= hurt_y2)) || 
+                           ((current_pixel_y == hurt_y1 || current_pixel_y == hurt_y2) &&
+                           (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));
 always @(*) begin
-  if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
+  if (on_hithurt_border) begin // If the current pixel is on the basic hit hurtbox border
+    if (currentstate == 4'd4) begin // If the player is in the attack end state
+      color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
+    end else if (currentstate == 4'd5) begin // If the player is in the attack pull state
+      color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
+      end
+  else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
+    color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
+    end
+  else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
     color_to_vga_driver = {
       pixel_data[15:13], // Red (3 bits)
       pixel_data[10:8], // Green (3 bits)
@@ -279,5 +283,5 @@ always @(*) begin
     color_to_vga_driver = 8'b11100111; // Pink color
   end
 end
-
+end
 endmodule

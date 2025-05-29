@@ -168,7 +168,7 @@ initial begin
   sprite_heights[4] = 100; // Height for attack pull
 end
 
-rom #(HEX_FILE = "rom_data_idle.hex") rom_idle_inst (
+rom #(.HEX_FILE("rom_data_idle.hex")) rom_idle_inst (
   // ROM for idle state
   .clk(effective_clk),
   .rst(1'b0),
@@ -181,7 +181,7 @@ rom #(HEX_FILE = "rom_data_idle.hex") rom_idle_inst (
   .data(pixel_data_idle)
 );
 
-rom #(HEX_FILE = "rom_data_move.hex") rom_move_inst (
+rom #(.HEX_FILE("rom_data_move.hex")) rom_move_inst (
   // ROM for move state
   .clk(effective_clk),
   .rst(1'b0),
@@ -194,7 +194,7 @@ rom #(HEX_FILE = "rom_data_move.hex") rom_move_inst (
   .data(pixel_data_move)
 );
 
-rom #(HEX_FILE = "rom_data_attack_start.hex") rom_attack_start_inst (
+rom #(.HEX_FILE("rom_data_attack_start.hex")) rom_attack_start_inst (
   // ROM for attack start state
   .clk(effective_clk),
   .rst(1'b0),
@@ -207,7 +207,7 @@ rom #(HEX_FILE = "rom_data_attack_start.hex") rom_attack_start_inst (
   .data(pixel_data_attack_start)
 );
 
-rom #(HEX_FILE = "rom_data_attack_end.hex") rom_attack_end_inst (
+rom #(.HEX_FILE("rom_data_attack_end.hex")) rom_attack_end_inst (
   // ROM for attack end state
   .clk(effective_clk),
   .rst(1'b0),
@@ -220,7 +220,7 @@ rom #(HEX_FILE = "rom_data_attack_end.hex") rom_attack_end_inst (
   .data(pixel_data_attack_end)
 );
 
-rom #(HEX_FILE = "rom_data_attack_pull.hex") rom_attack_pull_inst (
+rom #(.HEX_FILE("rom_data_attack_pull.hex")) rom_attack_pull_inst (
   // ROM for attack pull state
   .clk(effective_clk),
   .rst(1'b0),
@@ -240,7 +240,10 @@ always @(*) begin
     4'd3: begin pixel_data = pixel_data_attack_start; sprite_height = sprite_heights[2]; sprite_width = sprite_widths[2]; end // Attack start
     4'd4: begin pixel_data = pixel_data_attack_end; sprite_height = sprite_heights[3]; sprite_width = sprite_widths[3]; end // Attack end
     4'd5: begin pixel_data = pixel_data_attack_pull; sprite_height = sprite_heights[4]; sprite_width = sprite_widths[4]; end // Attack pull
-    default: pixel_data = 16'h0000_1111_1111; // Default color (black)
+    default: begin pixel_data = 16'h0FFF; // Default color (white) sprite
+              sprite_height = 100; // Default height
+              sprite_width = 100; // Default width
+             end
   endcase
 end
 

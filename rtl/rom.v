@@ -10,7 +10,7 @@ module rom #(parameter HEX_FILE = "rom_data.hex") (
     output reg [15:0] data
 );
     // ROM data initialization
-    reg [15:0] rom_sprite [0:1023]; // 1024 entries of 16-bit data
+    reg [15:0] rom_sprite [0:23999]; // 24000 entries for a sprite of 100x240 pixels (16 bits per pixel)
     wire [9:0] relative_x = current_pixel_x - posx;
     wire [9:0] relative_y = current_pixel_y - posy;
     wire [15:0] addr;
@@ -28,7 +28,7 @@ module rom #(parameter HEX_FILE = "rom_data.hex") (
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             data <= 16'h0000; // Reset output data
-        end else if (inside_sprite && addr < 1024) begin
+        end else if (inside_sprite && addr < 24000) begin
             // Ensure the address is within bounds of the ROM
             data <= rom_sprite[addr]; // Read data from ROM at the specified address
         end else begin

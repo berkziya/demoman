@@ -259,7 +259,7 @@ always @(*) begin
       pixel_data[4:3]  // Blue (2 bits)
     };
   end else begin
-    color_to_vga_driver = 8'b00000000; // Default color (black)
+    color_to_vga_driver = 8'b11100111; // Pink color
   end
 end
 

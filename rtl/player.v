@@ -48,22 +48,28 @@ parameter P_SPEED = 15;
 reg [3:0] NS;
 
 wire [9:0] counter;
-reg rst_counter;
+
+reg curr_rst_counter;
+reg next_rst_counter;
 
 counter #(
   .W(10)
 ) counter_inst (
   .clk(clk),
-  .rst(rst_counter),
+  .rst(curr_rst_counter),
   .control(2'b01),
   .count(counter)
 );
 
 always @(posedge clk or posedge rst) begin
   // $display("State: %d, Counter: %d, Counter Reset: %b", current_state, counter, rst_counter);
-  if (rst) current_state <= S_IDLE;
-  else current_state <= NS;
-  rst_counter = 1'b0;
+  if (rst) begin
+    current_state <= S_IDLE;
+    curr_rst_counter <= 1'b0;
+  end else begin
+    current_state <= NS;
+    curr_rst_counter <= next_rst_counter;
+  end
 end
 
 always @(*) begin
@@ -71,51 +77,51 @@ always @(*) begin
     S_IDLE, S_MOVEFORWARD, S_MOVEBACKWARDS: begin
       if (attack) begin
         NS = S_B_ATTACK_START;
-        rst_counter = 1'b1;
+        next_rst_counter = 1'b1;
       end else if (left && right) begin
         NS = S_MOVEBACKWARDS;
-        rst_counter = 1'b1;
+        next_rst_counter = 1'b1;
       end else if (left && ~right) begin
         NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
-        rst_counter = 1'b1;
+        next_rst_counter = 1'b1;
       end else if (~left && right) begin
         NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
-        rst_counter = 1'b1;
+        next_rst_counter = 1'b1;
       end else begin
         NS = S_IDLE;
-        rst_counter = 1'b0;
+        next_rst_counter = 1'b0;
       end
     end
     S_B_ATTACK_START: begin
       if (counter < 4) begin
         NS = S_B_ATTACK_START;
-        rst_counter = 1'b0;
+        next_rst_counter = 1'b0;
       end else begin
         NS = S_B_ATTACK_END;
-        rst_counter = 1'b1;
+        next_rst_counter = 1'b1;
       end
     end
     S_B_ATTACK_END: begin
       if (counter < 1) begin
         NS = S_B_ATTACK_END;
-        rst_counter = 1'b0;
+        next_rst_counter = 1'b0;
       end else begin
         NS = S_B_ATTACK_PULL;
-        rst_counter = 1'b1;
+        next_rst_counter = 1'b1;
       end
     end
     S_B_ATTACK_PULL: begin
       if (counter < 15) begin
         NS = S_B_ATTACK_PULL;
-        rst_counter = 1'b0;
+        next_rst_counter = 1'b0;
       end else begin
         NS = S_IDLE;
-        rst_counter = 1'b1;
+        next_rst_counter = 1'b1;
       end
     end
     default: begin
       NS = S_IDLE;
-      rst_counter = 1'b0;
+      next_rst_counter = 1'b0;
     end
   endcase
 end

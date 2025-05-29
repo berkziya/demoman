@@ -71,8 +71,8 @@ wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
 wire       clk_60hz;
 
-reg [15:0] pixel_data;
-wire [15:0] pixel_data_idle, pixel_data_move_forward, pixel_data_move_backward, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull;
+reg [7:0] pixel_data;
+wire [7:0] pixel_data_idle, pixel_data_move_forward, pixel_data_move_backward, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull;
 reg pixel_visible_flag;
 wire pixel_visible_flag_idle, pixel_visible_flag_move_forward, pixel_visible_flag_move_backward, pixel_visible_flag_attack_start, pixel_visible_flag_attack_end, pixel_visible_flag_attack_pull;
 wire [9:0] sprite_height = 10'd157; // Height of the sprite
@@ -141,147 +141,155 @@ player #(1'b0) Player1 (
   .main_hurtbox_y2(hurt_y2)
 );
 
-
-
-rom #(.MIF_FILE("../sprites/aaa7.mif")) rom_idle_inst (
-  // ROM for idle state
-  .clk(effective_clk),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_idle), // Visibility flag for idle state
-  .data(pixel_data_idle)
-);
-
-rom #(.MIF_FILE("../sprites/aaa8.mif")) rom_move_forward_inst (
-  // ROM for move forward state
-  .clk(effective_clk),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_move_forward), // Visibility flag for move forward state
-  .data(pixel_data_move_forward)
-);
-
-rom #(.MIF_FILE("../sprites/aaa9.mif")) rom_move_backward_inst (
-  // ROM for move backward state
-  .clk(effective_clk),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_move_backward), // Visibility flag for move backward state
-  .data(pixel_data_move_backward)
-);
-
-rom #(.MIF_FILE("../sprites/aaa10.mif")) rom_attack_start_inst (
-  // ROM for attack start state
-  .clk(effective_clk),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_attack_start), // Visibility flag for attack start state
-  .data(pixel_data_attack_start)
-);
-
-rom #(.MIF_FILE("../sprites/aaa11.mif")) rom_attack_end_inst (
-  // ROM for attack end state
-  .clk(effective_clk),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_attack_end), // Visibility flag for attack end state
-  .data(pixel_data_attack_end)
-);
-
-rom #(.MIF_FILE("../sprites/aaa12.mif")) rom_attack_pull_inst (
-  // ROM for attack pull state
-  .clk(effective_clk),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_attack_pull), // Visibility flag for attack pull state
-  .data(pixel_data_attack_pull)
-);
-
 always @(*) begin
-  case (currentstate)
-    4'd0: begin 
-      pixel_data = pixel_data_idle; 
-      pixel_visible_flag = pixel_visible_flag_idle; end // Idle state
-    4'd1: begin 
-      pixel_data = pixel_data_move_forward; 
-      pixel_visible_flag = pixel_visible_flag_move_forward; end // Move forward state
-    4'd2: begin 
-      pixel_data = pixel_data_move_backward; 
-      pixel_visible_flag = pixel_visible_flag_move_backward; end // Move backward state
-    4'd3: begin 
-      pixel_data = pixel_data_attack_start; 
-      pixel_visible_flag = pixel_visible_flag_attack_start; end // Attack start state
-    4'd4: begin 
-      pixel_data = pixel_data_attack_end; 
-      pixel_visible_flag = pixel_visible_flag_attack_end; end // Attack end state
-    4'd5: begin 
-      pixel_data = pixel_data_attack_pull;
-      pixel_visible_flag = pixel_visible_flag_attack_pull; end // Attack pull state
-    default: begin
-      pixel_data = 16'h0FFF; // Default color (white) sprite
-      pixel_visible_flag = 1'b1; end // Visible 
-  endcase
-end
-
-assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
-                          current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-assign on_hithurt_border = (((current_pixel_x == hithurt_x1 || current_pixel_x == hithurt_x2) &&
-                           (current_pixel_y >= hithurt_y1 && current_pixel_y <= hithurt_y2)) || 
-                           ((current_pixel_y == hithurt_y1 || current_pixel_y == hithurt_y2) &&
-                           (current_pixel_x >= hithurt_x1 && current_pixel_x <= hithurt_x2)));
-assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt_x2) &&
-                           (current_pixel_y >= hurt_y1 && current_pixel_y <= hurt_y2)) || 
-                           ((current_pixel_y == hurt_y1 || current_pixel_y == hurt_y2) &&
-                           (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));
-always @(*) begin
-  if (on_hithurt_border) begin // If the current pixel is on the basic hit hurtbox border
-    if (currentstate == 4'd4) begin // If the player is in the attack end state
-      color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
-    end else if (currentstate == 4'd5) begin // If the player is in the attack pull state
-      color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
-      end
-  else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
-    color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
-    end
-  else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
-    color_to_vga_driver = {
-      pixel_data[15:13], // Red (3 bits)
-      pixel_data[10:8], // Green (3 bits)
-      pixel_data[4:3]  // Blue (2 bits)
-    };
-  end else begin
-    color_to_vga_driver = 8'b11100111; // Pink color
+  color_to_vga_driver = 8'b00100101; // Default color (pink)
+  if (current_pixel_x >= posx && current_pixel_x < posx + 100 &&
+      current_pixel_y >= posy && current_pixel_y < posy + 100) begin
+    color_to_vga_driver =  currentstate == 4'd0 ? 8'b11100000 : // Idle state color (red)
+                           currentstate == 4'd1 ? 8'b00001111 : // Move forward (blue)
+                           currentstate == 4'd2 ? 8'b11110000 : // Move backward (yellow)
+                           currentstate == 4'd3 ? 8'b00011111 : // Attack start (cyan)
+                           currentstate == 4'd4 ? 8'b11111100 : // Attack end (light green)
+                           currentstate == 4'd5 ? 8'b11111111 : // Attack pull (white)
+                           8'b11111111; // Default color
   end
 end
-end
+
+
+// rom #(.MIF_FILE("../sprites/aaa7.mif")) rom_idle_inst (
+//   // ROM for idle state
+//   .clk(effective_clk),
+//   .rst(1'b0),
+//   .current_pixel_x(current_pixel_x), // Current pixel X position
+//   .current_pixel_y(current_pixel_y), // Current pixel Y position
+//   .posx(posx), // Player's X position
+//   .posy(posy), // Player's Y position
+//   .sprite_height(sprite_height), // Height of the sprite
+//   .sprite_width(sprite_width), // Width of the sprite
+//   .visible_flag(pixel_visible_flag_idle), // Visibility flag for idle state
+//   .data(pixel_data_idle)
+// );
+
+// rom #(.MIF_FILE("../sprites/aaa8.mif")) rom_move_forward_inst (
+//   // ROM for move forward state
+//   .clk(effective_clk),
+//   .rst(1'b0),
+//   .current_pixel_x(current_pixel_x), // Current pixel X position
+//   .current_pixel_y(current_pixel_y), // Current pixel Y position
+//   .posx(posx), // Player's X position
+//   .posy(posy), // Player's Y position
+//   .sprite_height(sprite_height), // Height of the sprite
+//   .sprite_width(sprite_width), // Width of the sprite
+//   .visible_flag(pixel_visible_flag_move_forward), // Visibility flag for move forward state
+//   .data(pixel_data_move_forward)
+// );
+
+// rom #(.MIF_FILE("../sprites/aaa9.mif")) rom_move_backward_inst (
+//   // ROM for move backward state
+//   .clk(effective_clk),
+//   .rst(1'b0),
+//   .current_pixel_x(current_pixel_x), // Current pixel X position
+//   .current_pixel_y(current_pixel_y), // Current pixel Y position
+//   .posx(posx), // Player's X position
+//   .posy(posy), // Player's Y position
+//   .sprite_height(sprite_height), // Height of the sprite
+//   .sprite_width(sprite_width), // Width of the sprite
+//   .visible_flag(pixel_visible_flag_move_backward), // Visibility flag for move backward state
+//   .data(pixel_data_move_backward)
+// );
+
+// rom #(.MIF_FILE("../sprites/aaa10.mif")) rom_attack_start_inst (
+//   // ROM for attack start state
+//   .clk(effective_clk),
+//   .rst(1'b0),
+//   .current_pixel_x(current_pixel_x), // Current pixel X position
+//   .current_pixel_y(current_pixel_y), // Current pixel Y position
+//   .posx(posx), // Player's X position
+//   .posy(posy), // Player's Y position
+//   .sprite_height(sprite_height), // Height of the sprite
+//   .sprite_width(sprite_width), // Width of the sprite
+//   .visible_flag(pixel_visible_flag_attack_start), // Visibility flag for attack start state
+//   .data(pixel_data_attack_start)
+// );
+
+// rom #(.MIF_FILE("../sprites/aaa11.mif")) rom_attack_end_inst (
+//   // ROM for attack end state
+//   .clk(effective_clk),
+//   .rst(1'b0),
+//   .current_pixel_x(current_pixel_x), // Current pixel X position
+//   .current_pixel_y(current_pixel_y), // Current pixel Y position
+//   .posx(posx), // Player's X position
+//   .posy(posy), // Player's Y position
+//   .sprite_height(sprite_height), // Height of the sprite
+//   .sprite_width(sprite_width), // Width of the sprite
+//   .visible_flag(pixel_visible_flag_attack_end), // Visibility flag for attack end state
+//   .data(pixel_data_attack_end)
+// );
+
+// rom #(.MIF_FILE("../sprites/aaa12.mif")) rom_attack_pull_inst (
+//   // ROM for attack pull state
+//   .clk(effective_clk),
+//   .rst(1'b0),
+//   .current_pixel_x(current_pixel_x), // Current pixel X position
+//   .current_pixel_y(current_pixel_y), // Current pixel Y position
+//   .posx(posx), // Player's X position
+//   .posy(posy), // Player's Y position
+//   .sprite_height(sprite_height), // Height of the sprite
+//   .sprite_width(sprite_width), // Width of the sprite
+//   .visible_flag(pixel_visible_flag_attack_pull), // Visibility flag for attack pull state
+//   .data(pixel_data_attack_pull)
+// );
+
+// always @(*) begin
+//   case (currentstate)
+//     4'd0: begin
+//       pixel_data = pixel_data_idle;
+//       pixel_visible_flag = pixel_visible_flag_idle; end // Idle state
+//     4'd1: begin
+//       pixel_data = pixel_data_move_forward;
+//       pixel_visible_flag = pixel_visible_flag_move_forward; end // Move forward state
+//     4'd2: begin
+//       pixel_data = pixel_data_move_backward;
+//       pixel_visible_flag = pixel_visible_flag_move_backward; end // Move backward state
+//     4'd3: begin
+//       pixel_data = pixel_data_attack_start;
+//       pixel_visible_flag = pixel_visible_flag_attack_start; end // Attack start state
+//     4'd4: begin
+//       pixel_data = pixel_data_attack_end;
+//       pixel_visible_flag = pixel_visible_flag_attack_end; end // Attack end state
+//     4'd5: begin
+//       pixel_data = pixel_data_attack_pull;
+//       pixel_visible_flag = pixel_visible_flag_attack_pull; end // Attack pull state
+//     default: begin
+//       pixel_data = 8'hFF; // Default color (white) sprite
+//       pixel_visible_flag = 1'b1; end // Visible
+//   endcase
+// end
+
+// assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
+//                           current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
+// assign on_hithurt_border = (((current_pixel_x == hithurt_x1 || current_pixel_x == hithurt_x2) &&
+//                            (current_pixel_y >= hithurt_y1 && current_pixel_y <= hithurt_y2)) || 
+//                            ((current_pixel_y == hithurt_y1 || current_pixel_y == hithurt_y2) &&
+//                            (current_pixel_x >= hithurt_x1 && current_pixel_x <= hithurt_x2)));
+// assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt_x2) &&
+//                            (current_pixel_y >= hurt_y1 && current_pixel_y <= hurt_y2)) || 
+//                            ((current_pixel_y == hurt_y1 || current_pixel_y == hurt_y2) &&
+//                            (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));
+// always @(*) begin
+//   if (on_hithurt_border) begin // If the current pixel is on the basic hit hurtbox border
+//     if (currentstate == 4'd4) begin // If the player is in the attack end state
+//       color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
+//     end else if (currentstate == 4'd5) begin // If the player is in the attack pull state
+//       color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
+//       end
+//   else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
+//     color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
+//   end else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
+//     color_to_vga_driver = pixel_data;
+//   end else begin
+//     color_to_vga_driver = 8'b11100111; // Pink color
+//   end
+// end
+// end
 endmodule

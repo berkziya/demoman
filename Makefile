@@ -82,7 +82,7 @@ SDL2_LIBS          := $(shell sdl2-config --libs)
 CXXFLAGS_NATIVE    ?= -std=c++17 -O3 $(SDL2_CFLAGS) -I$(VERILATOR_INCLUDE_PATH) -I$(SIM_DIR)
 LDFLAGS_NATIVE     ?= $(SDL2_LIBS)
 
-VERILATOR_FLAGS_NATIVE := $(VERILATOR_FLAGS_COMMON) --cc --timing --build --exe --Mdir $(OBJ_DIR_NATIVE) --prefix V$(strip $(VERILOG_TOP_MODULE))
+VERILATOR_FLAGS_NATIVE := $(VERILATOR_FLAGS_COMMON) --cc --build --exe --Mdir $(OBJ_DIR_NATIVE) --prefix V$(strip $(VERILOG_TOP_MODULE)) -j 0 -O3 --x-assign fast --x-initial fast --noassert
 
 # --- Targets ---
 .PHONY: all wasm run_wasm clean_wasm verilate_wasm native run_native clean_native clean help test_vars
@@ -154,7 +154,7 @@ clean_native:
 	@echo "✨ Native clean complete."
 
 # --- Common Targets ---
-	clean: clean_wasm clean_native
+clean: clean_wasm clean_native
 	@echo "🧼 All build artifacts cleaned."
 
 help:

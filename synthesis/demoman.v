@@ -66,10 +66,8 @@ wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
 wire       clk_60hz;
 
-reg [7:0] pixel_data;
-wire [7:0] pixel_data_idle, pixel_data_move_forward, pixel_data_move_backward, pixel_data_attack_start, pixel_data_attack_end, pixel_data_attack_pull;
-reg pixel_visible_flag;
-wire pixel_visible_flag_idle, pixel_visible_flag_move_forward, pixel_visible_flag_move_backward, pixel_visible_flag_attack_start, pixel_visible_flag_attack_end, pixel_visible_flag_attack_pull;
+wire [7:0] pixel_data;
+wire pixel_visible_flag;
 wire [9:0] sprite_height = 10'd157; // Height of the sprite
 wire [9:0] sprite_width = 10'd150;  // Width of the sprite
 wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox coordinates
@@ -143,8 +141,7 @@ player #(1'b0) Player1 (
 //   end
 // end
 
-rom #(.MIF_FILE("../sprites/aaa8.mif")) rom_move_forward_inst (
-  // ROM for move forward state
+rom rom_inst (
   .clk(CLOCK_50),
   .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
@@ -153,78 +150,8 @@ rom #(.MIF_FILE("../sprites/aaa8.mif")) rom_move_forward_inst (
   .posy(posy), // Player's Y position
   .sprite_height(sprite_height), // Height of the sprite
   .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_move_forward), // Visibility flag for move forward state
-  .data(pixel_data_move_forward)
-);
-
-rom #(.MIF_FILE("../sprites/aaa7.mif")) rom_idle_inst (
-  // ROM for idle state
-  .clk(CLOCK_50),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_idle), // Visibility flag for idle state
-  .data(pixel_data_idle)
-);
-
-rom #(.MIF_FILE("../sprites/aaa9.mif")) rom_move_backward_inst (
-  // ROM for move backward state
-  .clk(CLOCK_50),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_move_backward), // Visibility flag for move backward state
-  .data(pixel_data_move_backward)
-);
-
-rom #(.MIF_FILE("../sprites/aaa10.mif")) rom_attack_start_inst (
-  // ROM for attack start state
-  .clk(CLOCK_50),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_attack_start), // Visibility flag for attack start state
-  .data(pixel_data_attack_start)
-);
-
-rom #(.MIF_FILE("../sprites/aaa11.mif")) rom_attack_end_inst (
-  // ROM for attack end state
-  .clk(CLOCK_50),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_attack_end), // Visibility flag for attack end state
-  .data(pixel_data_attack_end)
-);
-
-rom #(.MIF_FILE("../sprites/aaa12.mif")) rom_attack_pull_inst (
-  // ROM for attack pull state
-  .clk(CLOCK_50),
-  .rst(1'b0),
-  .current_pixel_x(current_pixel_x), // Current pixel X position
-  .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .visible_flag(pixel_visible_flag_attack_pull), // Visibility flag for attack pull state
-  .data(pixel_data_attack_pull)
+  .visible_flag(pixel_visible_flag), // Visibility flag for move forward state
+  .data(pixel_data)
 );
 
 

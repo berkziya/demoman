@@ -1,4 +1,4 @@
-module rom #(parameter MIF_FILE = ".hex") (
+module rom (
     input clk,
     input rst,
     input [9:0] current_pixel_x, // Current pixel X position

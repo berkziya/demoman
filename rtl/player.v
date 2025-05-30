@@ -21,7 +21,7 @@ module player #(
 
 assign posy = 10'd170; // Fixed Y position for the player
 
-assign basic_hithurtbox_x1 = posx + 37;
+assign basic_hithurtbox_x1 = posx + 35; // old version was posx + 37
 assign basic_hithurtbox_x2 = posx + 113;
 assign basic_hithurtbox_y1 = posy + 24;
 assign basic_hithurtbox_y2 = posy + 57;

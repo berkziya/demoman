@@ -265,12 +265,12 @@ assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt
                           (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));
 
 always @(*) begin
-  if (on_hithurt_border) begin // If the current pixel is on the basic hit hurtbox border
-    if (currentstate == 4'd4) begin // If the player is in the attack end state
-      color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
-    end else if (currentstate == 4'd5) begin // If the player is in the attack pull state
+  if (current_state == 4'd4) begin // If the current state is attack end
+    if (on_hithurt_border) // If the current pixel is on the basic hit hurtbox border
+      color_to_vga_driver = 8'b00001111; // Blue color for basic hit hurtbox border
+  end else if (current_state == 4'd5) begin // If the current state is attack pull
+    if (on_hithurt_border) // If the current pixel is on the basic hit hurtbox border
       color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
-    end
   end else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
     color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
   end else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible

@@ -111,8 +111,8 @@ assign effective_clk = SW[1] ? ~KEY[0]: clk_60hz;
 player #(1'b0) Player1 (
   .clk(effective_clk),
   .rst(reset),
-  .left(~KEY[3]),
-  .right(~KEY[2]),
+  .left(1'b0),
+  .right(1'b0),
   .attack(~KEY[1]),
   .posx(posx),
   .posy(posy),

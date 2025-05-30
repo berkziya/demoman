@@ -12,7 +12,13 @@ module rom #(parameter MIF_FILE = ".hex") (
 );
     // ROM data initialization
     localparam image_size = 150 * 157; // Size of the sprite in pixels
-	wire [7:0] rom_sprite;
+	wire [7:0] rom_sprite,
+               rom_sprite_idle, 
+               rom_sprite_forward, 
+               rom_sprite_backward, 
+               rom_sprite_attack_start, 
+               rom_sprite_attack_end, 
+               rom_sprite_attack_pull;
     wire [9:0] relative_x = current_pixel_x - posx;
     wire [9:0] relative_y = current_pixel_y - posy;
     wire [14:0] addr;
@@ -23,12 +29,48 @@ module rom #(parameter MIF_FILE = ".hex") (
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
     assign addr = (relative_y * 15'd150) + relative_x; // Calculate address in ROM
     
-    rom_demo rom_demo_inst (
+    rom_demo_idle rom_demo_inst_idle (
         .address(addr),
         .clock(clk),
-        .q(rom_sprite)
+        .q(rom_sprite_idle)
+    );
+    rom_demo_forward rom_demo_forward_inst (
+        .address(addr),
+        .clock(clk),
+        .q(rom_sprite_forward)
+    );
+    rom_demo_backward rom_demo_backward_inst (
+        .address(addr),
+        .clock(clk),
+        .q(rom_sprite_backward)
+    );
+    rom_demo_attack_start rom_demo_attack_start_inst (
+        .address(addr),
+        .clock(clk),
+        .q(rom_sprite_attack_start)
+    );
+    rom_demo_start_end rom_attack_end_inst (
+        .address(addr),
+        .clock(clk),
+        .q(rom_sprite_attack_end)
+    );
+    rom_demo_start_pull rom_attack_pull_inst (
+        .address(addr),
+        .clock(clk),
+        .q(rom_sprite_attack_pull)
     );
 
+always @(*) begin
+  case (currentstate)
+    4'd0: rom_sprite = rom_sprite_idle; // Idle state
+    4'd1: rom_sprite = rom_sprite_forward; // Move forward state
+    4'd2: rom_sprite = rom_sprite_backward; // Move backward state
+    4'd3: rom_sprite = rom_sprite_attack_start; // Attack start state
+    4'd4: rom_sprite = rom_sprite_attack_end; // Attack end state
+    4'd5: rom_sprite = rom_sprite_attack_pull; // Attack pull state
+    default: rom_sprite = 8'b00100101; // Default color (white) sprite
+  endcase
+end
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin

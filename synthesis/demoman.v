@@ -227,31 +227,6 @@ rom #(.MIF_FILE("../sprites/aaa12.mif")) rom_attack_pull_inst (
   .data(pixel_data_attack_pull)
 );
 
-always @(*) begin
-  case (currentstate)
-    4'd0: begin
-      pixel_data = pixel_data_idle;
-      pixel_visible_flag = pixel_visible_flag_idle; end // Idle state
-    4'd1: begin
-      pixel_data = pixel_data_move_forward;
-      pixel_visible_flag = pixel_visible_flag_move_forward; end // Move forward state
-    4'd2: begin
-      pixel_data = pixel_data_move_backward;
-      pixel_visible_flag = pixel_visible_flag_move_backward; end // Move backward state
-    4'd3: begin
-      pixel_data = pixel_data_attack_start;
-      pixel_visible_flag = pixel_visible_flag_attack_start; end // Attack start state
-    4'd4: begin
-      pixel_data = pixel_data_attack_end;
-      pixel_visible_flag = pixel_visible_flag_attack_end; end // Attack end state
-    4'd5: begin
-      pixel_data = pixel_data_attack_pull;
-      pixel_visible_flag = pixel_visible_flag_attack_pull; end // Attack pull state
-    default: begin
-      pixel_data = 8'hFF; // Default color (white) sprite
-      pixel_visible_flag = 1'b1; end // Visible
-  endcase
-end
 
 assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
                         current_pixel_y >= posy && current_pixel_y < posy + sprite_height);

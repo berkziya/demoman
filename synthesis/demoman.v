@@ -64,7 +64,6 @@ wire  [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
-wire       clk_60hz;
 
 wire [7:0] pixel_data;
 wire pixel_visible_flag;
@@ -104,9 +103,13 @@ vga_driver vga_inst (
   .blank(VGA_BLANK_N)             // Output: High during active display period
 );
 
-assign clk_60hz = current_pixel_y == 10'd479 && current_pixel_x == 10'd639;
-
-assign effective_clk = SW[1] ? ~KEY[0]: clk_60hz;
+effective_clock_generator effective_clk_inst(
+  .SW(SW[1]), // Switches for clock selection
+  .KEY(KEY[0]), // Keys for control
+  .current_pixel_x(current_pixel_x), // Current pixel X position
+  .current_pixel_y(current_pixel_y), // Current pixel Y position
+  .effective_clk(effective_clk) // Output effective clock signal based on switch state
+);
 
 player #(1'b0) Player1 (
   .clk(effective_clk),

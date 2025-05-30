@@ -114,8 +114,8 @@ effective_clock_generator effective_clk_inst(
 player #(1'b0) Player1 (
   .clk(effective_clk),
   .rst(reset),
-  .left(1'b0),
-  .right(1'b0),
+  .left(~KEY[3]),
+  .right(~KEY[2]),
   .attack(~KEY[1]),
   .posx(posx),
   .posy(posy),

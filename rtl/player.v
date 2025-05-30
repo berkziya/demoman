@@ -41,18 +41,22 @@ localparam S_B_ATTACK_START = 4'd3;
 localparam S_B_ATTACK_END = 4'd4;
 localparam S_B_ATTACK_PULL = 4'd5;
 
+localparam countsize = 32;
+
+localparam P_SPEED_FORW = 3;
+localparam P_SPEED_BACK = 2;
+
 reg [3:0] NS;
 
-wire [9:0] counter;
+wire [countsize-1:0] counter;
 
-reg curr_rst_counter;
-reg next_rst_counter;
+reg [countsize-1:0] lastcountanchor;
 
 counter #(
-  .W(10)
+  .W(countsize)
 ) counter_inst (
   .clk(clk),
-  .rst(curr_rst_counter),
+  .rst(1'b0),
   .control(2'b01),
   .count(counter)
 );
@@ -61,11 +65,11 @@ always @(posedge clk or posedge rst) begin
   // $display("State: %d, Counter: %d, Counter Reset: %b", current_state, counter, rst_counter);
   if (rst) begin
     current_state <= S_IDLE;
-    curr_rst_counter <= 1'b0;
+	lastcountanchor <= 0;
   end else begin
+	if (current_state != NS) lastcountanchor <=counter;
     current_state <= NS;
-    curr_rst_counter <= next_rst_counter;
-  end
+	end
 end
 
 always @(*) begin
@@ -73,51 +77,49 @@ always @(*) begin
     S_IDLE, S_MOVEFORWARD, S_MOVEBACKWARDS: begin
       if (attack) begin
         NS = S_B_ATTACK_START;
-        next_rst_counter = 1'b1;
       end else if (left && right) begin
         NS = S_MOVEBACKWARDS;
-        next_rst_counter = 1'b1;
       end else if (left && ~right) begin
         NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
-        next_rst_counter = 1'b1;
       end else if (~left && right) begin
         NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
-        next_rst_counter = 1'b1;
       end else begin
         NS = S_IDLE;
-        next_rst_counter = 1'b0;
       end
     end
     S_B_ATTACK_START: begin
-      if (counter < 4) begin
+      if ((counter-lastcountanchor) < 32'd5) begin
         NS = S_B_ATTACK_START;
-        next_rst_counter = 1'b0;
       end else begin
         NS = S_B_ATTACK_END;
-        next_rst_counter = 1'b1;
       end
     end
     S_B_ATTACK_END: begin
-      if (counter < 1) begin
+      if ((counter-lastcountanchor) < 32'd2) begin
         NS = S_B_ATTACK_END;
-        next_rst_counter = 1'b0;
       end else begin
         NS = S_B_ATTACK_PULL;
-        next_rst_counter = 1'b1;
       end
     end
     S_B_ATTACK_PULL: begin
-      if (counter < 15) begin
+      if ((counter-lastcountanchor) < 32'd16) begin
         NS = S_B_ATTACK_PULL;
-        next_rst_counter = 1'b0;
+      end else begin
+      if (attack) begin
+        NS = S_B_ATTACK_START;
+      end else if (left && right) begin
+        NS = S_MOVEBACKWARDS;
+      end else if (left && ~right) begin
+        NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+      end else if (~left && right) begin
+        NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
       end else begin
         NS = S_IDLE;
-        next_rst_counter = 1'b1;
+      end
       end
     end
     default: begin
       NS = S_IDLE;
-      next_rst_counter = 1'b0;
     end
   endcase
 end
@@ -126,17 +128,17 @@ always @(posedge clk) begin
   if (rst) begin
     posx <= (SIDE == LEFT) ? 10'd210 : 10'd420;
   end else begin
-    case (current_state)
+    case (NS)
       S_IDLE: begin
         posx <= posx;
       end
       S_MOVEFORWARD: begin
-        if (SIDE == LEFT) posx <= posx + 3;
-        else posx <= posx - 3;
+        if (SIDE == LEFT) posx <= posx + P_SPEED_FORW;
+        else posx <= posx - P_SPEED_FORW;
       end
       S_MOVEBACKWARDS: begin
-        if (SIDE == LEFT) posx <= posx - 2;
-        else posx <= posx + 2;
+        if (SIDE == LEFT) posx <= posx - P_SPEED_BACK;
+        else posx <= posx + P_SPEED_BACK;
       end
       S_B_ATTACK_START: begin
         posx <= posx;

@@ -192,12 +192,12 @@ async def player_state_test(dut):
         if dut.current_state.value != expected_next_state:
             test_failed = True
             cocotb.log.error(
-                f"MISMATCH for current_state={dut.current_state.value}. Expected={(expected_next_state)}, Got={dut.current_state.value}, counter = {dut.counter.value}" #indicate for which value the error occured
+                f"MISMATCH for current_state={dut.current_state.value}. Expected={(expected_next_state)}, Got={dut.current_state.value}" #indicate for which value the error occured
             )
             Log_Design(dut)
         else:
             cocotb.log.info(
-                f"PASSED for current_state={dut.current_state.value} = {(expected_next_state)}, counter = {dut.counter.value}" #indicate for which value the test passed
+                f"PASSED for current_state={dut.current_state.value} = {(expected_next_state)}" #indicate for which value the test passed
             )
 
  

@@ -64,11 +64,11 @@ always @(posedge clk or posedge rst) begin
   // $display("State: %d, Counter: %d, Counter Reset: %b", current_state, counter, rst_counter);
   if (rst) begin
     current_state <= S_IDLE;
-
+	lastcountanchor <= 0;
   end else begin
+	if (current_state != NS) lastcountanchor <=counter;
     current_state <= NS;
-
-  end
+	end
 end
 
 always @(*) begin
@@ -76,51 +76,49 @@ always @(*) begin
     S_IDLE, S_MOVEFORWARD, S_MOVEBACKWARDS: begin
       if (attack) begin
         NS = S_B_ATTACK_START;
-		lastcountanchor = counter;
       end else if (left && right) begin
         NS = S_MOVEBACKWARDS;
-		lastcountanchor = counter;
       end else if (left && ~right) begin
         NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
-		lastcountanchor = counter;
       end else if (~left && right) begin
         NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
-		lastcountanchor = counter;
       end else begin
         NS = S_IDLE;
-		lastcountanchor = counter;
       end
     end
     S_B_ATTACK_START: begin
-      if ((counter-lastcountanchor) < 5) begin
+      if ((counter-lastcountanchor) < 32'd5) begin
         NS = S_B_ATTACK_START;
-		lastcountanchor = lastcountanchor;
       end else begin
         NS = S_B_ATTACK_END;
-		lastcountanchor = counter;
       end
     end
     S_B_ATTACK_END: begin
-      if ((counter-lastcountanchor) < 2) begin
+      if ((counter-lastcountanchor) < 32'd2) begin
         NS = S_B_ATTACK_END;
-		lastcountanchor = lastcountanchor;
       end else begin
         NS = S_B_ATTACK_PULL;
-		lastcountanchor = counter;
       end
     end
     S_B_ATTACK_PULL: begin
-      if ((counter-lastcountanchor) < 16) begin
+      if ((counter-lastcountanchor) < 32'd16) begin
         NS = S_B_ATTACK_PULL;
-		lastcountanchor = lastcountanchor;
+      end else begin
+      if (attack) begin
+        NS = S_B_ATTACK_START;
+      end else if (left && right) begin
+        NS = S_MOVEBACKWARDS;
+      end else if (left && ~right) begin
+        NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+      end else if (~left && right) begin
+        NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
       end else begin
         NS = S_IDLE;
-		lastcountanchor = counter;
+      end
       end
     end
     default: begin
       NS = S_IDLE;
-	  lastcountanchor = counter;
     end
   endcase
 end

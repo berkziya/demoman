@@ -269,14 +269,14 @@ always @(*) begin
     if (currentstate == 4'd4) begin // If the player is in the attack end state
       color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
     end else if (currentstate == 4'd5) begin // If the player is in the attack pull state
-      color_to_vga_driver = 8'b11110001; // Yellow color for basic hit hurtbox border
+      color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
     end
   end else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
-    color_to_vga_driver = 8'b00111110; // Yellow color for main hurtbox border
+    color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
   end else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
     color_to_vga_driver = pixel_data;
   end else begin
-    color_to_vga_driver = 8'b00100101; // Default color (yellow) for background
+    color_to_vga_driver = 8'b00100101; // Default color (purple) for background
   end
 end
 

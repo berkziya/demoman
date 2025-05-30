@@ -12,8 +12,8 @@ module rom (
 );
     // ROM data initialization
     localparam image_size = 150 * 157; // Size of the sprite in pixels
-	wire [7:0] rom_sprite,
-               rom_sprite_idle, 
+	reg [7:0]  rom_sprite;
+    wire [7:0] rom_sprite_idle, 
                rom_sprite_forward, 
                rom_sprite_backward, 
                rom_sprite_attack_start, 

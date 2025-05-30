@@ -41,8 +41,6 @@ localparam S_B_ATTACK_START = 4'd3;
 localparam S_B_ATTACK_END = 4'd4;
 localparam S_B_ATTACK_PULL = 4'd5;
 
-localparam P_SPEED = 5;
-
 reg [3:0] NS;
 
 wire [9:0] counter;
@@ -91,7 +89,7 @@ always @(*) begin
       end
     end
     S_B_ATTACK_START: begin
-      if (counter < 5) begin
+      if (counter < 4) begin
         NS = S_B_ATTACK_START;
         next_rst_counter = 1'b0;
       end else begin
@@ -100,7 +98,7 @@ always @(*) begin
       end
     end
     S_B_ATTACK_END: begin
-      if (counter < 2) begin
+      if (counter < 1) begin
         NS = S_B_ATTACK_END;
         next_rst_counter = 1'b0;
       end else begin
@@ -109,7 +107,7 @@ always @(*) begin
       end
     end
     S_B_ATTACK_PULL: begin
-      if (counter < 16) begin
+      if (counter < 15) begin
         NS = S_B_ATTACK_PULL;
         next_rst_counter = 1'b0;
       end else begin
@@ -133,12 +131,12 @@ always @(posedge clk) begin
         posx <= posx;
       end
       S_MOVEFORWARD: begin
-        if (SIDE == LEFT) posx <= posx + P_SPEED;
-        else posx <= posx - P_SPEED;
+        if (SIDE == LEFT) posx <= posx + 3;
+        else posx <= posx - 3;
       end
       S_MOVEBACKWARDS: begin
-        if (SIDE == LEFT) posx <= posx - P_SPEED;
-        else posx <= posx + P_SPEED;
+        if (SIDE == LEFT) posx <= posx - 2;
+        else posx <= posx + 2;
       end
       S_B_ATTACK_START: begin
         posx <= posx;

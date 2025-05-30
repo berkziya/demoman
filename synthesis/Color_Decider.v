@@ -1,4 +1,4 @@
-module Color_Decider(
+module color_decider(
 	input [9:0] current_pixel_x, // Current pixel X coordinate
 	input [9:0] current_pixel_y, // Current pixel Y coordinate
 	input [9:0] posx, // X position of the sprite

@@ -155,7 +155,7 @@ rom rom_inst (
   .data(pixel_data)
 );
 
-Color_Decider color_decider_inst(
+color_decider color_decider_inst(
   .current_pixel_x(current_pixel_x), // Current pixel X coordinate
   .current_pixel_y(current_pixel_y), // Current pixel Y coordinate
   .posx(posx), // X position of the sprite

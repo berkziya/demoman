@@ -177,7 +177,7 @@ always @(*) begin
 	end else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
 		color_to_vga_driver = pixel_data;
 	end else begin
-		color_to_vga_driver = 8'b00100101; // Default color (purple) for background
+		color_to_vga_driver = 8'b11111011; // Default color (purple) for background
 	end
 end
 

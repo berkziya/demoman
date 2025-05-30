@@ -60,7 +60,7 @@ wire effective_clk;
 wire [9:0] posx; // Player's X position
 wire [9:0] posy; // Player's Y position
 
-reg  [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
+wire  [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
 wire       clk_25mhz;
@@ -155,33 +155,26 @@ rom rom_inst (
   .data(pixel_data)
 );
 
-
-assign inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width &&
-                        current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-assign on_hithurt_border = (((current_pixel_x == hithurt_x1 || current_pixel_x == hithurt_x2) &&
-                             (current_pixel_y >= hithurt_y1 && current_pixel_y <= hithurt_y2)) ||
-                            ((current_pixel_y == hithurt_y1 || current_pixel_y == hithurt_y2) &&
-                             (current_pixel_x >= hithurt_x1 && current_pixel_x <= hithurt_x2)));
-assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt_x2) &&
-                          (current_pixel_y >= hurt_y1 && current_pixel_y <= hurt_y2)) ||
-                         ((current_pixel_y == hurt_y1 || current_pixel_y == hurt_y2) &&
-                          (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));
-
-always @(*) begin
-	if ((currentstate == 4'd4) && (on_hithurt_border)) begin // If the current state is attack end and on the basic hit hurtbox border
-		color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
-	end else if ((currentstate == 4'd5) && (on_hithurt_border)) begin // If the current state is attack pull and on the basic hit hurtbox border
-		color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
-	end else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
-		color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
-	end else if (inside_sprite && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
-		color_to_vga_driver = pixel_data;
-	end else begin
-		color_to_vga_driver = 8'b11111011; // Default color (purple) for background
-	end
-end
-
-
+Color_Decider color_decider_inst(
+  .current_pixel_x(current_pixel_x), // Current pixel X coordinate
+  .current_pixel_y(current_pixel_y), // Current pixel Y coordinate
+  .posx(posx), // X position of the sprite
+  .posy(posy), // Y position of the sprite
+  .sprite_width(sprite_width), // Width of the sprite
+  .sprite_height(sprite_height), // Height of the sprite
+  .hithurt_x1(hithurt_x1), // X coordinate of the first corner of the basic hit hurtbox
+  .hithurt_x2(hithurt_x2), // X coordinate of the second corner of the basic hit hurtbox
+  .hithurt_y1(hithurt_y1), // Y coordinate of the first corner of the basic hit hurtbox
+  .hithurt_y2(hithurt_y2), // Y coordinate of the second corner of the basic hit hurtbox
+  .hurt_x1(hurt_x1), // X coordinate of the first corner of the main hurtbox
+  .hurt_x2(hurt_x2), // X coordinate of the second corner of the main hurtbox
+  .hurt_y1(hurt_y1), // Y coordinate of the first corner of the main hurtbox
+  .hurt_y2(hurt_y2), // Y coordinate of the second corner of the main hurtbox
+  .currentstate(currentstate), // Current state of the sprite
+  .pixel_data(pixel_data), // Pixel data for the sprite
+  .pixel_visible_flag(pixel_visible_flag), // Flag indicating if the pixel is visible
+  .color_to_vga_driver(color_to_vga_driver) // Color to be sent to the VGA driver
+);
 
 
 

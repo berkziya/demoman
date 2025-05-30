@@ -6,7 +6,7 @@ import random
 
 #This function helps us see the values of the signals in our design.
 def Log_Design(dut):
-    #Log whatever signal you want from the datapath, called before positive clock edge
+    #Log whatever signal you want from the datapath, called before positive clk edge
     s1 = "dut"
     obj1 = dut
     wires = []
@@ -39,105 +39,165 @@ async def player_state_test(dut):
     
     test_failed = False  #Test failure state
 
-    # start the clock
-    clock = Clock(dut.clock, 2, units="us")
-    cocotb.start_soon(clock.start())
+    # start the clk
+    clk = Clock(dut.clk, 2, units="us")
+    cocotb.start_soon(clk.start())
 
 
+    dut.rst.value = 0
     dut.left.value = 0
     dut.right.value = 0
     dut.attack.value = 0
 
-    await RisingEdge(dut.clock)
-    await RisingEdge(dut.clock)
+    await RisingEdge(dut.clk)
+    await RisingEdge(dut.clk)
 
 
 
-    await RisingEdge(dut.clock)
+    await RisingEdge(dut.clk)
     await Timer(1, units="us")
 
     # 0 idle, 1 right, 2 left, 4 attack start, 7 attack active
     expected_next_state = 0
     
 
-    localframecounter = 0
+    jlastswitch = 0
     # To check the attack states' frame counts
     
 
     for j in range(1000):
         randomnumber = random.randint(0,3)
         if randomnumber == 0:
-            match dut.State.value:
+            match dut.current_state.value:
                 case 0:
                     expected_next_state = 2
                 case 1:
                     expected_next_state = 2
                 case 2:
                     expected_next_state = 2
+                case 3:
+                    if (j-jlastswitch) < 5:
+                        expected_next_state = 3
+                    else:
+                        expected_next_state = 4
+                        jlastswitch = j
                 case 4:
-                    expected_next_state = 7
-                case 7:
-                    expected_next_state = 0
-            dut.Left.value = 1
-            dut.Right.value = 0
-            dut.Attack.value = 0
+                    if (j-jlastswitch) < 2:
+                        expected_next_state = 4
+                    else:
+                        expected_next_state = 5
+                        jlastswitch = j
+                case 5:
+                    if (j-jlastswitch) < 16:
+                        expected_next_state = 5
+                    else:
+                        expected_next_state = 2
+                        jlastswitch = j
+            dut.left.value = 1
+            dut.right.value = 0
+            dut.attack.value = 0
         elif randomnumber == 1:
-            match dut.State.value:
+            match dut.current_state.value:
                 case 0:
                     expected_next_state = 1
                 case 1:
                     expected_next_state = 1
                 case 2:
                     expected_next_state = 1
+                case 3:
+                    if (j-jlastswitch) < 5:
+                        expected_next_state = 3
+                    else:
+                        expected_next_state = 4
+                        jlastswitch = j
                 case 4:
-                    expected_next_state = 7
-                case 7:
-                    expected_next_state = 0
-            dut.Left.value = 0
-            dut.Right.value = 1
-            dut.Attack.value = 0
+                    if (j-jlastswitch) < 2:
+                        expected_next_state = 4
+                    else:
+                        expected_next_state = 5
+                        jlastswitch = j
+                case 5:
+                    if (j-jlastswitch) < 16:
+                        expected_next_state = 5
+                    else:
+                        expected_next_state = 1
+                        jlastswitch = j
+            dut.left.value = 0
+            dut.right.value = 1
+            dut.attack.value = 0
         elif randomnumber == 2:
-            match dut.State.value:
+            match dut.current_state.value:
                 case 0:
-                    expected_next_state = 4
+                    expected_next_state = 3
+                    jlastswitch = j
                 case 1:
-                    expected_next_state = 4
+                    expected_next_state = 3
+                    jlastswitch = j
                 case 2:
-                    expected_next_state = 4
+                    expected_next_state = 3
+                    jlastswitch = j
+                case 3:
+                    if (j-jlastswitch) < 5:
+                        expected_next_state = 3
+                    else:
+                        expected_next_state = 4
+                        jlastswitch = j
                 case 4:
-                    expected_next_state = 7
-                case 7:
-                    expected_next_state = 0
-            dut.Left.value = 0
-            dut.Right.value = 0
-            dut.Attack.value = 1
+                    if (j-jlastswitch) < 2:
+                        expected_next_state = 4
+                    else:
+                        expected_next_state = 5
+                        jlastswitch = j
+                case 5:
+                    if (j-jlastswitch) < 16:
+                        expected_next_state = 5
+                    else:
+                        expected_next_state = 3
+                        jlastswitch = j
+            dut.left.value = 0
+            dut.right.value = 0
+            dut.attack.value = 1
         else:
-            match dut.State.value:
+            match dut.current_state.value:
                 case 0:
                     expected_next_state = 0
                 case 1:
                     expected_next_state = 0
                 case 2:
                     expected_next_state = 0
+                case 3:
+                    if (j-jlastswitch) < 5:
+                        expected_next_state = 3
+                    else:
+                        expected_next_state = 4
+                        jlastswitch = j
                 case 4:
-                    expected_next_state = 7
-                case 7:
-                    expected_next_state = 0
-            dut.Left.value = 0
-            dut.Right.value = 0
-            dut.Attack.value = 0
+                    if (j-jlastswitch) < 2:
+                        expected_next_state = 4
+                    else:
+                        expected_next_state = 5
+                        jlastswitch = j
+                case 5:
+                    if (j-jlastswitch) < 16:
+                        expected_next_state = 5
+                    else:
+                        expected_next_state = 0
+                        jlastswitch = j
+            dut.left.value = 0
+            dut.right.value = 0
+            dut.attack.value = 0
         # Check if the output matches the expected value
-        await RisingEdge(dut.clock)
+        await RisingEdge(dut.clk)
         await Timer(1, units='us')
-        if dut.State.value != expected_next_state:
+        if dut.current_state.value != expected_next_state:
             test_failed = True
             cocotb.log.error(
-                f"MISMATCH for State={dut.State.value}. Expected={(expected_next_state)}, Got={dut.State.value}" #indicate for which value the error occured
+                f"MISMATCH for current_state={dut.current_state.value}. Expected={(expected_next_state)}, Got={dut.current_state.value}, counter = {dut.counter.value}" #indicate for which value the error occured
             )
             Log_Design(dut)
         else:
             cocotb.log.info(
-                f"PASSED for State={dut.State.value} = {(expected_next_state)}"
+                f"PASSED for current_state={dut.current_state.value} = {(expected_next_state)}, counter = {dut.counter.value}" #indicate for which value the test passed
             )
 
  

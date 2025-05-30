@@ -41,20 +41,21 @@ localparam S_B_ATTACK_START = 4'd3;
 localparam S_B_ATTACK_END = 4'd4;
 localparam S_B_ATTACK_PULL = 4'd5;
 
+localparam countsize = 32;
+
 localparam P_SPEED = 5;
 
 reg [3:0] NS;
 
-wire [9:0] counter;
+wire [countsize-1:0] counter;
 
-reg curr_rst_counter;
-reg next_rst_counter;
+reg [countsize-1:0] lastcountanchor;
 
 counter #(
-  .W(10)
+  .W(countsize)
 ) counter_inst (
   .clk(clk),
-  .rst(curr_rst_counter),
+  .rst(1'b0),
   .control(2'b01),
   .count(counter)
 );
@@ -63,10 +64,10 @@ always @(posedge clk or posedge rst) begin
   // $display("State: %d, Counter: %d, Counter Reset: %b", current_state, counter, rst_counter);
   if (rst) begin
     current_state <= S_IDLE;
-    curr_rst_counter <= 1'b0;
+
   end else begin
     current_state <= NS;
-    curr_rst_counter <= next_rst_counter;
+
   end
 end
 
@@ -75,51 +76,51 @@ always @(*) begin
     S_IDLE, S_MOVEFORWARD, S_MOVEBACKWARDS: begin
       if (attack) begin
         NS = S_B_ATTACK_START;
-        next_rst_counter = 1'b1;
+		lastcountanchor = counter;
       end else if (left && right) begin
         NS = S_MOVEBACKWARDS;
-        next_rst_counter = 1'b1;
+		lastcountanchor = counter;
       end else if (left && ~right) begin
         NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
-        next_rst_counter = 1'b1;
+		lastcountanchor = counter;
       end else if (~left && right) begin
         NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
-        next_rst_counter = 1'b1;
+		lastcountanchor = counter;
       end else begin
         NS = S_IDLE;
-        next_rst_counter = 1'b0;
+		lastcountanchor = counter;
       end
     end
     S_B_ATTACK_START: begin
-      if (counter < 5) begin
+      if ((counter-lastcountanchor) < 5) begin
         NS = S_B_ATTACK_START;
-        next_rst_counter = 1'b0;
+		lastcountanchor = lastcountanchor;
       end else begin
         NS = S_B_ATTACK_END;
-        next_rst_counter = 1'b1;
+		lastcountanchor = counter;
       end
     end
     S_B_ATTACK_END: begin
-      if (counter < 2) begin
+      if ((counter-lastcountanchor) < 2) begin
         NS = S_B_ATTACK_END;
-        next_rst_counter = 1'b0;
+		lastcountanchor = lastcountanchor;
       end else begin
         NS = S_B_ATTACK_PULL;
-        next_rst_counter = 1'b1;
+		lastcountanchor = counter;
       end
     end
     S_B_ATTACK_PULL: begin
-      if (counter < 16) begin
+      if ((counter-lastcountanchor) < 16) begin
         NS = S_B_ATTACK_PULL;
-        next_rst_counter = 1'b0;
+		lastcountanchor = lastcountanchor;
       end else begin
         NS = S_IDLE;
-        next_rst_counter = 1'b1;
+		lastcountanchor = counter;
       end
     end
     default: begin
       NS = S_IDLE;
-      next_rst_counter = 1'b0;
+	  lastcountanchor = counter;
     end
   endcase
 end

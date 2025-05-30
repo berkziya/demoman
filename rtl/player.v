@@ -89,7 +89,7 @@ always @(*) begin
       end
     end
     S_B_ATTACK_START: begin
-      if (counter < 5) begin
+      if (counter < 4) begin
         NS = S_B_ATTACK_START;
         next_rst_counter = 1'b0;
       end else begin
@@ -98,7 +98,7 @@ always @(*) begin
       end
     end
     S_B_ATTACK_END: begin
-      if (counter < 2) begin
+      if (counter < 1) begin
         NS = S_B_ATTACK_END;
         next_rst_counter = 1'b0;
       end else begin
@@ -107,7 +107,7 @@ always @(*) begin
       end
     end
     S_B_ATTACK_PULL: begin
-      if (counter < 16) begin
+      if (counter < 15) begin
         NS = S_B_ATTACK_PULL;
         next_rst_counter = 1'b0;
       end else begin

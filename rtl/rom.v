@@ -7,12 +7,13 @@ module rom (
     input [9:0] posy, // Player's Y position
     input [9:0] sprite_height, // Height of the sprite
     input [9:0] sprite_width, // Width of the sprite
+	 input [3:0] currentstate,
     output reg visible_flag, // Flag to indicate if the sprite is visible
     output reg [7:0] data
 );
     // ROM data initialization
     localparam image_size = 150 * 157; // Size of the sprite in pixels
-	reg [7:0]  rom_sprite;
+	 reg [7:0]  rom_sprite;
     wire [7:0] rom_sprite_idle, 
                rom_sprite_forward, 
                rom_sprite_backward, 
@@ -29,32 +30,32 @@ module rom (
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
     assign addr = (relative_y * 15'd150) + relative_x; // Calculate address in ROM
     
-    rom_demo_idle rom_demo_inst_idle (
+    rom_idle rom_demo_inst_idle (
         .address(addr),
         .clock(clk),
         .q(rom_sprite_idle)
     );
-    rom_demo_forward rom_demo_forward_inst (
+    rom_forward rom_demo_forward_inst (
         .address(addr),
         .clock(clk),
         .q(rom_sprite_forward)
     );
-    rom_demo_backward rom_demo_backward_inst (
+    rom_backward rom_demo_backward_inst (
         .address(addr),
         .clock(clk),
         .q(rom_sprite_backward)
     );
-    rom_demo_attack_start rom_demo_attack_start_inst (
+    rom_attack_start rom_demo_attack_start_inst (
         .address(addr),
         .clock(clk),
         .q(rom_sprite_attack_start)
     );
-    rom_demo_start_end rom_attack_end_inst (
+    rom_attack_end rom_attack_end_inst (
         .address(addr),
         .clock(clk),
         .q(rom_sprite_attack_end)
     );
-    rom_demo_start_pull rom_attack_pull_inst (
+    rom_attack_pull rom_attack_pull_inst (
         .address(addr),
         .clock(clk),
         .q(rom_sprite_attack_pull)

@@ -150,6 +150,7 @@ rom rom_inst (
   .posy(posy), // Player's Y position
   .sprite_height(sprite_height), // Height of the sprite
   .sprite_width(sprite_width), // Width of the sprite
+  .currentstate(currentstate),
   .visible_flag(pixel_visible_flag), // Visibility flag for move forward state
   .data(pixel_data)
 );
@@ -167,10 +168,10 @@ assign on_hurt_border = (((current_pixel_x == hurt_x1 || current_pixel_x == hurt
                           (current_pixel_x >= hurt_x1 && current_pixel_x <= hurt_x2)));
 
 always @(*) begin
-  if (current_state == 4'd4) begin // If the current state is attack end
+  if (currentstate == 4'd4) begin // If the current state is attack end
     if (on_hithurt_border) // If the current pixel is on the basic hit hurtbox border
-      color_to_vga_driver = 8'11100000; // Red color for basic hit hurtbox border
-  end else if (current_state == 4'd5) begin // If the current state is attack pull
+      color_to_vga_driver = 8'b11100000; // Red color for basic hit hurtbox border
+  end else if (currentstate == 4'd5) begin // If the current state is attack pull
     if (on_hithurt_border) // If the current pixel is on the basic hit hurtbox border
       color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
   end else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border

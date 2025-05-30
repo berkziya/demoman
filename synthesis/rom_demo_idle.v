@@ -37,7 +37,7 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module rom_demo #(parameter MIF_FILE = "../sprites/aaa9.mif") (
+module rom_demo_idle (
 	address,
 	clock,
 	q);
@@ -84,7 +84,7 @@ module rom_demo #(parameter MIF_FILE = "../sprites/aaa9.mif") (
 		altsyncram_component.address_aclr_a = "NONE",
 		altsyncram_component.clock_enable_input_a = "BYPASS",
 		altsyncram_component.clock_enable_output_a = "BYPASS",
-		altsyncram_component.init_file = MIF_FILE,
+		altsyncram_component.init_file = "../sprites/aaa7.mif",
 		altsyncram_component.intended_device_family = "Cyclone V",
 		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
 		altsyncram_component.lpm_type = "altsyncram",

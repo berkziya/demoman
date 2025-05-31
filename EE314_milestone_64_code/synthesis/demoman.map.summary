@@ -1,0 +1,17 @@
+Analysis & Synthesis Status : Successful - Fri May 30 20:02:09 2025
+Quartus Prime Version : 23.1std.1 Build 993 05/14/2024 SC Lite Edition
+Revision Name : demoman
+Top-level Entity Name : demoman
+Family : Cyclone V
+Logic utilization (in ALMs) : N/A
+Total registers : 194
+Total pins : 174
+Total virtual pins : 0
+Total block memory bits : 1,130,400
+Total DSP Blocks : 1
+Total HSSI RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total PLLs : 0
+Total DLLs : 0

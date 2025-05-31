@@ -69,7 +69,7 @@ always @(*) begin
     4'd3: rom_sprite = rom_sprite_attack_start; // Attack start state
     4'd4: rom_sprite = rom_sprite_attack_end; // Attack end state
     4'd5: rom_sprite = rom_sprite_attack_pull; // Attack pull state
-    default: rom_sprite = 8'b00100101; // Default color (white) sprite
+    default: rom_sprite = 8'b0111011; // Default color (white) sprite
   endcase
 end
 

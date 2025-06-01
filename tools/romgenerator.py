@@ -457,7 +457,7 @@ def main():
             output_directory = "."
 
     # --- ROM Parameters (some are fixed/configurable here) ---
-    rom_data_width = 4  # Fixed at 4 bits per pixel/word
+    rom_data_width = 8  # Fixed at 8 bits per pixel/word
 
     # Update these to match your Quartus environment
     fpga_device_family = "Cyclone V"
@@ -496,7 +496,7 @@ def main():
     print(f"  Device Family: {fpga_device_family}")
 
     success = generate_rom_files(
-        rom_name=rom_module_name,
+        rom_name=f"rom_{rom_module_name}",
         addr_width=rom_addr_width,
         data_width=rom_data_width,
         num_words=calculated_num_words,

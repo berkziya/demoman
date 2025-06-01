@@ -401,29 +401,34 @@ set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name SEARCH_PATH ../rtl
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
-set_global_assignment -name MIF_FILE ../sprites/start.mif
-set_global_assignment -name MIF_FILE ../sprites/recovery.mif
-set_global_assignment -name MIF_FILE ../sprites/idle.mif
-set_global_assignment -name MIF_FILE ../sprites/for.mif
-set_global_assignment -name MIF_FILE ../sprites/end.mif
-set_global_assignment -name MIF_FILE ../sprites/back.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa12.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa11.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa10.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa9.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa8.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa7.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa6.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa5.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa4.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa3.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa2.mif
-set_global_assignment -name MIF_FILE ../sprites/aaa1.mif
+set_global_assignment -name SEARCH_PATH ../sprites
+set_global_assignment -name SEARCH_PATH ../rtl/utils
+set_global_assignment -name SEARCH_PATH ../rtl
+set_global_assignment -name QIP_FILE ../sprites/rom_walkR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_walkG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_walkbackR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_walkbackG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_idleR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_idleG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_gothitR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_gothitG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_dirattstartR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_dirattstartG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_dirattpullR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_dirattpullG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_dirattendR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_dirattendG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_blockR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_blockG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_attackstartR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_attackstartG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_attackpullR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_attackpullG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_attackendR.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_attackendG.qip
 set_global_assignment -name VERILOG_FILE ../rtl/rom.v
 set_global_assignment -name VERILOG_FILE ../rtl/player.v
 set_global_assignment -name VERILOG_FILE ../rtl/utils/clock_divider.v
@@ -432,11 +437,6 @@ set_global_assignment -name VERILOG_FILE ../rtl/utils/vga_driver.v
 set_global_assignment -name VERILOG_FILE ../rtl/utils/charto7seg.v
 set_global_assignment -name SDC_FILE demoman.sdc
 set_global_assignment -name VERILOG_FILE demoman.v
-set_global_assignment -name QIP_FILE rom_idle.qip
-set_global_assignment -name QIP_FILE rom_forward.qip
-set_global_assignment -name QIP_FILE rom_backward.qip
-set_global_assignment -name QIP_FILE rom_attack_start.qip
-set_global_assignment -name QIP_FILE rom_attack_end.qip
-set_global_assignment -name QIP_FILE rom_attack_pull.qip
-set_global_assignment -name VERILOG_FILE Color_Decider.v
-set_global_assignment -name VERILOG_FILE effective_clock_generator.v
+set_global_assignment -name VERILOG_FILE ../rtl/color_decider.v
+set_global_assignment -name VERILOG_FILE ../rtl/utils/effective_clock_generator.v
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

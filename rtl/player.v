@@ -26,8 +26,8 @@ assign basic_hithurtbox_x2 = posx + 113;
 assign basic_hithurtbox_y1 = posy + 24;
 assign basic_hithurtbox_y2 = posy + 57;
 
-assign main_hurtbox_x1 = (~SIDE) ? (posx + 37) : (posx + 86);
-assign main_hurtbox_x2 = (~SIDE) ? (posx + 86) : (posx + 37);
+assign main_hurtbox_x1 = (~SIDE) ? (posx + 17) : (posx + 86);
+assign main_hurtbox_x2 = (~SIDE) ? (posx + 86) : (posx + 17);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 

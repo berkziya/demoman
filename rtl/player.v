@@ -4,6 +4,9 @@ module player #(
   input            clk,
   input            rst,
   input            left, right, attack,
+  
+  input		 [1:0] hitFlag,
+  
   output reg [9:0] posx,
   output     [9:0] posy,
   output reg [3:0] current_state,
@@ -41,6 +44,12 @@ assign main_hurtbox_x2 = (~SIDE) ? (posx + 81) : (posx + 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
+//values for hitFlag:
+localparam notHit = 2'b00;
+localparam hitByBasic = 2'b01;
+localparam hitByDirectional = 2'b10;
+
+
 localparam LEFT = 1'b0;
 localparam RIGHT = 1'b1;
 
@@ -50,6 +59,11 @@ localparam S_MOVEBACKWARDS = 4'd2;
 localparam S_B_ATTACK_START = 4'd3;
 localparam S_B_ATTACK_END = 4'd4;
 localparam S_B_ATTACK_PULL = 4'd5;
+localparam S_D_ATTACK_START = 4'd6;
+localparam S_D_ATTACK_END = 4'd7;
+localparam S_D_ATTACK_PULL = 4'd8;
+localparam S_HITSTUN = 4'd9;
+localparam S_BLOCKSTUN = 4'd10;
 
 localparam countsize = 32;
 
@@ -61,6 +75,8 @@ reg [3:0] NS;
 wire [countsize-1:0] counter;
 
 reg [countsize-1:0] lastcountanchor;
+
+reg [3:0] stunDurationValue;
 
 counter #(
   .W(countsize)
@@ -83,55 +99,239 @@ always @(posedge clk or posedge rst) begin
 end
 
 always @(*) begin
-  case (current_state)
-    S_IDLE, S_MOVEFORWARD, S_MOVEBACKWARDS: begin
-      if (attack) begin
-        NS = S_B_ATTACK_START;
-      end else if (left && right) begin
-        NS = S_MOVEBACKWARDS;
-      end else if (left && ~right) begin
-        NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
-      end else if (~left && right) begin
-        NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
-      end else begin
-        NS = S_IDLE;
-      end
-    end
-    S_B_ATTACK_START: begin
-      if ((counter-lastcountanchor) < 32'd5) begin
-        NS = S_B_ATTACK_START;
-      end else begin
-        NS = S_B_ATTACK_END;
-      end
-    end
-    S_B_ATTACK_END: begin
-      if ((counter-lastcountanchor) < 32'd2) begin
-        NS = S_B_ATTACK_END;
-      end else begin
-        NS = S_B_ATTACK_PULL;
-      end
-    end
-    S_B_ATTACK_PULL: begin
-      if ((counter-lastcountanchor) < 32'd16) begin
-        NS = S_B_ATTACK_PULL;
-      end else begin
-      if (attack) begin
-        NS = S_B_ATTACK_START;
-      end else if (left && right) begin
-        NS = S_MOVEBACKWARDS;
-      end else if (left && ~right) begin
-        NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
-      end else if (~left && right) begin
-        NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
-      end else begin
-        NS = S_IDLE;
-      end
-      end
-    end
-    default: begin
-      NS = S_IDLE;
-    end
-  endcase
+	  case (current_state)
+		S_IDLE: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if (attack) begin
+			NS = S_B_ATTACK_START;
+		  end else if (left && right) begin
+			NS = S_MOVEBACKWARDS;
+		  end else if (left && ~right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+		  end else if (~left && right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+		  end else begin
+			NS = S_IDLE;
+		  end end
+		end
+		S_MOVEFORWARD: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if (attack) begin
+			NS = S_D_ATTACK_START;
+		  end else if (left && right) begin
+			NS = S_MOVEBACKWARDS;
+		  end else if (left && ~right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+		  end else if (~left && right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+		  end else begin
+			NS = S_IDLE;
+		  end end
+		end
+		S_MOVEBACKWARDS: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_BLOCKSTUN;
+			stunDurationValue = 13;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_BLOCKSTUN;
+			stunDurationValue = 12;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if (attack) begin
+			NS = S_D_ATTACK_START;
+		  end else if (left && right) begin
+			NS = S_MOVEBACKWARDS;
+		  end else if (left && ~right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+		  end else if (~left && right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+		  end else begin
+			NS = S_IDLE;
+		  end end
+		end
+		S_B_ATTACK_START: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < 32'd5) begin
+			NS = S_B_ATTACK_START;
+		  end else begin
+			NS = S_B_ATTACK_END;
+		  end end
+		end
+		S_B_ATTACK_END: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < 32'd2) begin
+			NS = S_B_ATTACK_END;
+		  end else begin
+			NS = S_B_ATTACK_PULL;
+		  end end
+		end
+		S_B_ATTACK_PULL: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < 32'd16) begin
+			NS = S_B_ATTACK_PULL;
+		  end else begin
+		  if (attack) begin
+			NS = S_B_ATTACK_START;
+		  end else if (left && right) begin
+			NS = S_MOVEBACKWARDS;
+		  end else if (left && ~right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+		  end else if (~left && right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+		  end else begin
+			NS = S_IDLE;
+		  end
+		  end end
+		end
+		S_D_ATTACK_START: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < 32'd5) begin
+			NS = S_D_ATTACK_START;
+		  end else begin
+			NS = S_D_ATTACK_END;
+		  end end
+		end
+		S_D_ATTACK_END: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < 32'd2) begin
+			NS = S_D_ATTACK_END;
+		  end else begin
+			NS = S_D_ATTACK_PULL;
+		  end end
+		end
+		S_B_ATTACK_PULL: begin
+		if (hitFlag == hitByBasic) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 15;
+		end
+		else if (hitFlag == hitByDirectional) begin
+			NS=S_HITSTUN;
+			stunDurationValue = 14;
+		end
+		else begin
+		  stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < 32'd16) begin
+			NS = S_D_ATTACK_PULL;
+		  end else begin
+		  if (attack) begin
+			NS = S_D_ATTACK_START;
+		  end else if (left && right) begin
+			NS = S_MOVEBACKWARDS;
+		  end else if (left && ~right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+		  end else if (~left && right) begin
+			NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+		  end else begin
+			NS = S_IDLE;
+		  end
+		  end end
+		end
+		S_HITSTUN: begin
+		stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < stunDurationValue) begin
+			NS = S_HITSTUN;
+		  end else begin
+			  if (attack) begin
+				NS = S_B_ATTACK_START;
+			  end else if (left && right) begin
+				NS = S_MOVEBACKWARDS;
+			  end else if (left && ~right) begin
+				NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+			  end else if (~left && right) begin
+				NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+			  end else begin
+				NS = S_IDLE;
+			  end
+		  end
+		end
+		S_BLOCKSTUN: begin
+		stunDurationValue = stunDurationValue;
+		  if ((counter-lastcountanchor) < stunDurationValue) begin
+			NS = S_BLOCKSTUN;
+		  end else begin
+			  if (attack) begin
+				NS = S_B_ATTACK_START;
+			  end else if (left && right) begin
+				NS = S_MOVEBACKWARDS;
+			  end else if (left && ~right) begin
+				NS = (SIDE == RIGHT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+			  end else if (~left && right) begin
+				NS = (SIDE == RIGHT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+			  end else begin
+				NS = S_IDLE;
+			  end
+		  end
+		end
+		default: begin
+		  NS = S_IDLE;
+		  stunDurationValue = stunDurationValue;
+		end
+	  endcase
 end
 
 always @(posedge clk) begin

@@ -12,6 +12,11 @@ module player #(
   output wire [9:0] basic_hithurtbox_x2,
   output wire [9:0] basic_hithurtbox_y1,
   output wire [9:0] basic_hithurtbox_y2,
+  
+  output wire [9:0] dir_hithurtbox_x1,
+  output wire [9:0] dir_hithurtbox_x2,
+  output wire [9:0] dir_hithurtbox_y1,
+  output wire [9:0] dir_hithurtbox_y2,
 
   output wire [9:0] main_hurtbox_x1,
   output wire [9:0] main_hurtbox_x2,
@@ -22,9 +27,14 @@ module player #(
 assign posy = 10'd170; // Fixed Y position for the player
 
 assign basic_hithurtbox_x1 = posx + 35; // old version was posx + 37
-assign basic_hithurtbox_x2 = posx + 113;
+assign basic_hithurtbox_x2 = posx + 120;
 assign basic_hithurtbox_y1 = posy + 24;
 assign basic_hithurtbox_y2 = posy + 57;
+
+assign dir_hithurtbox_x1 = posx + 62;
+assign dir_hithurtbox_x2 = posx + 95;
+assign dir_hithurtbox_y1 = posy + 6;
+assign dir_hithurtbox_y2 = posy + 139;
 
 assign main_hurtbox_x1 = (~SIDE) ? (posx + 28) : (posx + 81);
 assign main_hurtbox_x2 = (~SIDE) ? (posx + 81) : (posx + 28);

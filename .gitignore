@@ -20,10 +20,8 @@ synthesis/*.sta.summary
 synthesis/*.sta.rpt
 synthesis/*.fit.summary
 synthesis/*.jditmp
+synthesis/*.cdf
 *.bak
-
-obj_dir/
-build/
 
 .venv/
 .env

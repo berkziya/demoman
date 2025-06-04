@@ -6,7 +6,7 @@ set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSEMA5F31C6
 set_global_assignment -name TOP_LEVEL_ENTITY demoman
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.1.0
-set_global_assignment -name LAST_QUARTUS_VERSION "24.1std.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "23.1std.1 Lite Edition"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "23:33:22 MAY 21,2025"
 set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 896
@@ -407,6 +407,51 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name SEARCH_PATH ../sprites
 set_global_assignment -name SEARCH_PATH ../rtl/utils
 set_global_assignment -name SEARCH_PATH ../rtl
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name MIF_FILE ../sprites/walkR.mif
+set_global_assignment -name HEX_FILE ../sprites/walkR.hex
+set_global_assignment -name MIF_FILE ../sprites/walkG.mif
+set_global_assignment -name HEX_FILE ../sprites/walkG.hex
+set_global_assignment -name MIF_FILE ../sprites/walkbackR.mif
+set_global_assignment -name HEX_FILE ../sprites/walkbackR.hex
+set_global_assignment -name MIF_FILE ../sprites/walkbackG.mif
+set_global_assignment -name HEX_FILE ../sprites/walkbackG.hex
+set_global_assignment -name MIF_FILE ../sprites/idleR.mif
+set_global_assignment -name HEX_FILE ../sprites/idleR.hex
+set_global_assignment -name MIF_FILE ../sprites/idleG.mif
+set_global_assignment -name HEX_FILE ../sprites/idleG.hex
+set_global_assignment -name MIF_FILE ../sprites/gothitR.mif
+set_global_assignment -name HEX_FILE ../sprites/gothitR.hex
+set_global_assignment -name MIF_FILE ../sprites/gothitG.mif
+set_global_assignment -name HEX_FILE ../sprites/gothitG.hex
+set_global_assignment -name MIF_FILE ../sprites/dirattstartR.mif
+set_global_assignment -name HEX_FILE ../sprites/dirattstartR.hex
+set_global_assignment -name MIF_FILE ../sprites/dirattstartG.mif
+set_global_assignment -name HEX_FILE ../sprites/dirattstartG.hex
+set_global_assignment -name MIF_FILE ../sprites/dirattpullR.mif
+set_global_assignment -name HEX_FILE ../sprites/dirattpullR.hex
+set_global_assignment -name MIF_FILE ../sprites/dirattpullG.mif
+set_global_assignment -name HEX_FILE ../sprites/dirattpullG.hex
+set_global_assignment -name MIF_FILE ../sprites/dirattendR.mif
+set_global_assignment -name HEX_FILE ../sprites/dirattendR.hex
+set_global_assignment -name MIF_FILE ../sprites/dirattendG.mif
+set_global_assignment -name HEX_FILE ../sprites/dirattendG.hex
+set_global_assignment -name MIF_FILE ../sprites/blockR.mif
+set_global_assignment -name HEX_FILE ../sprites/blockR.hex
+set_global_assignment -name MIF_FILE ../sprites/blockG.mif
+set_global_assignment -name HEX_FILE ../sprites/blockG.hex
+set_global_assignment -name MIF_FILE ../sprites/attackstartR.mif
+set_global_assignment -name HEX_FILE ../sprites/attackstartR.hex
+set_global_assignment -name MIF_FILE ../sprites/attackstartG.mif
+set_global_assignment -name HEX_FILE ../sprites/attackstartG.hex
+set_global_assignment -name MIF_FILE ../sprites/attackpullR.mif
+set_global_assignment -name HEX_FILE ../sprites/attackpullR.hex
+set_global_assignment -name MIF_FILE ../sprites/attackpullG.mif
+set_global_assignment -name HEX_FILE ../sprites/attackpullG.hex
+set_global_assignment -name MIF_FILE ../sprites/attackendR.mif
+set_global_assignment -name HEX_FILE ../sprites/attackendR.hex
+set_global_assignment -name MIF_FILE ../sprites/attackendG.mif
+set_global_assignment -name HEX_FILE ../sprites/attackendG.hex
 set_global_assignment -name QIP_FILE ../sprites/rom_walkR.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_walkG.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_walkbackR.qip
@@ -439,4 +484,3 @@ set_global_assignment -name SDC_FILE demoman.sdc
 set_global_assignment -name VERILOG_FILE demoman.v
 set_global_assignment -name VERILOG_FILE ../rtl/color_decider.v
 set_global_assignment -name VERILOG_FILE ../rtl/utils/effective_clock_generator.v
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

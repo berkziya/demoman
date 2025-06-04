@@ -37,7 +37,7 @@ assign basic_hithurtbox_y2 = posy + 57;
 assign dir_hithurtbox_x1 = (~SIDE) ? (posx + 62) : (posx + 113 - 95);
 assign dir_hithurtbox_x2 = (~SIDE) ? (posx + 95) : (posx + 113 - 62);
 assign dir_hithurtbox_y1 = posy + 6;
-assign dir_hithurtbox_y2 = posy + 139;
+assign dir_hithurtbox_y2 = posy + 110;
 
 assign main_hurtbox_x1 = (~SIDE) ? (posx + 28) : (posx + 113-81);
 assign main_hurtbox_x2 = (~SIDE) ? (posx + 81) : (posx + 113-28);
@@ -281,7 +281,7 @@ always @(*) begin
 			NS = S_D_ATTACK_PULL;
 		  end else begin
 		  if (attack) begin
-			NS = S_D_ATTACK_START;
+			NS = S_B_ATTACK_START;
 		  end else if (left && right) begin
 			NS = S_MOVEBACKWARDS;
 		  end else if (left && ~right) begin

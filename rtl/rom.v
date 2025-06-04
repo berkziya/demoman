@@ -49,11 +49,11 @@ module rom (
 
     wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width) &&
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-    assign addr = (relative_y * 15'd113) + relative_x; // Calculate address in ROM
+    assign addr = (relative_y * 15'd113) + relative_x + 1; // Calculate address in ROM
 
     wire inside_sprite2 = (current_pixel_x >= posx2 && current_pixel_x < posx2 + sprite_width) &&
                           (current_pixel_y >= posy2 && current_pixel_y < posy2 + sprite_height);
-    assign addr2 = (relative_y2 * 15'd113) + relative_x2; // Calculate address in ROM for second player
+    assign addr2 = (relative_y2 * 15'd113) + relative_x2 + 1; // Calculate address in ROM for second player
 
     rom_attackendG rom_inst_attackendG (
         .address(addr),

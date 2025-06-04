@@ -76,6 +76,8 @@ wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox 
 wire [9:0] hithurt_x12, hithurt_x22, hithurt_y12, hithurt_y22; // Second player's basic hit hurtbox coordinates
 wire [9:0] hurt_x1, hurt_x2, hurt_y1, hurt_y2; // Main hurtbox coordinates
 wire [9:0] hurt_x12, hurt_x22, hurt_y12, hurt_y22; // Second player's main hurtbox coordinates
+wire [9:0] dir_hithurt_x1, dir_hithurt_x2, dir_hithurt_y1, dir_hithurt_y2; // Directional hit hurtbox coordinates
+wire [9:0] dir_hithurt_x12, dir_hithurt_x22, dir_hithurt_y12, dir_hithurt_y22; // Second player's directional hit hurtbox coordinates
 wire inside_sprite; // Flag to check if the current pixel is inside the sprite
 wire on_hithurt_border;
 wire on_hurt_border;
@@ -137,15 +139,40 @@ player #(.SIDE(1'b0)) Player1 (
   .main_hurtbox_x1(hurt_x1),
   .main_hurtbox_x2(hurt_x2),
   .main_hurtbox_y1(hurt_y1),
-  .main_hurtbox_y2(hurt_y2)
+  .main_hurtbox_y2(hurt_y2),
+  .dir_hithurtbox_x1(dir_hithurtbox_x1),
+  .dir_hithurtbox_x2(dir_hithurtbox_x2),
+  .dir_hithurtbox_y1(dir_hithurtbox_y1),
+  .dir_hithurtbox_y2(dir_hithurtbox_y2)
 );
+
+wire random_num_clk;
+
+clock_divider #(
+  .DIV(44) // Adjust the division factor as needed for your clock frequency
+) random_num_clk_divider (
+  .clk(effective_clk),
+  .clk_o(random_num_clk)
+);
+
+reg [31:0] random_number;
+random_num random_gen (
+  .clk(random_num_clk),
+  .rand_o(random_number)
+);
+
+wire player2_left, player2_right, player2_attack;
+
+assign player2_left =  SW[3] ? ~KEY[3] : random_number[0];
+assign player2_right =  SW[3] ? ~KEY[2] : random_number[1];
+assign player2_attack =  SW[3] ? ~KEY[1] : random_number[2];
 
 player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),
   .rst(reset),
-  .left(~KEY[3] & SW[3]), // Player 2's left control, can be controlled by a switch
-  .right(~KEY[2] & SW[3]), // Player 2's right control, can be controlled by a switch
-  .attack(~KEY[1] & SW[3]), // Player 2's attack control, can be controlled by a switch
+  .left(player2_left), // Player 2's left control, can be controlled by a switch or random number
+  .right(player2_right), // Player 2's right control, can be controlled by a switch or random number
+  .attack(player2_attack), // Player 2's attack control, can be controlled by a switch or random number 
   .hitFlag(hasbeenHit2), // Hit flag for Player 2
   .posx(posx2),
   .posy(posy2),
@@ -157,7 +184,11 @@ player #(.SIDE(1'b1)) Player2 (
   .main_hurtbox_x1(hurt_x12),
   .main_hurtbox_x2(hurt_x22),
   .main_hurtbox_y1(hurt_y12),
-  .main_hurtbox_y2(hurt_y22)
+  .main_hurtbox_y2(hurt_y22),
+  .dir_hithurtbox_x1(dir_hithurt_x12),
+  .dir_hithurtbox_x2(dir_hithurt_x22),
+  .dir_hithurtbox_y1(dir_hithurt_y12),
+  .dir_hithurtbox_y2(dir_hithurt_y22)
 );
 
 HitDetect hitdetector_inst (
@@ -170,6 +201,10 @@ HitDetect hitdetector_inst (
   .p1_main_hurtbox_x2(hurt_x2),
   .p1_main_hurtbox_y1(hurt_y1),
   .p1_main_hurtbox_y2(hurt_y2),
+  .p1_dir_hithurtbox_x1(dir_hithurt_x1),
+  .p1_dir_hithurtbox_x2(dir_hithurt_x2),
+  .p1_dir_hithurtbox_y1(dir_hithurt_y1),
+  .p1_dir_hithurtbox_y2(dir_hithurt_y2),
 
   .p2_state(currentstate2),
   .p2_basic_hithurtbox_x1(hithurt_x12),
@@ -180,6 +215,10 @@ HitDetect hitdetector_inst (
   .p2_main_hurtbox_x2(hurt_x22),
   .p2_main_hurtbox_y1(hurt_y12),
   .p2_main_hurtbox_y2(hurt_y22),
+  .p2_dir_hithurtbox_x1(dir_hithurt_x12),
+  .p2_dir_hithurtbox_x2(dir_hithurt_x22),
+  .p2_dir_hithurtbox_y1(dir_hithurt_y12),
+  .p2_dir_hithurtbox_y2(dir_hithurt_y22),
 
   .P1_hasBeenHitFlag(hasbeenHit1), // Output flag for Player 1
   .P2_hasBeenHitFlag(hasbeenHit2) // Output flag for Player 2
@@ -217,10 +256,26 @@ color_decider color_decider_inst(
   .hithurt_x2(hithurt_x2), // X coordinate of the second corner of the basic hit hurtbox
   .hithurt_y1(hithurt_y1), // Y coordinate of the first corner of the basic hit hurtbox
   .hithurt_y2(hithurt_y2), // Y coordinate of the second corner of the basic hit hurtbox
+  .hithurt_x12(hithurt_x12), // X coordinate of the first corner of the second basic hit hurtbox
+  .hithurt_x22(hithurt_x22), // X coordinate of the second corner of the second basic hit hurtbox
+  .hithurt_y12(hithurt_y12), // Y coordinate of the first corner of the second basic hit hurtbox
+  .hithurt_y22(hithurt_y22), // Y coordinate of the second corner of the second basic hit hurtbox
+  .dir_hithurt_x1(dir_hithurt_x1), // X coordinate of the first corner of the directional hit hurtbox
+  .dir_hithurt_x2(dir_hithurt_x2), // X coordinate of the second corner of the directional hit hurtbox
+  .dir_hithurt_y1(dir_hithurt_y1), // Y coordinate of the first corner of the directional hit hurtbox
+  .dir_hithurt_y2(dir_hithurt_y2), // Y coordinate of the second corner of the directional hit hurtbox
+  .dir_hithurt_x12(dir_hithurt_x12), // X coordinate of the first corner of the second directional hit hurtbox
+  .dir_hithurt_x22(dir_hithurt_x22), // X coordinate of the second corner of the second directional hit hurtbox
+  .dir_hithurt_y12(dir_hithurt_y12), // Y coordinate of the first corner of the second directional hit hurtbox
+  .dir_hithurt_y22(dir_hithurt_y22), // Y coordinate of the second corner of the second directional hit hurtbox
   .hurt_x1(hurt_x1), // X coordinate of the first corner of the main hurtbox
   .hurt_x2(hurt_x2), // X coordinate of the second corner of the main hurtbox
   .hurt_y1(hurt_y1), // Y coordinate of the first corner of the main hurtbox
   .hurt_y2(hurt_y2), // Y coordinate of the second corner of the main hurtbox
+  .hurt_x12(hurt_x12), // X coordinate of the first corner of the second main hurtbox
+  .hurt_x22(hurt_x22), // X coordinate of the second corner of the second main hurtbox
+  .hurt_y12(hurt_y12), // Y coordinate of the first corner of the second main hurtbox
+  .hurt_y22(hurt_y22), // Y coordinate of the second corner of the second main hurtbox
   .currentstate(currentstate), // Current state of the sprite
   .currentstate2(currentstate2), // Current state of the second sprite
   .pixel_data(pixel_data), // Pixel data for the sprite

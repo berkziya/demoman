@@ -188,7 +188,7 @@ module rom (
     );
 
     always @(*) begin
-        case (currentstate)
+        case (currentstate2)
             4'd0: rom_sprite = rom_sprite_idleR; // Idle state
             4'd1: rom_sprite = rom_sprite_walkR; // Move forward state
             4'd2: rom_sprite = rom_sprite_walkbackR; // Move backward state
@@ -197,7 +197,7 @@ module rom (
             4'd5: rom_sprite = rom_sprite_attackpullR; // Attack pull state
             default: rom_sprite = 8'b0111011;
         endcase
-        case (currentstate2)
+        case (currentstate)
             4'd0: rom_sprite2 = rom_sprite_idleG; // Idle state
             4'd1: rom_sprite2 = rom_sprite_walkG; // Move forward state
             4'd2: rom_sprite2 = rom_sprite_walkbackG; // Move backward state
@@ -208,22 +208,43 @@ module rom (
         endcase
     end
 
+
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             data <= 8'b0111011; // Reset output data
             visible_flag <= 1'b0; // Reset visibility flag
-        end else if (inside_sprite && addr > 0 && addr < image_size) begin
-            // Ensure the address is within bounds of the ROM
-            data <= rom_sprite; // Read data from ROM at the specified address
-            visible_flag <= (rom_sprite != TRANSPARENT_COLOR); // Set visibility flag based on color
         end else if (inside_sprite2 && addr2 > 0 && addr2 < image_size) begin
-            // Ensure the address is within bounds of the ROM for second player
-            data <= rom_sprite2; // Read data from ROM at the specified address for second player
+                // Ensure the address is within bounds of the ROM
+            data <= rom_sprite2; // Read data from ROM at the specified address
             visible_flag <= (rom_sprite2 != TRANSPARENT_COLOR); // Set visibility flag based on color
+        end else if (inside_sprite && addr > 0 && addr < image_size) begin
+            // Ensure the address is within bounds of the ROM for second player
+            data <= rom_sprite; // Read data from ROM at the specified address for second player
+            visible_flag <= (rom_sprite != TRANSPARENT_COLOR); // Set visibility flag based on color
         end else begin
             data <= 8'b0111011; // Default value if outside sprite bounds or address out of range
             visible_flag <= 1'b0; // Not visible if outside sprite bounds
         end
     end
+    
+/*
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            data = 8'b0111011; // Reset output data
+            visible_flag = 1'b0; // Reset visibility flag
+        end else if (inside_sprite2 && addr2 > 0 && addr2 < image_size) begin
+                // Ensure the address is within bounds of the ROM
+            data = rom_sprite2; // Read data from ROM at the specified address
+            visible_flag = (rom_sprite2 != TRANSPARENT_COLOR); // Set visibility flag based on color
+        end if (((inside_sprite && addr > 0) && (addr < image_size)) && (~visible_flag)) begin
+            // Ensure the address is within bounds of the ROM for second player
+            data = rom_sprite; // Read data from ROM at the specified address for second player
+            visible_flag = (rom_sprite != TRANSPARENT_COLOR); // Set visibility flag based on color
+        end else begin
+            data = 8'b0111011; // Default value if outside sprite bounds or address out of range
+            visible_flag = 1'b0; // Not visible if outside sprite bounds
+        end
+    end
+	 */
 
 endmodule

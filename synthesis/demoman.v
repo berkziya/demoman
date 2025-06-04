@@ -54,11 +54,14 @@ localparam reset = 1'b0;
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
-wire [3:0] currentstate;
+wire [3:0] currentstate; // First player's state
+wire [3:0] currentstate2; // Second player's state
 
 wire effective_clk;
-wire [9:0] posx; // Player's X position
-wire [9:0] posy; // Player's Y position
+wire [9:0] posx; // Player 1's X position
+wire [9:0] posy; // Player 1's Y position
+wire [9:0] posx2; // Player 2's X position
+wire [9:0] posy2; // Player 2's Y position
 
 wire  [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
@@ -70,7 +73,9 @@ wire pixel_visible_flag;
 wire [9:0] sprite_height = 10'd157; // Height of the sprite
 wire [9:0] sprite_width = 10'd150;  // Width of the sprite
 wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox coordinates
+wire [9:0] hithurt_x12, hithurt_x22, hithurt_y12, hithurt_y22; // Second player's basic hit hurtbox coordinates
 wire [9:0] hurt_x1, hurt_x2, hurt_y1, hurt_y2; // Main hurtbox coordinates
+wire [9:0] hurt_x12, hurt_x22, hurt_y12, hurt_y22; // Second player's main hurtbox coordinates
 wire inside_sprite; // Flag to check if the current pixel is inside the sprite
 wire on_hithurt_border;
 wire on_hurt_border;
@@ -130,6 +135,24 @@ player #(1'b0) Player1 (
   .main_hurtbox_y2(hurt_y2)
 );
 
+player #(1'b1) Player2 (
+  .clk(effective_clk),
+  .rst(reset),
+  .left(~KEY[3]),
+  .right(~KEY[2]),
+  .attack(~KEY[1]),
+  .posx(posx2),
+  .posy(posy2),
+  .current_state(currentstate2),
+  .basic_hithurtbox_x1(hithurt_x12),
+  .basic_hithurtbox_x2(hithurt_x22),
+  .basic_hithurtbox_y1(hithurt_y12),
+  .basic_hithurtbox_y2(hithurt_y22),
+  .main_hurtbox_x1(hurt_x12),
+  .main_hurtbox_x2(hurt_x22),
+  .main_hurtbox_y1(hurt_y12),
+  .main_hurtbox_y2(hurt_y22)
+);
 // always @(*) begin
 //   color_to_vga_driver = 8'b00100101; // Default color (pink)
 //   if (current_pixel_x >= posx && current_pixel_x < posx + 100 &&
@@ -151,9 +174,12 @@ rom rom_inst (
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
+  .posx2(posx2), // Player's X position + sprite width
+  .posy2(posy2), // Player's Y position + sprite height
   .sprite_height(sprite_height), // Height of the sprite
   .sprite_width(sprite_width), // Width of the sprite
   .currentstate(currentstate),
+  .currentstate2(currentstate2),
   .visible_flag(pixel_visible_flag), // Visibility flag for move forward state
   .data(pixel_data)
 );
@@ -163,6 +189,8 @@ color_decider color_decider_inst(
   .current_pixel_y(current_pixel_y), // Current pixel Y coordinate
   .posx(posx), // X position of the sprite
   .posy(posy), // Y position of the sprite
+  .posx2(posx2), // X position of the second sprite
+  .posy2(posy2), // Y position of the second sprite
   .sprite_width(sprite_width), // Width of the sprite
   .sprite_height(sprite_height), // Height of the sprite
   .hithurt_x1(hithurt_x1), // X coordinate of the first corner of the basic hit hurtbox
@@ -174,6 +202,7 @@ color_decider color_decider_inst(
   .hurt_y1(hurt_y1), // Y coordinate of the first corner of the main hurtbox
   .hurt_y2(hurt_y2), // Y coordinate of the second corner of the main hurtbox
   .currentstate(currentstate), // Current state of the sprite
+  .currentstate2(currentstate2), // Current state of the second sprite
   .pixel_data(pixel_data), // Pixel data for the sprite
   .pixel_visible_flag(pixel_visible_flag), // Flag indicating if the pixel is visible
   .color_to_vga_driver(color_to_vga_driver) // Color to be sent to the VGA driver

@@ -72,6 +72,8 @@ localparam P_SPEED_BACK = 2;
 
 reg [3:0] NS;
 
+reg juststarted;
+
 wire [countsize-1:0] counter;
 
 reg [countsize-1:0] lastcountanchor;
@@ -335,8 +337,9 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-  if (rst) begin
-    posx <= (SIDE == LEFT) ? 10'd210 : 10'd420;
+  if ((~juststarted) || rst) begin
+    posx <= (SIDE == LEFT) ? 10'd100 : 10'd390;
+	juststarted <= 1'b1;
   end else begin
     case (NS)
       S_IDLE: begin

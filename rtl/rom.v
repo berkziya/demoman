@@ -200,7 +200,7 @@ module rom (
             4'd8: rom_sprite2 = rom_sprite_dirattpullR; // Directional attack pull state
             4'd9: rom_sprite2 = rom_sprite_gothitR; // Hit state
             4'd10: rom_sprite2 = rom_sprite_blockR; // Block state
-            default: rom_sprite2 = 8'b0111011;
+            default: rom_sprite2 = TRANSPARENT_COLOR;
         endcase
         case (currentstate)
             4'd0: rom_sprite = rom_sprite_idleG; // Idle state

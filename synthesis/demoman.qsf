@@ -407,6 +407,9 @@ set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name SEARCH_PATH ../sprites
 set_global_assignment -name SEARCH_PATH ../rtl/utils
 set_global_assignment -name SEARCH_PATH ../rtl
+set_global_assignment -name VERILOG_FILE ../rtl/hitdetector.v
+set_global_assignment -name VERILOG_FILE ../rtl/hitbox.v
+set_global_assignment -name VERILOG_FILE ../rtl/collisiondetector.v
 set_global_assignment -name MIF_FILE ../sprites/walkR.mif
 set_global_assignment -name HEX_FILE ../sprites/walkR.hex
 set_global_assignment -name MIF_FILE ../sprites/walkG.mif

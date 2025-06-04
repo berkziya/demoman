@@ -160,7 +160,7 @@ player #(.SIDE(1'b1)) Player2 (
   .main_hurtbox_y2(hurt_y22)
 );
 
-hitdetector hitdetector_inst (
+HitDetect hitdetector_inst (
   .p1_state(currentstate),
   .p1_basic_hithurtbox_x1(hithurt_x1),
   .p1_basic_hithurtbox_x2(hithurt_x2),

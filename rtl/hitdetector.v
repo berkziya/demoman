@@ -35,7 +35,7 @@ module HitDetect (
   input [9:0] p2_main_hurtbox_y2,
 
   output reg [1:0] P1_hasBeenHitFlag,
-  output reg [1:0] P2_hasBeenHitFlag,
+  output reg [1:0] P2_hasBeenHitFlag
 );
 
 	localparam notHit = 2'b00;
@@ -98,7 +98,7 @@ module HitDetect (
 	
 	wire colldet_p1da_p2main_result;
 
-	CollisionDetect colldet_p1ba_p2main(
+	CollisionDetect colldet_p1da_p2main(
 		.a_x1(p1_dir_hithurtbox_x1),
 		.a_x2(p1_dir_hithurtbox_x2),
 		.a_y1(p1_dir_hithurtbox_y1),
@@ -169,11 +169,11 @@ module HitDetect (
 
 	always @(*) begin
 
-		case p1_state
+		case (p1_state)
 
 			S_B_ATTACK_END:begin
 
-				case p2_state
+				case (p2_state)
 
 					S_B_ATTACK_END:begin
 					P1_hasBeenHitFlag = colldet_p1ba_p2ba_result ? hitByBasic : notHit;
@@ -201,7 +201,7 @@ module HitDetect (
 
 			S_B_ATTACK_PULL:begin
 				P2_hasBeenHitFlag = notHit;
-				case p2_state
+				case (p2_state)
 					S_B_ATTACK_END:begin
 					P1_hasBeenHitFlag = colldet_p1ba_p2ba_result ? hitByBasic : notHit;
 					end
@@ -223,7 +223,7 @@ module HitDetect (
 			
 			S_D_ATTACK_END:begin
 
-				case p2_state
+				case (p2_state)
 
 					S_B_ATTACK_END:begin
 					P1_hasBeenHitFlag = colldet_p1da_p2ba_result ? hitByBasic : notHit;
@@ -251,7 +251,7 @@ module HitDetect (
 
 			S_D_ATTACK_PULL:begin
 				P2_hasBeenHitFlag = notHit;
-				case p2_state
+				case (p2_state)
 					S_B_ATTACK_END:begin
 					P1_hasBeenHitFlag = colldet_p1da_p2ba_result ? hitByBasic : notHit;
 					end
@@ -273,7 +273,7 @@ module HitDetect (
 
 			default:begin
 					P2_hasBeenHitFlag = notHit;
-				case p2_state
+				case (p2_state)
 					S_B_ATTACK_END:begin
 					P1_hasBeenHitFlag = colldet_p2ba_p1main_result ? hitByBasic : notHit;
 					end
@@ -281,7 +281,7 @@ module HitDetect (
 					P1_hasBeenHitFlag = notHit;
 					end
 					S_D_ATTACK_END:begin
-					P1_hasBeenHitFlag = colldet_p2da_p1main ? hitByDirectional : notHit;
+					P1_hasBeenHitFlag = colldet_p2da_p1main_result ? hitByDirectional : notHit;
 					end
 					S_D_ATTACK_PULL: begin
 					P1_hasBeenHitFlag = notHit;

@@ -11,7 +11,7 @@ module CollisionDetect (
   input [9:0] b_y1,
   input [9:0] b_y2,
   
-  output wire collision_result
+  output reg collision_result
 
 );
 

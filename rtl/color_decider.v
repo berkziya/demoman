@@ -21,7 +21,7 @@ module color_decider(
 	input pixel_visible_flag, // Flag indicating if the pixel is visible
 	output reg [7:0] color_to_vga_driver // Color to be sent to the VGA driver
 );
-
+localparam [7:0] TRANSPARENT_COLOR = 8'b11100011; // Transparent color for the sprite
 wire inside_sprite; // Flag indicating if the current pixel is inside the sprite
 wire on_hithurt_border; // Flag indicating if the current pixel is on the basic hit hurtbox border
 wire on_hurt_border; // Flag indicating if the current pixel is on the main hurtbox border
@@ -46,10 +46,10 @@ always @(*) begin
 		//color_to_vga_driver = 8'b11111100; // Yellow color for basic hit hurtbox border
 	//end else if (on_hurt_border) begin // If the current pixel is on the main hurtbox border
 		//color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
-	if ((inside_sprite || inside_sprite2) && pixel_visible_flag) begin // If the current pixel is inside the sprite and visible
+	if ((inside_sprite || inside_sprite2) && (pixel_data != TRANSPARENT_COLOR) ) begin // If the current pixel is inside the sprite and visible
 		color_to_vga_driver = pixel_data;
 	end else begin
-		color_to_vga_driver = 8'b01111011; // Default color (purple) for background
+		color_to_vga_driver = 8'b01111011; // Default color for background
 	end
 end
 endmodule

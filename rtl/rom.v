@@ -195,6 +195,11 @@ module rom (
             4'd3: rom_sprite2 = rom_sprite_attackstartR; // Attack start state
             4'd4: rom_sprite2 = rom_sprite_attackendR; // Attack end state
             4'd5: rom_sprite2 = rom_sprite_attackpullR; // Attack pull state
+            4'd6: rom_sprite2 = rom_sprite_dirattstartR; // Directional attack start state
+            4'd7: rom_sprite2 = rom_sprite_dirattendR; // Directional attack end state
+            4'd8: rom_sprite2 = rom_sprite_dirattpullR; // Directional attack pull state
+            4'd9: rom_sprite2 = rom_sprite_gothitR; // Hit state
+            4'd10: rom_sprite2 = rom_sprite_blockR; // Block state
             default: rom_sprite2 = 8'b0111011;
         endcase
         case (currentstate)
@@ -204,6 +209,11 @@ module rom (
             4'd3: rom_sprite = rom_sprite_attackstartG; // Attack start state
             4'd4: rom_sprite = rom_sprite_attackendG; // Attack end state
             4'd5: rom_sprite = rom_sprite_attackpullG; // Attack pull state
+            4'd6: rom_sprite = rom_sprite_dirattstartG; // Directional attack start state
+            4'd7: rom_sprite = rom_sprite_dirattendG; // Directional attack end state
+            4'd8: rom_sprite = rom_sprite_dirattpullG; // Directional attack pull state
+            4'd9: rom_sprite = rom_sprite_gothitG; // Hit state
+            4'd10: rom_sprite = rom_sprite_blockG; // Block state
             default: rom_sprite = 8'b0111011;
         endcase
     end

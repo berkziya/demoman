@@ -195,11 +195,6 @@ module rom (
             4'd3: rom_sprite2 = rom_sprite_attackstartR; // Attack start state
             4'd4: rom_sprite2 = rom_sprite_attackendR; // Attack end state
             4'd5: rom_sprite2 = rom_sprite_attackpullR; // Attack pull state
-            4'd6: rom_sprite2 = rom_sprite_dirattstartR; // Directional attack start state
-            4'd7: rom_sprite2 = rom_sprite_dirattendR; // Directional attack end state
-            4'd8: rom_sprite2 = rom_sprite_dirattpullR; // Directional attack pull state
-            4'd9: rom_sprite2 = rom_sprite_gothitR; // Hit state
-            4'd10: rom_sprite2 = rom_sprite_blockR; // Block state
             default: rom_sprite2 = 8'b0111011;
         endcase
         case (currentstate)
@@ -209,11 +204,6 @@ module rom (
             4'd3: rom_sprite = rom_sprite_attackstartG; // Attack start state
             4'd4: rom_sprite = rom_sprite_attackendG; // Attack end state
             4'd5: rom_sprite = rom_sprite_attackpullG; // Attack pull state
-            4'd6: rom_sprite = rom_sprite_dirattstartG; // Directional attack start state
-            4'd7: rom_sprite = rom_sprite_dirattendG; // Directional attack end state
-            4'd8: rom_sprite = rom_sprite_dirattpullG; // Directional attack pull state
-            4'd9: rom_sprite = rom_sprite_gothitG; // Hit state
-            4'd10: rom_sprite = rom_sprite_blockG; // Block state
             default: rom_sprite = 8'b0111011;
         endcase
     end
@@ -222,16 +212,18 @@ module rom (
         if (rst) begin
             data <= 8'b0111011; // Reset output data
             visible_flag <= 1'b0; // Reset visibility flag
-        end else begin
-            if (inside_sprite && addr > 0 && addr < image_size) begin
-                // Ensure the address is within bounds of the ROM
-            data <= rom_sprite; // Read data from ROM at the specified address
+        end else if (inside_sprite && addr > 0 && addr < image_size) && (inside_sprite2 && addr2 > 0 && addr2 < image_size) begin
+            // Ensure the address is within bounds of the ROM
+            data <= rom_sprite2; // Read data from ROM at the specified address
+            visible_flag <= ((rom_sprite || rom_sprite2) != TRANSPARENT_COLOR); // Set visibility flag based on color
+        end else if (inside_sprite && addr > 0 && addr < image_size) begin
+            // Ensure the address is within bounds of the ROM for second player
+            data <= rom_sprite; // Read data from ROM at the specified address for second player
             visible_flag <= (rom_sprite != TRANSPARENT_COLOR); // Set visibility flag based on color
-            end if (inside_sprite2 && addr2 > 0 && addr2 < image_size) begin
+        end else if (inside_sprite2 && addr2 > 0 && addr2 < image_size) begin
             // Ensure the address is within bounds of the ROM for second player
             data <= rom_sprite2; // Read data from ROM at the specified address for second player
-            visible_flag <= ((rom_sprite || rom_sprite2) != TRANSPARENT_COLOR); // Set visibility flag based on color
-            end
+            visible_flag <= (rom_sprite2 != TRANSPARENT_COLOR); // Set visibility flag based on color
         end else begin
             data <= 8'b0111011; // Default value if outside sprite bounds or address out of range
             visible_flag <= 1'b0; // Not visible if outside sprite bounds

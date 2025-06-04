@@ -4,7 +4,7 @@ import sys
 
 # --- Configuration ---
 IMAGE_WIDTH = 113
-IMAGE_HEIGHT = 156
+IMAGE_HEIGHT = 157
 # --- End Configuration ---
 
 

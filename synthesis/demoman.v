@@ -70,7 +70,7 @@ wire       clk_25mhz;
 
 wire [7:0] pixel_data;
 wire pixel_visible_flag;
-wire [9:0] sprite_height = 10'd156; // Height of the sprite
+wire [9:0] sprite_height = 10'd157; // Height of the sprite
 wire [9:0] sprite_width = 10'd113;  // Width of the sprite
 wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox coordinates
 wire [9:0] hithurt_x12, hithurt_x22, hithurt_y12, hithurt_y22; // Second player's basic hit hurtbox coordinates

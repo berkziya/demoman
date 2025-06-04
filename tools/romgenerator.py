@@ -4,8 +4,6 @@ import math
 import argparse
 from PIL import Image
 
-# --- Core Functions ---
-
 
 def get_rom_depth_from_png(mif_file_path: str) -> int | None:
     """
@@ -465,11 +463,11 @@ def main():
     quartus_version_full_str = "24.1std.0 Build 1077 03/04/2025 SC Lite Edition"
     quartus_version_short_str = "24.1"
 
-    # Derive rom_name from the MIF filename
-    base_mif_filename = os.path.basename(mif_file_arg)
-    rom_module_name, _ = os.path.splitext(base_mif_filename)
+    # Derive rom_module_name and base MIF filename from the input MIF filename
+    base_mif_filename_from_arg = os.path.basename(mif_file_arg)  # e.g., "myimage.mif"
+    rom_module_name, _ = os.path.splitext(base_mif_filename_from_arg)  # e.g., "myimage"
 
-    # Get ROM depth from the associated PNG file
+    # Get ROM depth from the associated PNG file (using the actual input MIF file path)
     calculated_num_words = get_rom_depth_from_png(mif_file_arg)
 
     if calculated_num_words is None or calculated_num_words < 1:
@@ -488,20 +486,27 @@ def main():
     else:
         rom_addr_width = math.ceil(math.log2(calculated_num_words))
 
-    print(f"  Module Name: {rom_module_name}")
-    print(f"  MIF File (for INIT_FILE): {mif_file_arg}")
+    mif_path_for_verilog_init_file = f"../sprites/{base_mif_filename_from_arg}"
+
+    print(f"  Input MIF for depth/name derivation: {mif_file_arg}")
+    print(f"  Generated ROM Module Name: rom_{rom_module_name}")
     print(f"  Output Directory: {output_directory}")
-    print(f"  Derived Depth (NumWords): {calculated_num_words}")
+    print(
+        f"  Derived Depth (NumWords) from {base_mif_filename_from_arg}'s PNG: {calculated_num_words}"
+    )
     print(f"  Calculated Address Width: {rom_addr_width}")
-    print(f"  Data Width: {rom_data_width} (fixed)")
-    print(f"  Device Family: {fpga_device_family}")
+    print(f"  Data Width (fixed): {rom_data_width}")
+    print(f"  Target Device Family: {fpga_device_family}")
+    print(
+        f"  MIF File path for Verilog INIT_FILE parameter: {mif_path_for_verilog_init_file}"
+    )
 
     success = generate_rom_files(
         rom_name=f"rom_{rom_module_name}",
         addr_width=rom_addr_width,
         data_width=rom_data_width,
         num_words=calculated_num_words,
-        mif_file_path_for_verilog=mif_file_arg,
+        mif_file_path_for_verilog=mif_path_for_verilog_init_file,  # Use the dynamically constructed path here
         device_family=fpga_device_family,
         quartus_version_full=quartus_version_full_str,
         quartus_version_short=quartus_version_short_str,
@@ -509,7 +514,7 @@ def main():
     )
 
     if not success:
-        print(f"Failed to generate ROM IP files for {rom_module_name}.")
+        print(f"Failed to generate ROM IP files for rom_{rom_module_name}.")
 
 
 if __name__ == "__main__":

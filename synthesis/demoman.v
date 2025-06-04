@@ -49,13 +49,14 @@ module demoman(
   inout [35:0] GPIO
 );
 
-localparam reset = 1'b0;
-
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
-wire [3:0] currentstate; // First player's state
-wire [3:0] currentstate2; // Second player's state
+
+wire reset; // Reset signal
+
+wire [3:0] player1_state; // First player's state
+wire [3:0] player2_state; // Second player's state
 
 wire effective_clk;
 wire [9:0] posx; // Player 1's X position
@@ -63,30 +64,29 @@ wire [9:0] posy; // Player 1's Y position
 wire [9:0] posx2; // Player 2's X position
 wire [9:0] posy2; // Player 2's Y position
 
-wire  [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
+wire [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
-wire       clk_25mhz;
+wire clk_25mhz;
 
 wire [7:0] pixel_data;
-wire pixel_visible_flag;
-wire [9:0] sprite_height = 10'd157; // Height of the sprite
-wire [9:0] sprite_width = 10'd113;  // Width of the sprite
+
 wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox coordinates
 wire [9:0] hithurt_x12, hithurt_x22, hithurt_y12, hithurt_y22; // Second player's basic hit hurtbox coordinates
 wire [9:0] hurt_x1, hurt_x2, hurt_y1, hurt_y2; // Main hurtbox coordinates
 wire [9:0] hurt_x12, hurt_x22, hurt_y12, hurt_y22; // Second player's main hurtbox coordinates
 wire [9:0] dir_hithurt_x1, dir_hithurt_x2, dir_hithurt_y1, dir_hithurt_y2; // Directional hit hurtbox coordinates
 wire [9:0] dir_hithurt_x12, dir_hithurt_x22, dir_hithurt_y12, dir_hithurt_y22; // Second player's directional hit hurtbox coordinates
-wire inside_sprite; // Flag to check if the current pixel is inside the sprite
-wire on_hithurt_border;
-wire on_hurt_border;
 wire [1:0] hasbeenHit1; // Flag indicating if Player 1 has been hit
 wire [1:0] hasbeenHit2; // Flag indicating if Player 2 has been hit
+
+wire [2:0] player1_health, player2_health;
 
 //=======================================================
 //  Structural coding
 //=======================================================
+
+assign reset = 1'b0;
 
 clock_divider #(
   .DIV(2)
@@ -120,8 +120,6 @@ effective_clock_generator effective_clk_inst(
   .effective_clk(effective_clk) // Output effective clock signal based on switch state
 );
 
-
-
 player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
@@ -131,7 +129,7 @@ player #(.SIDE(1'b0)) Player1 (
   .hitFlag(hasbeenHit1), // Hit flag for Player 1
   .posx(posx),
   .posy(posy),
-  .current_state(currentstate),
+  .current_state(player1_state),
   .basic_hithurtbox_x1(hithurt_x1),
   .basic_hithurtbox_x2(hithurt_x2),
   .basic_hithurtbox_y1(hithurt_y1),
@@ -147,36 +145,33 @@ player #(.SIDE(1'b0)) Player1 (
 );
 
 wire random_num_clk;
-
 clock_divider #(
-  .DIV(44) // Adjust the division factor as needed for your clock frequency
+  .DIV(44) // Player 2 random movement clock divider, higher is slower
 ) random_num_clk_divider (
   .clk(effective_clk),
   .clk_o(random_num_clk)
 );
 
-reg [31:0] random_number;
+wire [31:0] random_number;
 random_num random_gen (
   .clk(random_num_clk),
   .rand_o(random_number)
 );
 
-wire player2_left, player2_right, player2_attack;
-
-assign player2_left =  SW[3] ? ~KEY[3] : random_number[0];
-assign player2_right =  SW[3] ? ~KEY[2] : random_number[1];
-assign player2_attack =  SW[3] ? ~KEY[1] : random_number[2];
+wire player2_left = SW[3] ? ~KEY[3] : random_number[0];
+wire player2_right = SW[3] ? ~KEY[2] : random_number[1];
+wire player2_attack = SW[3] ? ~KEY[1] : random_number[2];
 
 player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),
   .rst(reset),
   .left(player2_left), // Player 2's left control, can be controlled by a switch or random number
   .right(player2_right), // Player 2's right control, can be controlled by a switch or random number
-  .attack(player2_attack), // Player 2's attack control, can be controlled by a switch or random number 
+  .attack(player2_attack), // Player 2's attack control, can be controlled by a switch or random number
   .hitFlag(hasbeenHit2), // Hit flag for Player 2
   .posx(posx2),
   .posy(posy2),
-  .current_state(currentstate2),
+  .current_state(player2_state),
   .basic_hithurtbox_x1(hithurt_x12),
   .basic_hithurtbox_x2(hithurt_x22),
   .basic_hithurtbox_y1(hithurt_y12),
@@ -191,8 +186,9 @@ player #(.SIDE(1'b1)) Player2 (
   .dir_hithurtbox_y2(dir_hithurt_y22)
 );
 
+
 HitDetect hitdetector_inst (
-  .p1_state(currentstate),
+  .p1_state(player1_state),
   .p1_basic_hithurtbox_x1(hithurt_x1),
   .p1_basic_hithurtbox_x2(hithurt_x2),
   .p1_basic_hithurtbox_y1(hithurt_y1),
@@ -206,7 +202,7 @@ HitDetect hitdetector_inst (
   .p1_dir_hithurtbox_y1(dir_hithurt_y1),
   .p1_dir_hithurtbox_y2(dir_hithurt_y2),
 
-  .p2_state(currentstate2),
+  .p2_state(player2_state),
   .p2_basic_hithurtbox_x1(hithurt_x12),
   .p2_basic_hithurtbox_x2(hithurt_x22),
   .p2_basic_hithurtbox_y1(hithurt_y12),
@@ -225,21 +221,27 @@ HitDetect hitdetector_inst (
 );
 
 
+health_status health_status_inst (
+  .clk(effective_clk),
+  .reset(reset),
+  .player1_state(player1_state),
+  .player2_state(player2_state),
+  .player1_health(player1_health),
+  .player2_health(player2_health)
+);
+
+
 rom rom_inst (
   .clk(CLOCK_50),
-  .rst(1'b0),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
   .posx(posx), // Player's X position
   .posy(posy), // Player's Y position
   .posx2(posx2), // Player's X position + sprite width
   .posy2(posy2), // Player's Y position + sprite height
-  .sprite_height(sprite_height), // Height of the sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .currentstate(currentstate),
-  .currentstate2(currentstate2),
-  .visible_flag(pixel_visible_flag), // Visibility flag for move forward state
-  .data(pixel_data), // Color data for the current pixel
+  .player1_state(player1_state),
+  .player2_state(player2_state),
+  .pixel_data(pixel_data), // Color data for the current pixel
 );
 
 
@@ -250,8 +252,6 @@ color_decider color_decider_inst(
   .posy(posy), // Y position of the sprite
   .posx2(posx2), // X position of the second sprite
   .posy2(posy2), // Y position of the second sprite
-  .sprite_width(sprite_width), // Width of the sprite
-  .sprite_height(sprite_height), // Height of the sprite
   .hithurt_x1(hithurt_x1), // X coordinate of the first corner of the basic hit hurtbox
   .hithurt_x2(hithurt_x2), // X coordinate of the second corner of the basic hit hurtbox
   .hithurt_y1(hithurt_y1), // Y coordinate of the first corner of the basic hit hurtbox
@@ -276,10 +276,9 @@ color_decider color_decider_inst(
   .hurt_x22(hurt_x22), // X coordinate of the second corner of the second main hurtbox
   .hurt_y12(hurt_y12), // Y coordinate of the first corner of the second main hurtbox
   .hurt_y22(hurt_y22), // Y coordinate of the second corner of the second main hurtbox
-  .currentstate(currentstate), // Current state of the sprite
-  .currentstate2(currentstate2), // Current state of the second sprite
+  .player1_state(player1_state), // Current state of the sprite
+  .player2_state(player2_state), // Current state of the second sprite
   .pixel_data(pixel_data), // Pixel data for the sprite
-  .pixel_visible_flag(pixel_visible_flag), // Flag indicating if the pixel is visible
   .color_to_vga_driver(color_to_vga_driver) // Color to be sent to the VGA driver
 );
 

@@ -213,7 +213,7 @@ module rom (
             data <= 8'b0111011; // Reset output data
             visible_flag <= 1'b0; // Reset visibility flag
         end else begin
-            if (inside_sprite && addr > 0 && addr2 < image_size) begin
+            if (inside_sprite && addr > 0 && addr < image_size) begin
                 // Ensure the address is within bounds of the ROM
             data <= rom_sprite; // Read data from ROM at the specified address
             visible_flag <= (rom_sprite != TRANSPARENT_COLOR); // Set visibility flag based on color

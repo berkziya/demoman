@@ -79,6 +79,8 @@ wire [9:0] hurt_x12, hurt_x22, hurt_y12, hurt_y22; // Second player's main hurtb
 wire inside_sprite; // Flag to check if the current pixel is inside the sprite
 wire on_hithurt_border;
 wire on_hurt_border;
+wire [1:0] hasbeenHit1; // Flag indicating if Player 1 has been hit
+wire [1:0] hasbeenHit2; // Flag indicating if Player 2 has been hit
 
 //=======================================================
 //  Structural coding
@@ -116,12 +118,15 @@ effective_clock_generator effective_clk_inst(
   .effective_clk(effective_clk) // Output effective clock signal based on switch state
 );
 
+
+
 player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
   .left(~KEY[3] & SW[2]), // Player 1's left control, can be controlled by a switch
   .right(~KEY[2] & SW[2]), // Player 1's right control, can be controlled by a switch
   .attack(~KEY[1] & SW[2]), // Player 1's attack control, can be controlled by a switch
+  .hitFlag(hasbeenHit1), // Hit flag for Player 1
   .posx(posx),
   .posy(posy),
   .current_state(currentstate),
@@ -141,6 +146,7 @@ player #(.SIDE(1'b1)) Player2 (
   .left(~KEY[3] & SW[3]), // Player 2's left control, can be controlled by a switch
   .right(~KEY[2] & SW[3]), // Player 2's right control, can be controlled by a switch
   .attack(~KEY[1] & SW[3]), // Player 2's attack control, can be controlled by a switch
+  .hitFlag(hasbeenHit2), // Hit flag for Player 2
   .posx(posx2),
   .posy(posy2),
   .current_state(currentstate2),
@@ -153,19 +159,32 @@ player #(.SIDE(1'b1)) Player2 (
   .main_hurtbox_y1(hurt_y12),
   .main_hurtbox_y2(hurt_y22)
 );
-// always @(*) begin
-//   color_to_vga_driver = 8'b00100101; // Default color (pink)
-//   if (current_pixel_x >= posx && current_pixel_x < posx + 100 &&
-//       current_pixel_y >= posy && current_pixel_y < posy + 100) begin
-//     color_to_vga_driver =  currentstate == 4'd0 ? 8'b11100000 : // Idle state color (red)
-//                            currentstate == 4'd1 ? 8'b00001111 : // Move forward (blue)
-//                            currentstate == 4'd2 ? 8'b11110000 : // Move backward (yellow)
-//                            currentstate == 4'd3 ? 8'b00011111 : // Attack start (cyan)
-//                            currentstate == 4'd4 ? 8'b11111100 : // Attack end (light green)
-//                            currentstate == 4'd5 ? 8'b11111111 : // Attack pull (white)
-//                            8'b11111111; // Default color
-//   end
-// end
+
+hitdetector hitdetector_inst (
+  .p1_state(currentstate),
+  .p1_basic_hithurtbox_x1(hithurt_x1),
+  .p1_basic_hithurtbox_x2(hithurt_x2),
+  .p1_basic_hithurtbox_y1(hithurt_y1),
+  .p1_basic_hithurtbox_y2(hithurt_y2),
+  .p1_main_hurtbox_x1(hurt_x1),
+  .p1_main_hurtbox_x2(hurt_x2),
+  .p1_main_hurtbox_y1(hurt_y1),
+  .p1_main_hurtbox_y2(hurt_y2),
+
+  .p2_state(currentstate2),
+  .p2_basic_hithurtbox_x1(hithurt_x12),
+  .p2_basic_hithurtbox_x2(hithurt_x22),
+  .p2_basic_hithurtbox_y1(hithurt_y12),
+  .p2_basic_hithurtbox_y2(hithurt_y22),
+  .p2_main_hurtbox_x1(hurt_x12),
+  .p2_main_hurtbox_x2(hurt_x22),
+  .p2_main_hurtbox_y1(hurt_y12),
+  .p2_main_hurtbox_y2(hurt_y22),
+
+  .P1_hasBeenHitFlag(hasbeenHit1), // Output flag for Player 1
+  .P2_hasBeenHitFlag(hasbeenHit2) // Output flag for Player 2
+);
+
 
 rom rom_inst (
   .clk(CLOCK_50),
@@ -208,7 +227,6 @@ color_decider color_decider_inst(
   .pixel_visible_flag(pixel_visible_flag), // Flag indicating if the pixel is visible
   .color_to_vga_driver(color_to_vga_driver) // Color to be sent to the VGA driver
 );
-
 
 
 endmodule

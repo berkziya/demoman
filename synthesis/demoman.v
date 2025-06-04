@@ -116,12 +116,12 @@ effective_clock_generator effective_clk_inst(
   .effective_clk(effective_clk) // Output effective clock signal based on switch state
 );
 
-player #(1'b0) Player1 (
+player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
-  .left(~KEY[3]),
-  .right(~KEY[2]),
-  .attack(~KEY[1]),
+  .left(~KEY[3] & SW[2]), // Player 1's left control, can be controlled by a switch
+  .right(~KEY[2] & SW[2]), // Player 1's right control, can be controlled by a switch
+  .attack(~KEY[1] & SW[2]), // Player 1's attack control, can be controlled by a switch
   .posx(posx),
   .posy(posy),
   .current_state(currentstate),
@@ -135,12 +135,12 @@ player #(1'b0) Player1 (
   .main_hurtbox_y2(hurt_y2)
 );
 
-player #(1'b1) Player2 (
+player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),
   .rst(reset),
-  .left(~KEY[3]),
-  .right(~KEY[2]),
-  .attack(~KEY[1]),
+  .left(~KEY[3] & SW[3]), // Player 2's left control, can be controlled by a switch
+  .right(~KEY[2] & SW[3]), // Player 2's right control, can be controlled by a switch
+  .attack(~KEY[1] & SW[3]), // Player 2's attack control, can be controlled by a switch
   .posx(posx2),
   .posy(posy2),
   .current_state(currentstate2),
@@ -181,8 +181,9 @@ rom rom_inst (
   .currentstate(currentstate),
   .currentstate2(currentstate2),
   .visible_flag(pixel_visible_flag), // Visibility flag for move forward state
-  .data(pixel_data)
+  .data(pixel_data), // Color data for the current pixel
 );
+
 
 color_decider color_decider_inst(
   .current_pixel_x(current_pixel_x), // Current pixel X coordinate

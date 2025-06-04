@@ -5,15 +5,18 @@ module rom (
     input [9:0] current_pixel_y, // Current pixel Y position
     input [9:0] posx, // Player's X position
     input [9:0] posy, // Player's Y position
+    input [9:0] posx2, // Player's X position for second player
+    input [9:0] posy2, // Player's Y position for second player
     input [9:0] sprite_height, // Height of the sprite
     input [9:0] sprite_width, // Width of the sprite
     input [3:0] currentstate,
+    input [3:0] currentstate2,
     output reg visible_flag, // Flag to indicate if the sprite is visible
     output reg [7:0] data
 );
     // ROM data initialization
     localparam image_size = 150 * 157; // Size of the sprite in pixels
-    reg  [7:0] rom_sprite;
+    reg [7:0] rom_sprite, rom_sprite2; // ROM sprite data
     wire [7:0] rom_sprite_attackendG,
             rom_sprite_attackendR,
             rom_sprite_attackpullG,
@@ -38,13 +41,19 @@ module rom (
             rom_sprite_walkR;
     wire [9:0] relative_x = current_pixel_x - posx;
     wire [9:0] relative_y = current_pixel_y - posy;
-    wire [14:0] addr;
+    wire [9:0] relative_x2 = current_pixel_x - posx2;
+    wire [9:0] relative_y2 = current_pixel_y - posy2;
+    wire [14:0] addr, addr2;
 
     localparam [7:0] TRANSPARENT_COLOR = 8'b11100011; // Transparent color value
 
     wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width) &&
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
     assign addr = (relative_y * 15'd150) + relative_x; // Calculate address in ROM
+
+    wire inside_sprite2 = (current_pixel_x >= posx2 && current_pixel_x < posx2 + sprite_width) &&
+                          (current_pixel_y >= posy2 && current_pixel_y < posy2 + sprite_height);
+    assign addr2 = (relative_y2 * 15'd150) + relative_x2; // Calculate address in ROM for second player
 
     rom_attackendG rom_inst_attackendG (
         .address(addr),
@@ -53,7 +62,7 @@ module rom (
     );
 
     rom_attackendR rom_inst_attackendR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_attackendR)
     );
@@ -65,7 +74,7 @@ module rom (
     );
 
     rom_attackpullR rom_inst_attackpullR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_attackpullR)
     );
@@ -77,7 +86,7 @@ module rom (
     );
 
     rom_attackstartR rom_inst_attackstartR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_attackstartR)
     );
@@ -89,7 +98,7 @@ module rom (
     );
 
     rom_blockR rom_inst_blockR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_blockR)
     );
@@ -101,7 +110,7 @@ module rom (
     );
 
     rom_dirattendR rom_inst_dirattendR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_dirattendR)
     );
@@ -113,7 +122,7 @@ module rom (
     );
 
     rom_dirattpullR rom_inst_dirattpullR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_dirattpullR)
     );
@@ -125,7 +134,7 @@ module rom (
     );
 
     rom_dirattstartR rom_inst_dirattstartR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_dirattstartR)
     );
@@ -137,7 +146,7 @@ module rom (
     );
 
     rom_gothitR rom_inst_gothitR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_gothitR)
     );
@@ -149,7 +158,7 @@ module rom (
     );
 
     rom_idleR rom_inst_idleR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_idleR)
     );
@@ -161,7 +170,7 @@ module rom (
     );
 
     rom_walkbackR rom_inst_walkbackR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_walkbackR)
     );
@@ -173,33 +182,46 @@ module rom (
     );
 
     rom_walkR rom_inst_walkR (
-        .address(addr),
+        .address(addr2),
         .clock(clk),
         .q(rom_sprite_walkR)
     );
 
-always @(*) begin
-    case (currentstate)
-        4'd0: rom_sprite = rom_sprite_idleG; // Idle state
-        4'd1: rom_sprite = rom_sprite_walkG; // Move forward state
-        4'd2: rom_sprite = rom_sprite_walkbackG; // Move backward state
-        4'd3: rom_sprite = rom_sprite_attackstartG; // Attack start state
-        4'd4: rom_sprite = rom_sprite_attackendG; // Attack end state
-        4'd5: rom_sprite = rom_sprite_attackpullG; // Attack pull state
-        default: rom_sprite = 8'b0111011; // Default color (white) sprite
-    endcase
-end
+    always @(*) begin
+        case (currentstate)
+            4'd0: rom_sprite = rom_sprite_idleR; // Idle state
+            4'd1: rom_sprite = rom_sprite_walkR; // Move forward state
+            4'd2: rom_sprite = rom_sprite_walkbackR; // Move backward state
+            4'd3: rom_sprite = rom_sprite_attackstartR; // Attack start state
+            4'd4: rom_sprite = rom_sprite_attackendR; // Attack end state
+            4'd5: rom_sprite = rom_sprite_attackpullR; // Attack pull state
+            default: rom_sprite = 8'b0111011;
+        endcase
+        case (currentstate2)
+            4'd0: rom_sprite2 = rom_sprite_idleG; // Idle state
+            4'd1: rom_sprite2 = rom_sprite_walkG; // Move forward state
+            4'd2: rom_sprite2 = rom_sprite_walkbackG; // Move backward state
+            4'd3: rom_sprite2 = rom_sprite_attackstartG; // Attack start state
+            4'd4: rom_sprite2 = rom_sprite_attackendG; // Attack end state
+            4'd5: rom_sprite2 = rom_sprite_attackpullG; // Attack pull state
+            default: rom_sprite2 = 8'b0111011;
+        endcase
+    end
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            data <= 8'b00000000; // Reset output data
+            data <= 8'b0111011; // Reset output data
             visible_flag <= 1'b0; // Reset visibility flag
         end else if (inside_sprite && addr > 0 && addr < image_size) begin
             // Ensure the address is within bounds of the ROM
             data <= rom_sprite; // Read data from ROM at the specified address
             visible_flag <= (rom_sprite != TRANSPARENT_COLOR); // Set visibility flag based on color
+        end else if (inside_sprite2 && addr2 > 0 && addr2 < image_size) begin
+            // Ensure the address is within bounds of the ROM for second player
+            data <= rom_sprite2; // Read data from ROM at the specified address for second player
+            visible_flag <= (rom_sprite2 != TRANSPARENT_COLOR); // Set visibility flag based on color
         end else begin
-            data <= 8'b00000000; // Default value if outside sprite bounds or address out of range
+            data <= 8'b0111011; // Default value if outside sprite bounds or address out of range
             visible_flag <= 1'b0; // Not visible if outside sprite bounds
         end
     end

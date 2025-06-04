@@ -49,11 +49,11 @@ module rom (
 
     wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + sprite_width) &&
                          (current_pixel_y >= posy && current_pixel_y < posy + sprite_height);
-    assign addr = (relative_y * 15'd150) + relative_x; // Calculate address in ROM
+    assign addr = (relative_y * 15'd113) + relative_x; // Calculate address in ROM
 
     wire inside_sprite2 = (current_pixel_x >= posx2 && current_pixel_x < posx2 + sprite_width) &&
                           (current_pixel_y >= posy2 && current_pixel_y < posy2 + sprite_height);
-    assign addr2 = (relative_y2 * 15'd150) + relative_x2; // Calculate address in ROM for second player
+    assign addr2 = (relative_y2 * 15'd113) + relative_x2; // Calculate address in ROM for second player
 
     rom_attackendG rom_inst_attackendG (
         .address(addr),
@@ -197,10 +197,10 @@ module rom (
             4'd5: rom_sprite2 = rom_sprite_attackpullR; // Attack pull state
             4'd6: rom_sprite2 = rom_sprite_dirattstartR; // Directional attack start state
             4'd7: rom_sprite2 = rom_sprite_dirattendR; // Directional attack end state
-            4'd8: rom_sprite2 = rom_sprite_dirattpullR; // Directional attack pull state
+            /*4'd8: rom_sprite2 = rom_sprite_dirattpullR; // Directional attack pull state
             4'd9: rom_sprite2 = rom_sprite_gothitR; // Hit state
             4'd10: rom_sprite2 = rom_sprite_blockR; // Block state
-            default: rom_sprite2 = 8'b0111011;
+            default: rom_sprite2 = 8'b0111011;*/
         endcase
         case (currentstate)
             4'd0: rom_sprite = rom_sprite_idleG; // Idle state
@@ -211,9 +211,9 @@ module rom (
             4'd5: rom_sprite = rom_sprite_attackpullG; // Attack pull state
             4'd6: rom_sprite = rom_sprite_dirattstartG; // Directional attack start state
             4'd7: rom_sprite = rom_sprite_dirattendG; // Directional attack end state
-            4'd8: rom_sprite = rom_sprite_dirattpullG; // Directional attack pull state
+            /*4'd8: rom_sprite = rom_sprite_dirattpullG; // Directional attack pull state
             4'd9: rom_sprite = rom_sprite_gothitG; // Hit state
-            4'd10: rom_sprite = rom_sprite_blockG; // Block state
+            4'd10: rom_sprite = rom_sprite_blockG; // Block state*/
             default: rom_sprite = 8'b0111011;
         endcase
     end
@@ -222,7 +222,7 @@ module rom (
         if (rst) begin
             data <= 8'b0111011; // Reset output data
             visible_flag <= 1'b0; // Reset visibility flag
-        end else if (inside_sprite && addr > 0 && addr < image_size) && (inside_sprite2 && addr2 > 0 && addr2 < image_size) begin
+        end else if ((inside_sprite && addr > 0 && addr < image_size) && (inside_sprite2 && addr2 > 0 && addr2 < image_size)) begin
             // Ensure the address is within bounds of the ROM
             data <= rom_sprite2; // Read data from ROM at the specified address
             visible_flag <= ((rom_sprite || rom_sprite2) != TRANSPARENT_COLOR); // Set visibility flag based on color

@@ -29,18 +29,18 @@ module player #(
 
 assign posy = 10'd170; // Fixed Y position for the player
 
-assign basic_hithurtbox_x1 = posx + 35; // old version was posx + 37
-assign basic_hithurtbox_x2 = posx + 120;
+assign basic_hithurtbox_x1 = (~SIDE) ? (posx + 35) : (posx);
+assign basic_hithurtbox_x2 = (~SIDE) ? (posx + 113) : (posx + 113 - 35);
 assign basic_hithurtbox_y1 = posy + 24;
 assign basic_hithurtbox_y2 = posy + 57;
 
-assign dir_hithurtbox_x1 = posx + 62;
-assign dir_hithurtbox_x2 = posx + 95;
+assign dir_hithurtbox_x1 = (~SIDE) ? (posx + 62) : (posx + 113 - 95);
+assign dir_hithurtbox_x2 = (~SIDE) ? (posx + 95) : (posx + 113 - 62);
 assign dir_hithurtbox_y1 = posy + 6;
 assign dir_hithurtbox_y2 = posy + 139;
 
-assign main_hurtbox_x1 = (~SIDE) ? (posx + 28) : (posx + 81);
-assign main_hurtbox_x2 = (~SIDE) ? (posx + 81) : (posx + 28);
+assign main_hurtbox_x1 = (~SIDE) ? (posx + 28) : (posx + 113-81);
+assign main_hurtbox_x2 = (~SIDE) ? (posx + 81) : (posx + 113-28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
@@ -266,7 +266,7 @@ always @(*) begin
 			NS = S_D_ATTACK_PULL;
 		  end end
 		end
-		S_B_ATTACK_PULL: begin
+		S_D_ATTACK_PULL: begin
 		if (hitFlag == hitByBasic) begin
 			NS=S_HITSTUN;
 			stunDurationValue = 15;
@@ -346,12 +346,12 @@ always @(posedge clk) begin
         posx <= posx;
       end
       S_MOVEFORWARD: begin
-        if (SIDE == LEFT) posx <= posx + P_SPEED_FORW;
-        else posx <= posx - P_SPEED_FORW;
+        if (SIDE == LEFT && posx < 495) posx <= posx + P_SPEED_FORW;
+        else if (posx > 5) posx <= posx - P_SPEED_FORW;
       end
       S_MOVEBACKWARDS: begin
-        if (SIDE == LEFT) posx <= posx - P_SPEED_BACK;
-        else posx <= posx + P_SPEED_BACK;
+        if (SIDE == LEFT && posx > 5) posx <= posx - P_SPEED_BACK;
+        else if (posx < 495) posx <= posx + P_SPEED_BACK;
       end
       S_B_ATTACK_START: begin
         posx <= posx;
@@ -367,8 +367,6 @@ always @(posedge clk) begin
       end
     endcase
   end
-  if (posx < 50) posx <= 50;
-  else if (posx > 490) posx <= 490;
 end
 
 endmodule

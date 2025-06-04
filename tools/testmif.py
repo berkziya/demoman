@@ -3,8 +3,8 @@ from PIL import Image
 import sys
 
 # --- Configuration ---
-IMAGE_WIDTH = 150
-IMAGE_HEIGHT = 157
+IMAGE_WIDTH = 113
+IMAGE_HEIGHT = 156
 # --- End Configuration ---
 
 

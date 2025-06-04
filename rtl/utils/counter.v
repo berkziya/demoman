@@ -8,7 +8,6 @@ module counter #(parameter W=4)(
              stateReset = 2'b11,
              stateIncrement = 2'b01,
              stateDecrement = 2'b10;
-				 
 
 	always @(posedge clk or posedge rst) begin
 		if (rst)

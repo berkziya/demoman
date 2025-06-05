@@ -179,9 +179,6 @@ wire player2_left = SW[3] ? ~GPIO[5] : random_number[0];
 wire player2_right = SW[3] ? ~GPIO[3] : random_number[1];
 wire player2_attack = SW[3] ? ~GPIO[1] : (random_number[2] & random_number[3]);
 
-assign LEDR[9] = player2_left;
-assign LEDR[8] = player2_right;
-assign LEDR[7] = player2_attack;
 
 player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),

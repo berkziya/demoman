@@ -6,6 +6,8 @@ module player #(
   input left, right, attack,
 
   input [1:0] hitFlag,
+  input [2:0] health,
+  input [2:0] block,
 
   output reg [9:0] posx,
   output     [9:0] posy,
@@ -140,13 +142,25 @@ always @(*) begin
     end
 
     S_MOVEBACKWARDS: begin
+      if (block > 0) begin
       if (hitFlag == hitByBasic) begin
-        next_state = S_BLOCKSTUN;
-        stunDurationValue = 13;
+        if (block > 0) begin
+          next_state = S_BLOCKSTUN;
+          stunDurationValue = 13;
+        end else begin
+          next_state = S_HITSTUN;
+          stunDurationValue = 15;
+        end
       end
       else if (hitFlag == hitByDirectional) begin
-        next_state = S_BLOCKSTUN;
-        stunDurationValue = 12;
+        if (block > 0) begin
+          next_state = S_BLOCKSTUN;
+          stunDurationValue = 12;
+        end else begin
+          next_state = S_HITSTUN;
+          stunDurationValue = 14;
+        end
+      end
       end
       else begin
       stunDurationValue = stunDurationValue;

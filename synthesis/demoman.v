@@ -81,6 +81,7 @@ wire [1:0] hasbeenHit1; // Flag indicating if Player 1 has been hit
 wire [1:0] hasbeenHit2; // Flag indicating if Player 2 has been hit
 
 wire [2:0] player1_health, player2_health;
+wire [2:0] player1_block, player2_block;
 
 //=======================================================
 //  Structural coding
@@ -120,6 +121,19 @@ effective_clock_generator effective_clk_inst(
   .effective_clk(effective_clk) // Output effective clock signal based on switch state
 );
 
+
+health_status health_status_inst (
+  .clk(effective_clk),
+  .rst(reset),
+  .player1_state(player1_state),
+  .player2_state(player2_state),
+  .player1_health(player1_health),
+  .player2_health(player2_health),
+  .player1_block(player1_block),
+  .player2_block(player2_block)
+);
+
+
 player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
@@ -130,6 +144,8 @@ player #(.SIDE(1'b0)) Player1 (
   .posx(posx),
   .posy(posy),
   .current_state(player1_state),
+  .health(player1_health),
+  .block(player1_block),
   .basic_hithurtbox_x1(hithurt_x1),
   .basic_hithurtbox_x2(hithurt_x2),
   .basic_hithurtbox_y1(hithurt_y1),
@@ -143,6 +159,7 @@ player #(.SIDE(1'b0)) Player1 (
   .dir_hithurtbox_y1(dir_hithurtbox_y1),
   .dir_hithurtbox_y2(dir_hithurtbox_y2)
 );
+
 
 wire random_num_clk;
 clock_divider #(
@@ -176,6 +193,8 @@ player #(.SIDE(1'b1)) Player2 (
   .posx(posx2),
   .posy(posy2),
   .current_state(player2_state),
+  .health(player2_health),
+  .block(player2_block),
   .basic_hithurtbox_x1(hithurt_x12),
   .basic_hithurtbox_x2(hithurt_x22),
   .basic_hithurtbox_y1(hithurt_y12),
@@ -222,16 +241,6 @@ HitDetect hitdetector_inst (
 
   .P1_hasBeenHitFlag(hasbeenHit1), // Output flag for Player 1
   .P2_hasBeenHitFlag(hasbeenHit2) // Output flag for Player 2
-);
-
-
-health_status health_status_inst (
-  .clk(effective_clk),
-  .rst(reset),
-  .player1_state(player1_state),
-  .player2_state(player2_state),
-  .player1_health(player1_health),
-  .player2_health(player2_health)
 );
 
 

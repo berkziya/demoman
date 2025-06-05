@@ -73,8 +73,6 @@ assign main_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
-reg juststarted;
-
 wire [COUNT_SIZE-1:0] counter;
 reg  [COUNT_SIZE-1:0] lastcountanchor;
 
@@ -313,9 +311,8 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-  if ((~juststarted) || rst) begin
+  if (posx == 0 || rst) begin
     posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
-    juststarted <= 1'b1;
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin

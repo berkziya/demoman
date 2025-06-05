@@ -19,13 +19,16 @@ wire player2_hitstun = (player2_state == S_HITSTUN);
 wire player1_blockstun = (player1_state == S_BLOCKSTUN);
 wire player2_blockstun = (player2_state == S_BLOCKSTUN);
 
+wire [2:0] player1_health_count, player2_health_count;
+wire [2:0] player1_block_count, player2_block_count;
+
 counter #(
   .W(3)
 ) health_counter1 (
   .clk(player1_hitstun),
   .rst(rst),
   .control(2'b01),
-  .count(player1_health)
+  .count(player1_health_count)
 );
 
 counter #(
@@ -34,7 +37,7 @@ counter #(
   .clk(player2_hitstun),
   .rst(rst),
   .control(2'b01),
-  .count(player2_health)
+  .count(player2_health_count)
 );
 
 counter #(
@@ -43,7 +46,7 @@ counter #(
   .clk(player1_blockstun),
   .rst(rst),
   .control(2'b01),
-  .count(player1_block)
+  .count(player1_block_count)
 );
 
 counter #(
@@ -52,12 +55,12 @@ counter #(
   .clk(player2_blockstun),
   .rst(rst),
   .control(2'b01),
-  .count(player2_block)
+  .count(player2_block_count)
 );
 
-assign player1_health = 3'd3 - player1_health;
-assign player2_health = 3'd3 - player2_health;
-assign player1_block = 3'd3 - player1_block;
-assign player2_block = 3'd3 - player2_block;
+assign player1_health = 3'd3 - player1_health_count;
+assign player2_health = 3'd3 - player2_health_count;
+assign player1_block = 3'd3 - player1_block_count;
+assign player2_block = 3'd3 - player2_block_count;
 
 endmodule

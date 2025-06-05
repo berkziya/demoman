@@ -225,7 +225,7 @@ always @(*) begin
       end
       else begin
         stunDurationValue = stunDurationValue;
-        if (counter-lastcountanchor < 5) next_state = S_D_ATTACK_START;
+        if (counter-lastcountanchor < 4) next_state = S_D_ATTACK_START;
         else next_state = S_D_ATTACK_END;
       end
     end
@@ -241,7 +241,7 @@ always @(*) begin
       end
       else begin
         stunDurationValue = stunDurationValue;
-        if (counter-lastcountanchor < 2) next_state = S_D_ATTACK_END;
+        if (counter-lastcountanchor < 3) next_state = S_D_ATTACK_END;
         else next_state = S_D_ATTACK_PULL;
       end
     end
@@ -257,7 +257,7 @@ always @(*) begin
       end
       else begin
         stunDurationValue = stunDurationValue;
-        if (counter-lastcountanchor < 16) next_state = S_D_ATTACK_PULL;
+        if (counter-lastcountanchor < 15) next_state = S_D_ATTACK_PULL;
         else begin
           if (attack) next_state = S_B_ATTACK_START;
           else if (left && right) next_state = S_MOVEBACKWARDS;

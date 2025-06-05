@@ -73,10 +73,13 @@ assign main_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
+reg juststarted;
+
 wire [COUNT_SIZE-1:0] counter;
 reg  [COUNT_SIZE-1:0] lastcountanchor;
 
 reg [3:0] stunDurationValue;
+reg [3:0] nextStunDurationValue;
 
 counter #(
   .W(COUNT_SIZE)
@@ -92,7 +95,10 @@ always @(posedge clk or posedge rst) begin
     current_state <= S_IDLE;
     lastcountanchor <= 0;
   end else begin
-    if (current_state != next_state) lastcountanchor <= counter;
+    if (current_state != next_state) begin
+	lastcountanchor <= counter;
+	stunDurationValue <= nextStunDurationValue;
+	end
     current_state <= next_state;
   end
 end
@@ -103,14 +109,14 @@ always @(*) begin
     S_IDLE: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (attack) next_state = S_B_ATTACK_START;
         else if (left && right) next_state = S_MOVEBACKWARDS;
         else if (left && ~right) next_state = (SIDE == LEFT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
@@ -123,14 +129,14 @@ always @(*) begin
     S_MOVEFORWARD: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (attack) next_state = S_D_ATTACK_START;
         else if (left && right) next_state = S_MOVEBACKWARDS;
         else if (left && ~right) next_state = (SIDE == LEFT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
@@ -143,23 +149,23 @@ always @(*) begin
       if (hitFlag == hitByBasic) begin
         if (block > 0) begin
           next_state = S_BLOCKSTUN;
-          stunDurationValue = 13;
+          nextStunDurationValue = 13;
         end else begin
           next_state = S_HITSTUN;
-          stunDurationValue = 15;
+          nextStunDurationValue = 15;
         end
       end
       else if (hitFlag == hitByDirectional) begin
         if (block > 0) begin
           next_state = S_BLOCKSTUN;
-          stunDurationValue = 12;
+          nextStunDurationValue = 12;
         end else begin
           next_state = S_HITSTUN;
-          stunDurationValue = 14;
+          nextStunDurationValue = 14;
         end
       end
       else begin
-      stunDurationValue = stunDurationValue;
+      nextStunDurationValue = stunDurationValue;
         if (attack) next_state = S_D_ATTACK_START;
         else if (left && right) next_state = S_MOVEBACKWARDS;
         else if (left && ~right) next_state = (SIDE == LEFT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
@@ -172,14 +178,14 @@ always @(*) begin
     S_B_ATTACK_START: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (counter-lastcountanchor < 5) next_state = S_B_ATTACK_START;
         else next_state = S_B_ATTACK_END;
       end
@@ -188,14 +194,14 @@ always @(*) begin
     S_B_ATTACK_END: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (counter-lastcountanchor < 2) next_state = S_B_ATTACK_END;
         else next_state = S_B_ATTACK_PULL;
       end
@@ -204,14 +210,14 @@ always @(*) begin
     S_B_ATTACK_PULL: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (counter-lastcountanchor < 16) next_state = S_B_ATTACK_PULL;
         else begin
           if (attack) next_state = S_B_ATTACK_START;
@@ -227,14 +233,14 @@ always @(*) begin
     S_D_ATTACK_START: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (counter-lastcountanchor < 4) next_state = S_D_ATTACK_START;
         else next_state = S_D_ATTACK_END;
       end
@@ -243,14 +249,14 @@ always @(*) begin
     S_D_ATTACK_END: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (counter-lastcountanchor < 3) next_state = S_D_ATTACK_END;
         else next_state = S_D_ATTACK_PULL;
       end
@@ -259,14 +265,14 @@ always @(*) begin
     S_D_ATTACK_PULL: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 15;
+        nextStunDurationValue = 15;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        stunDurationValue = 14;
+        nextStunDurationValue = 14;
       end
       else begin
-        stunDurationValue = stunDurationValue;
+        nextStunDurationValue = stunDurationValue;
         if (counter-lastcountanchor < 15) next_state = S_D_ATTACK_PULL;
         else begin
           if (attack) next_state = S_B_ATTACK_START;
@@ -280,7 +286,7 @@ always @(*) begin
 
     // ---- STUN STATES ----
     S_HITSTUN: begin
-      stunDurationValue = stunDurationValue;
+      nextStunDurationValue = stunDurationValue;
       if (counter-lastcountanchor < stunDurationValue) next_state = S_HITSTUN;
       else begin
         if (attack) next_state = S_B_ATTACK_START;
@@ -292,8 +298,8 @@ always @(*) begin
     end
 
     S_BLOCKSTUN: begin
-      stunDurationValue = stunDurationValue;
-      if (counter-lastcountanchor < stunDurationValue) next_state = S_HITSTUN;
+      nextStunDurationValue = stunDurationValue;
+      if (counter-lastcountanchor < stunDurationValue) next_state = S_BLOCKSTUN;
       else begin
         if (attack) next_state = S_B_ATTACK_START;
         else if (left && right) next_state = S_MOVEBACKWARDS;
@@ -304,15 +310,16 @@ always @(*) begin
     end
 
     default: begin
-      stunDurationValue = stunDurationValue;
+      nextStunDurationValue = stunDurationValue;
       next_state = S_IDLE;
     end
   endcase
 end
 
 always @(posedge clk) begin
-  if (posx == 0 || rst) begin
+  if ((~juststarted) || rst) begin
     posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
+    juststarted <= 1'b1;
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin

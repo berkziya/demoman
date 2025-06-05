@@ -6,7 +6,7 @@ module health_status (
   input [3:0] player2_state,
 
   output [2:0] player1_health,
-  output [2:0] player2_health,
+  output [2:0] player2_health
 );
 localparam S_HITSTUN = 4'd9;
 

@@ -158,9 +158,13 @@ random_num random_gen (
   .rand_o(random_number)
 );
 
-wire player2_left = SW[3] ? ~KEY[3] : random_number[0];
-wire player2_right = SW[3] ? ~KEY[2] : random_number[1];
-wire player2_attack = SW[3] ? ~KEY[1] : random_number[2];
+wire player2_left = SW[3] ? ~GPIO[5] : random_number[0];
+wire player2_right = SW[3] ? ~GPIO[3] : random_number[1];
+wire player2_attack = SW[3] ? ~GPIO[1] : (random_number[2] & random_number[3]);
+
+assign LEDR[9] = player2_left;
+assign LEDR[8] = player2_right;
+assign LEDR[7] = player2_attack;
 
 player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),
@@ -223,7 +227,7 @@ HitDetect hitdetector_inst (
 
 health_status health_status_inst (
   .clk(effective_clk),
-  .reset(reset),
+  .rst(reset),
   .player1_state(player1_state),
   .player2_state(player2_state),
   .player1_health(player1_health),

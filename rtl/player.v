@@ -142,7 +142,6 @@ always @(*) begin
     end
 
     S_MOVEBACKWARDS: begin
-      if (block > 0) begin
       if (hitFlag == hitByBasic) begin
         if (block > 0) begin
           next_state = S_BLOCKSTUN;
@@ -160,7 +159,6 @@ always @(*) begin
           next_state = S_HITSTUN;
           stunDurationValue = 14;
         end
-      end
       end
       else begin
       stunDurationValue = stunDurationValue;

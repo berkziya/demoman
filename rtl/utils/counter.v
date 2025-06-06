@@ -1,4 +1,6 @@
-module counter #(parameter W=4)(
+module counter #(
+	parameter W = 32
+) (
 	input clk,
 	input rst,
   input [1:0] control, //control
@@ -10,9 +12,8 @@ module counter #(parameter W=4)(
              stateDecrement = 2'b10;
 
 	always @(posedge clk or posedge rst) begin
-		if (rst)
-			count <= {W{1'b0}};
-		else
+		if (rst) count <= {W{1'b0}};
+		else begin
 			case(control)
 				stateHold: begin //hold current counter value
 					end
@@ -23,5 +24,6 @@ module counter #(parameter W=4)(
 				stateReset: //reset Counter
 					count <= {W{1'b0}};
 			endcase
+		end
 	end
 endmodule

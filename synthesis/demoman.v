@@ -154,10 +154,10 @@ player #(.SIDE(1'b0)) Player1 (
   .main_hurtbox_x2(hurt_x2),
   .main_hurtbox_y1(hurt_y1),
   .main_hurtbox_y2(hurt_y2),
-  .dir_hithurtbox_x1(dir_hithurtbox_x1),
-  .dir_hithurtbox_x2(dir_hithurtbox_x2),
-  .dir_hithurtbox_y1(dir_hithurtbox_y1),
-  .dir_hithurtbox_y2(dir_hithurtbox_y2)
+  .dir_hithurtbox_x1(dir_hithurt_x1),
+  .dir_hithurtbox_x2(dir_hithurt_x2),
+  .dir_hithurtbox_y1(dir_hithurt_y1),
+  .dir_hithurtbox_y2(dir_hithurt_y2)
 );
 
 

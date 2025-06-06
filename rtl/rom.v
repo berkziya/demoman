@@ -12,6 +12,10 @@ module rom (
 
 	input [3:0] player1_state,
 	input [3:0] player2_state,
+  input [2:0] player1_health,
+  input [2:0] player2_health,
+  input [2:0] player1_block,
+  input [2:0] player2_block,
 
 	output reg [7:0] pixel_data
 );
@@ -226,11 +230,114 @@ always @(*) begin
 	endcase
 end
 
+//// Heartbox and Blockbox coordinates
+localparam [9:0] HEARTBLOCK_SIZE = 10'd50; // Size of the heartbox
+localparam [9:0] X_OFFSET = 10'd40; // X offset for heartbox coordinates
+localparam [9:0] Y_OFFSET = 10'd40; // Y offset for heartbox coordinates
+localparam [9:0] SPACE_BETWEEN = HEARTBLOCK_SIZE + 10'd20; // Space between heartboxes
+
+wire [9:0] heart11x, heart11y, heart12x, heart12y, heart13x, heart13y; // Heartbox coordinates for player 1
+wire [9:0] heart21x, heart21y, heart22x, heart22y, heart23x, heart23y; // Heartbox coordinates for player 2
+
+wire [9:0] block11x, block11y, block12x, block12y, block13x, block13y; // Blockbox coordinates for player 1
+wire [9:0] block21x, block21y, block22x, block22y, block23x, block23y; // Blockbox coordinates for player 2
+
+assign heart11x = X_OFFSET;
+assign heart11y = Y_OFFSET;
+assign heart12x = X_OFFSET + SPACE_BETWEEN;
+assign heart12y = Y_OFFSET;
+assign heart13x = X_OFFSET + 2 * SPACE_BETWEEN;
+assign heart13y = Y_OFFSET;
+
+assign heart21x = 640 - X_OFFSET - HEARTBLOCK_SIZE;
+assign heart21y = Y_OFFSET;
+assign heart22x = 640 - X_OFFSET - HEARTBLOCK_SIZE - SPACE_BETWEEN;
+assign heart22y = Y_OFFSET;
+assign heart23x = 640 - X_OFFSET - HEARTBLOCK_SIZE - 2 * SPACE_BETWEEN;
+assign heart23y = Y_OFFSET;
+
+assign block11x = X_OFFSET;
+assign block11y = 480 - Y_OFFSET - HEARTBLOCK_SIZE;
+assign block12x = X_OFFSET + SPACE_BETWEEN;
+assign block12y = 480 - Y_OFFSET - HEARTBLOCK_SIZE;
+assign block13x = X_OFFSET + 2 * SPACE_BETWEEN;
+assign block13y = 480 - Y_OFFSET - HEARTBLOCK_SIZE;
+
+assign block21x = 640 - X_OFFSET - HEARTBLOCK_SIZE;
+assign block21y = 480 - Y_OFFSET - HEARTBLOCK_SIZE;
+assign block22x = 640 - X_OFFSET - HEARTBLOCK_SIZE - SPACE_BETWEEN;
+assign block22y = 480 - Y_OFFSET - HEARTBLOCK_SIZE;
+assign block23x = 640 - X_OFFSET - HEARTBLOCK_SIZE - 2 * SPACE_BETWEEN;
+assign block23y = 480 - Y_OFFSET - HEARTBLOCK_SIZE;
+
+wire is_heartbox = ((current_pixel_x >= heart11x && current_pixel_x < heart11x + HEARTBLOCK_SIZE && player1_health >= 1) ||
+                    (current_pixel_x >= heart12x && current_pixel_x < heart12x + HEARTBLOCK_SIZE && player1_health >= 2) ||
+                    (current_pixel_x >= heart13x && current_pixel_x < heart13x + HEARTBLOCK_SIZE && player1_health >= 3) ||
+                    (current_pixel_x >= heart21x && current_pixel_x < heart21x + HEARTBLOCK_SIZE && player2_health >= 1) ||
+                    (current_pixel_x >= heart22x && current_pixel_x < heart22x + HEARTBLOCK_SIZE && player2_health >= 2) ||
+                    (current_pixel_x >= heart23x && current_pixel_x < heart23x + HEARTBLOCK_SIZE && player2_health >= 3)) &&
+										(current_pixel_y >= heart11y && current_pixel_y < heart11y + HEARTBLOCK_SIZE) && // Assume heartboxes are aligned vertically
+										(current_pixel_y >= heart21y && current_pixel_y < heart21y + HEARTBLOCK_SIZE);
+
+wire is_blockbox = ((current_pixel_x >= block11x && current_pixel_x < block11x + HEARTBLOCK_SIZE && player1_block >= 1) ||
+                    (current_pixel_x >= block12x && current_pixel_x < block12x + HEARTBLOCK_SIZE && player1_block >= 2) ||
+                    (current_pixel_x >= block13x && current_pixel_x < block13x + HEARTBLOCK_SIZE && player1_block >= 3) ||
+                    (current_pixel_x >= block21x && current_pixel_x < block21x + HEARTBLOCK_SIZE && player2_block >= 1) ||
+                    (current_pixel_x >= block22x && current_pixel_x < block22x + HEARTBLOCK_SIZE && player2_block >= 2) ||
+                    (current_pixel_x >= block23x && current_pixel_x < block23x + HEARTBLOCK_SIZE && player2_block >= 3)) &&
+										(current_pixel_y >= block11y && current_pixel_y < block11y + HEARTBLOCK_SIZE) && // Assume blockboxes are aligned vertically
+										(current_pixel_y >= block21y && current_pixel_y < block21y + HEARTBLOCK_SIZE);
+
+
+wire [9:0] where_in_heartbox_x = current_pixel_x > heart21x ? current_pixel_x - heart21x :
+                                 current_pixel_x > heart22x ? current_pixel_x - heart22x :
+                                 current_pixel_x > heart23x ? current_pixel_x - heart23x :
+                                 current_pixel_x > heart13x ? current_pixel_x - heart13x :
+                                 current_pixel_x > heart12x ? current_pixel_x - heart12x :
+                                 current_pixel_x - heart11x;
+
+wire [9:0] where_in_heartbox_y = current_pixel_y - heart11y;
+
+wire [9:0] where_in_blockbox_x = current_pixel_x > block21x ? current_pixel_x - block21x :
+                                 current_pixel_x > block22x ? current_pixel_x - block22x :
+                                 current_pixel_x > block23x ? current_pixel_x - block23x :
+                                 current_pixel_x > block13x ? current_pixel_x - block13x :
+                                 current_pixel_x > block12x ? current_pixel_x - block12x :
+                                 current_pixel_x - block11x;
+
+wire [9:0] where_in_blockbox_y = current_pixel_y - block11y;
+
+wire [11:0] heart_addr = (where_in_heartbox_y * HEARTBLOCK_SIZE + where_in_heartbox_x);
+wire [11:0] block_addr = (where_in_blockbox_y * HEARTBLOCK_SIZE + where_in_blockbox_x);
+
+wire [7:0] heart_data;
+wire [7:0] block_data;
+
+
+rom_heart rom_heart_inst (
+  .address(heart_addr),
+  .clock(clk),
+  .q(heart_data) // Output pixel data for heartbox
+);
+
+rom_shield rom_block_inst (
+  .address(block_addr),
+  .clock(clk),
+  .q(block_data) // Output pixel data for blockbox
+);
+
 always @(posedge clk) begin
-	if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+	// Heartbox and Blockbox pixel data selection
+	if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+		pixel_data <= heart_data;
+	end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+		pixel_data <= block_data;
+	// Player 2 or Player 1 sprite pixel data selection
+	end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
 		pixel_data <= rom_sprite;
 	end else if (inside_sprite2 && addr2 >= 0 && addr2 < IMAGE_SIZE) begin
 		pixel_data <= rom_sprite2;
+	// Default pixel data (transparent color)
 	end else pixel_data <= TRANSPARENT_COLOR;
 end
 

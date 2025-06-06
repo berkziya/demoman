@@ -113,7 +113,7 @@ vga_driver vga_inst (
   .blank(VGA_BLANK_N)             // Output: High during active display period
 );
 
-effective_clock_generator effective_clk_inst(
+effective_clock_generator effective_clk_inst (
   .SW(SW[1]), // Switches for clock selection
   .KEY(KEY[0]), // Keys for control
   .current_pixel_x(current_pixel_x), // Current pixel X position
@@ -245,17 +245,21 @@ rom rom_inst (
   .clk(CLOCK_50),
   .current_pixel_x(current_pixel_x), // Current pixel X position
   .current_pixel_y(current_pixel_y), // Current pixel Y position
-  .posx(posx), // Player's X position
-  .posy(posy), // Player's Y position
-  .posx2(posx2), // Player's X position + sprite width
-  .posy2(posy2), // Player's Y position + sprite height
+  .posx(posx), // Player 1's positions
+  .posy(posy),
+  .posx2(posx2), // Player 2's positions
+  .posy2(posy2),
   .player1_state(player1_state),
   .player2_state(player2_state),
+  .player1_health(player1_health),
+  .player2_health(player2_health),
+  .player1_block(player1_block),
+  .player2_block(player2_block),
   .pixel_data(pixel_data), // Color data for the current pixel
 );
 
 
-color_decider color_decider_inst(
+color_decider color_decider_inst (
   .current_pixel_x(current_pixel_x), // Current pixel X coordinate
   .current_pixel_y(current_pixel_y), // Current pixel Y coordinate
   .posx(posx), // X position of the sprite

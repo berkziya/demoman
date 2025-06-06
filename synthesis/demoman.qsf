@@ -6,7 +6,7 @@ set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSEMA5F31C6
 set_global_assignment -name TOP_LEVEL_ENTITY demoman
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 15.1.0
-set_global_assignment -name LAST_QUARTUS_VERSION "23.1std.1 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "24.1std.0 Lite Edition"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "23:33:22 MAY 21,2025"
 set_global_assignment -name DEVICE_FILTER_PACKAGE FBGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 896
@@ -439,6 +439,10 @@ set_global_assignment -name MIF_FILE ../sprites/blockR.mif
 set_global_assignment -name HEX_FILE ../sprites/blockR.hex
 set_global_assignment -name MIF_FILE ../sprites/blockG.mif
 set_global_assignment -name HEX_FILE ../sprites/blockG.hex
+set_global_assignment -name MIF_FILE ../sprites/heart.mif
+set_global_assignment -name HEX_FILE ../sprites/heart.hex
+set_global_assignment -name MIF_FILE ../sprites/shield.mif
+set_global_assignment -name HEX_FILE ../sprites/shield.hex
 set_global_assignment -name MIF_FILE ../sprites/attackstartR.mif
 set_global_assignment -name HEX_FILE ../sprites/attackstartR.hex
 set_global_assignment -name MIF_FILE ../sprites/attackstartG.mif
@@ -473,6 +477,8 @@ set_global_assignment -name QIP_FILE ../sprites/rom_attackpullR.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_attackpullG.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_attackendR.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_attackendG.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_heart.qip
+set_global_assignment -name QIP_FILE ../sprites/rom_shield.qip
 set_global_assignment -name VERILOG_FILE ../rtl/utils/clock_divider.v
 set_global_assignment -name VERILOG_FILE ../rtl/utils/counter.v
 set_global_assignment -name VERILOG_FILE ../rtl/utils/vga_driver.v

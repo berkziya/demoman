@@ -17,9 +17,21 @@ module rom (
   input [2:0] player1_block,
   input [2:0] player2_block,
 
+	input [2:0] game_state, // Current game state
+  input [6:0] game_duration, // Game duration in seconds
+
 	output reg [7:0] pixel_data
 );
+// Game states
+localparam S_IDLE = 3'd0;
+localparam S_COUNTDOWN = 3'd1;
+localparam S_FIGHT = 3'd2;
+localparam S_P1_WIN = 3'd3;
+localparam S_P2_WIN = 3'd4;
+localparam S_EQ = 3'd5;
 
+
+//// Player sprites
 localparam SPRITE_WIDTH = 113;
 localparam SPRITE_HEIGHT = 157;
 localparam IMAGE_SIZE = SPRITE_WIDTH * SPRITE_HEIGHT;
@@ -230,7 +242,7 @@ always @(*) begin
 	endcase
 end
 
-//// Heartbox and Blockbox coordinates
+//// Heartbox and Blockbox sprites
 localparam [9:0] HEARTBLOCK_SIZE = 10'd50; // Size of the heartbox
 localparam [9:0] X_OFFSET = 10'd40; // X offset for heartbox coordinates
 localparam [9:0] Y_OFFSET = 10'd40; // Y offset for heartbox coordinates
@@ -310,35 +322,116 @@ wire [9:0] where_in_blockbox_y = current_pixel_y - block11y;
 wire [11:0] heart_addr = (where_in_heartbox_y * HEARTBLOCK_SIZE + where_in_heartbox_x);
 wire [11:0] block_addr = (where_in_blockbox_y * HEARTBLOCK_SIZE + where_in_blockbox_x);
 
-wire [7:0] heart_data;
-wire [7:0] block_data;
-
+wire [7:0] heart_sprite_data;
+wire [7:0] block_sprite_data;
 
 rom_heart rom_heart_inst (
   .address(heart_addr),
   .clock(clk),
-  .q(heart_data) // Output pixel data for heartbox
+  .q(heart_sprite_data) // Output pixel data for heartbox
 );
 
 rom_shield rom_block_inst (
   .address(block_addr),
   .clock(clk),
-  .q(block_data) // Output pixel data for blockbox
+  .q(block_sprite_data) // Output pixel data for blockbox
+);
+
+
+//// Start menu sprite
+localparam ROM_IDLE_SIZE = 640 * 480; // Size of the start menu ROM
+wire [18:0] idle_pixel_addr = (current_pixel_y * 640 + current_pixel_x); // Address for start menu pixel data
+wire [7:0] idle_pixel_data; // Output pixel data for start menu
+
+rom_start rom_start_inst ( // 8-bit ROM for start menu but it's huge and didn't fit
+	.address(idle_pixel_addr),
+	.clock(clk),
+	.q(idle_pixel_data) // Output pixel data for start menu
+);
+
+//// Countdown sprites
+localparam COUNT_DOWN_WIDTH = 64;
+localparam COUNT_DOWN_HEIGHT = 78;
+localparam COUNTDOWN_SIZE = COUNT_DOWN_WIDTH * COUNT_DOWN_HEIGHT;
+localparam COUNTDOWN_X_OFFSET = 320 - COUNT_DOWN_WIDTH / 2;
+localparam COUNTDOWN_Y_OFFSET = 240 - COUNT_DOWN_HEIGHT / 2;
+localparam [7:0] COUNTDOWN_COLOR = 8'b11111111; // Color for countdown (magenta)
+localparam [7:0] COUNTDOWN_BG_COLOR = 8'b00000000; // Color for countdown (black)
+wire [12:0] countdown_pixel_addr = (current_pixel_y - COUNTDOWN_Y_OFFSET) * COUNT_DOWN_WIDTH + (current_pixel_x - COUNTDOWN_X_OFFSET);
+wire pixel_present_1, pixel_present_2, pixel_present_3;
+
+wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET && current_pixel_x < COUNTDOWN_X_OFFSET + COUNT_DOWN_WIDTH &&
+													current_pixel_y >= COUNTDOWN_Y_OFFSET && current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
+
+rom_one rom_one_inst ( // 1bit
+	.address(countdown_pixel_addr),
+	.clock(clk),
+	.q(pixel_present_1) // Output pixel data for "1"
+);
+
+rom_two rom_two_inst ( // 1bit
+	.address(countdown_pixel_addr),
+	.clock(clk),
+	.q(pixel_present_2) // Output pixel data for "2"
+);
+
+rom_three rom_three_inst ( // 1bit
+	.address(countdown_pixel_addr),
+	.clock(clk),
+	.q(pixel_present_3) // Output pixel data for "3"
+);
+
+//// Fight text sprite
+localparam FIGHT_WIDTH = 260;
+localparam FIGHT_HEIGHT = 78;
+localparam FIGHT_SIZE = FIGHT_WIDTH * FIGHT_HEIGHT;
+localparam FIGHT_X_OFFSET = 320 - FIGHT_WIDTH / 2;
+localparam FIGHT_Y_OFFSET = 240 - FIGHT_HEIGHT / 2;
+wire [14:0] fight_pixel_addr = (current_pixel_y - FIGHT_Y_OFFSET) * FIGHT_WIDTH + (current_pixel_x - FIGHT_X_OFFSET);
+wire pixel_present_fight;
+
+wire is_fight_area = (current_pixel_x >= FIGHT_X_OFFSET && current_pixel_x < FIGHT_X_OFFSET + FIGHT_WIDTH &&
+											current_pixel_y >= FIGHT_Y_OFFSET && current_pixel_y < FIGHT_Y_OFFSET + FIGHT_HEIGHT);
+
+rom_fight rom_fight_inst ( // also 1bit
+	.address(fight_pixel_addr),
+	.clock(clk),
+	.q(pixel_present_fight) // Output pixel data for fight
 );
 
 always @(posedge clk) begin
 	// Heartbox and Blockbox pixel data selection
-	if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-		pixel_data <= heart_data;
-	end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-		pixel_data <= block_data;
-	// Player 2 or Player 1 sprite pixel data selection
-	end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
-		pixel_data <= rom_sprite;
-	end else if (inside_sprite2 && addr2 >= 0 && addr2 < IMAGE_SIZE) begin
-		pixel_data <= rom_sprite2;
-	// Default pixel data (transparent color)
-	end else pixel_data <= TRANSPARENT_COLOR;
+	case (game_state)
+		S_IDLE: pixel_data <= 8'b00000000;
+
+		S_COUNTDOWN: begin
+			if (is_countdown_area) begin
+				case (game_duration)
+					7'd0: pixel_data <= pixel_present_3 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
+					7'd1: pixel_data <= pixel_present_2 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
+					7'd2: pixel_data <= pixel_present_1 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
+					7'd4: pixel_data <= pixel_present_fight ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "FIGHT"
+					default: pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
+				endcase
+			end else begin
+				pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
+			end
+		end
+
+		S_FIGHT: begin
+			if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+				pixel_data <= heart_sprite_data;
+			end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+				pixel_data <= block_sprite_data;;
+			// Player 2 or Player 1 sprite pixel data selection
+			end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+				pixel_data <= rom_sprite;
+			end else if (inside_sprite2 && addr2 >= 0 && addr2 < IMAGE_SIZE) begin
+				pixel_data <= rom_sprite2;
+			// Default pixel data (transparent color)
+			end else pixel_data <= TRANSPARENT_COLOR;
+		end
+	endcase
 end
 
 endmodule

@@ -58,7 +58,6 @@ wire reset; // Reset signal
 wire [3:0] player1_state; // First player's state
 wire [3:0] player2_state; // Second player's state
 
-wire effective_clk;
 wire [9:0] posx; // Player 1's X position
 wire [9:0] posy; // Player 1's Y position
 wire [9:0] posx2; // Player 2's X position
@@ -67,9 +66,6 @@ wire [9:0] posy2; // Player 2's Y position
 wire [7:0] color_to_vga_driver; // Input color to VGA driver (RRRGGGBB)
 wire [9:0] current_pixel_x;     // X-coordinate from vga_driver
 wire [9:0] current_pixel_y;     // Y-coordinate from vga_driver
-wire clk_25mhz;
-
-wire [7:0] pixel_data;
 
 wire [9:0] hithurt_x1, hithurt_x2, hithurt_y1, hithurt_y2; // Basic hit hurtbox coordinates
 wire [9:0] hithurt_x12, hithurt_x22, hithurt_y12, hithurt_y22; // Second player's basic hit hurtbox coordinates
@@ -80,8 +76,7 @@ wire [9:0] dir_hithurt_x12, dir_hithurt_x22, dir_hithurt_y12, dir_hithurt_y22; /
 wire [1:0] hasbeenHit1; // Flag indicating if Player 1 has been hit
 wire [1:0] hasbeenHit2; // Flag indicating if Player 2 has been hit
 
-wire [2:0] player1_health, player2_health;
-wire [2:0] player1_block, player2_block;
+wire [2:0] game_state, game_duration; // Game state and duration
 
 //=======================================================
 //  Structural coding
@@ -89,9 +84,10 @@ wire [2:0] player1_block, player2_block;
 
 assign reset = 1'b0;
 
+wire clk_25mhz;
 clock_divider #(
   .DIV(2)
-) clk_vga_inst (
+) clk4vga_inst (
   .clk(CLOCK_50),
   .clk_o(clk_25mhz)
 );
@@ -113,6 +109,7 @@ vga_driver vga_inst (
   .blank(VGA_BLANK_N)             // Output: High during active display period
 );
 
+wire effective_clk;
 effective_clock_generator effective_clk_inst (
   .SW(SW[1]), // Switches for clock selection
   .KEY(KEY[0]), // Keys for control
@@ -121,7 +118,15 @@ effective_clock_generator effective_clk_inst (
   .effective_clk(effective_clk) // Output effective clock signal based on switch state
 );
 
+wire clk_1Hz;
+clock_divider #(.DIV(60)) clk_div_inst ( // 60 Hz clock divider
+  .clk(effective_clk),
+  .clk_o(clk_1Hz)
+);
 
+
+wire [2:0] player1_health, player2_health;
+wire [2:0] player1_block, player2_block;
 health_status health_status_inst (
   .clk(effective_clk),
   .rst(reset),
@@ -137,9 +142,9 @@ health_status health_status_inst (
 player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
-  .left(~KEY[3] & SW[2]), // Player 1's left control, can be controlled by a switch
-  .right(~KEY[2] & SW[2]), // Player 1's right control, can be controlled by a switch
-  .attack(~KEY[1] & SW[2]), // Player 1's attack control, can be controlled by a switch
+  .left(~KEY[3]), // Player 1's left control, can be controlled by a switch
+  .right(~KEY[2]), // Player 1's right control, can be controlled by a switch
+  .attack(~KEY[1]), // Player 1's attack control, can be controlled by a switch
   .hitFlag(hasbeenHit1), // Hit flag for Player 1
   .posx(posx),
   .posy(posy),
@@ -241,6 +246,7 @@ HitDetect hitdetector_inst (
 );
 
 
+wire [7:0] pixel_data;
 rom rom_inst (
   .clk(CLOCK_50),
   .current_pixel_x(current_pixel_x), // Current pixel X position
@@ -255,6 +261,7 @@ rom rom_inst (
   .player2_health(player2_health),
   .player1_block(player1_block),
   .player2_block(player2_block),
+  .game_state(game_state), // Current game state
   .pixel_data(pixel_data), // Color data for the current pixel
 );
 
@@ -296,5 +303,25 @@ color_decider color_decider_inst (
   .color_to_vga_driver(color_to_vga_driver) // Color to be sent to the VGA driver
 );
 
+game game_inst (
+  .clk(effective_clk), // 60 Hz clock
+  .reset(reset), // Reset signal
+  .KEY(KEY), // Key inputs
+  .HEX0(HEX0), // Seven-segment display outputs
+  .HEX1(HEX1),
+  .HEX2(HEX2),
+  .HEX3(HEX3),
+  .HEX4(HEX4),
+  .HEX5(HEX5),
+  .LEDR(LEDR), // LED outputs
+  .SW(SW), // Switch inputs
+  .GPIO(GPIO), // GPIO connections
+  .player1_state(player1_state), // Player 1's state
+  .player2_state(player2_state), // Player 2's state
+  .player1_health(player1_health), // Player 1's health
+  .player2_health(player2_health), // Player 2's health
+  .game_state(game_state), // Game state output
+  .game_duration(game_duration) // For countdown and hex display
+);
 
 endmodule

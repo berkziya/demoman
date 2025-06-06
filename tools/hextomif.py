@@ -4,8 +4,9 @@ import sys
 
 def continuous_hex_to_mif(hex_path, mif_path, word_width=8):
     # Read entire file as one string
-    with open(hex_path, "r") as f:
-        hex_string = f.read().strip().replace("\n", "").replace(" ", "")
+    with open(hex_path, "rb") as f:
+        hex_bytes = f.read()
+        hex_string = hex_bytes.hex()
 
     # Each word is 2 hex characters for 8-bit
     word_length = word_width // 4  # 8 bits = 2 hex chars

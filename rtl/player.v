@@ -90,7 +90,7 @@ counter #(
   .count(counter)
 );
 
-always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
   if (rst) begin
     current_state <= S_IDLE;
     lastcountanchor <= 0;
@@ -316,10 +316,31 @@ always @(*) begin
   endcase
 end
 
+
+/*
 always @(posedge clk) begin
   if ((~juststarted) || rst) begin
     posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
     juststarted <= 1'b1;
+  end else begin
+    case (current_state)
+      S_MOVEFORWARD: begin
+        if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
+        else if (posx > 10) posx <= posx - P_SPEED_FORW;
+      end
+      S_MOVEBACKWARDS: begin
+        if (SIDE == LEFT && posx > 10) posx <= posx - P_SPEED_BACK;
+        else if (posx < 517) posx <= posx + P_SPEED_BACK;
+      end
+      default: posx <= posx;
+    endcase
+  end
+end
+*/
+
+always @(posedge clk) begin
+  if ((posx == 0) || rst) begin
+    posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin

@@ -343,7 +343,7 @@ localparam ROM_IDLE_SIZE = 640 * 480; // Size of the start menu ROM
 wire [18:0] idle_pixel_addr = (current_pixel_y * 640 + current_pixel_x); // Address for start menu pixel data
 wire [7:0] idle_pixel_data; // Output pixel data for start menu
 
-rom_start rom_start_inst ( // 8-bit ROM for start menu but it's huge and didn't fit
+rom_start rom_start_inst ( //8-bit ROM for start menu but it's huge and didn't fit
 	.address(idle_pixel_addr),
 	.clock(clk),
 	.q(idle_pixel_data) // Output pixel data for start menu
@@ -365,19 +365,19 @@ wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET && current_pixel
 wire [7:0] pixel_present_3, pixel_present_2, pixel_present_1;
 
 rom_one rom_one_inst (
-	.address(countdown_pixel_addr / 8),
+	.address(countdown_pixel_addr >> 3),
 	.clock(clk),
 	.q(pixel_present_1)
 );
 
 rom_two rom_two_inst (
-	.address(countdown_pixel_addr / 8),
+	.address(countdown_pixel_addr >> 3),
 	.clock(clk),
 	.q(pixel_present_2)
 );
 
 rom_three rom_three_inst ( // 1bit
-	.address(countdown_pixel_addr / 8),
+	.address(countdown_pixel_addr >> 3),
 	.clock(clk),
 	.q(pixel_present_3)
 );
@@ -395,7 +395,7 @@ wire is_fight_area = (current_pixel_x >= FIGHT_X_OFFSET && current_pixel_x < FIG
 											current_pixel_y >= FIGHT_Y_OFFSET && current_pixel_y < FIGHT_Y_OFFSET + FIGHT_HEIGHT);
 
 rom_fight rom_fight_inst ( // also 1bit
-	.address(fight_pixel_addr / 8),
+	.address(fight_pixel_addr >> 3),
 	.clock(clk),
 	.q(pixel_present_fight) // Output pixel data for fight
 );

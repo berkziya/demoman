@@ -412,6 +412,34 @@ wire [7:0] countdown_pixel_1 = (rom_data_1[cd_bit_select]) ? CD_COLOR : CD_BG_CO
 wire [7:0] countdown_pixel_2 = (rom_data_2[cd_bit_select]) ? CD_COLOR : CD_BG_COLOR;
 wire [7:0] countdown_pixel_3 = (rom_data_3[cd_bit_select]) ? CD_COLOR : CD_BG_COLOR;
 
+/*
+//// Player win area  CHANGE LATER
+localparam PLAYER_WIN_WIDTH = 260;
+localparam PLAYER_WIN_HEIGHT = 50;
+localparam PLAYER_WIN_SIZE = PLAYER_WIN_WIDTH * PLAYER_WIN_HEIGHT;
+localparam PLAYER_WIN_X_OFFSET = 320 - PLAYER_WIN_WIDTH / 2;
+localparam PLAYER_WIN_Y_OFFSET = 460 - PLAYER_WIN_HEIGHT / 2;
+localparam [7:0] PLAYER_WIN_COLOR = 8'b11111111; // Color for player win area (magenta)
+localparam [7:0] PLAYER_WIN_BG_COLOR = 8'b00000000; // Color for player win area (black)
+wire [12:0] player_win_pixel_addr = (current_pixel_y - PLAYER_WIN_Y_OFFSET) * PLAYER_WIN_WIDTH + (current_pixel_x - PLAYER_WIN_X_OFFSET);
+
+
+wire is_player_win_area = (current_pixel_x >= PLAYER_WIN_X_OFFSET && current_pixel_x < PLAYER_WIN_X_OFFSET + PLAYER_WIN_WIDTH &&
+													current_pixel_y >= PLAYER_WIN_Y_OFFSET && current_pixel_y < PLAYER_WIN_Y_OFFSET + PLAYER_WIN_HEIGHT);
+
+wire [7:0]	 pixel_player_1_wins, pixel_player_2_wins;
+
+rom_player_one_wins rom_player_one_wins_inst (
+	.address(player_win_pixel_addr),
+	.clock(clk),
+	.q(pixel_player_1_wins) // Reusing pixel_present_1 for player one wins
+);
+rom_player_two_wins rom_player_two_wins_inst (
+	.address(player_win_pixel_addr),
+	.clock(clk),
+	.q(pixel_player_2_wins) // Reusing pixel_present_2 for player two wins
+);
+*/
 
 //// Counter
 localparam COUNTER_WIDTH = 60;
@@ -466,6 +494,45 @@ always @(posedge clk) begin
 			// Default pixel data (transparent color)
 			end else pixel_data <= TRANSPARENT_COLOR;
 		end
+
+		/*
+		S_P1_WIN: begin
+			if (is_player_win_area) begin
+				pixel_data <= pixel_player_1_wins; // Display player 1 wins
+			ens else if (is_counter_area) begin
+				pixel_data <= pixel_data_counter; // Display counter
+			end else if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+				pixel_data <= heart_sprite_data;
+			end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+				pixel_data <= block_sprite_data;;
+			// Player 2 or Player 1 sprite pixel data selection
+			end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+				pixel_data <= rom_sprite;
+			end else if (inside_sprite2 && addr2 >= 0 && addr2 < IMAGE_SIZE) begin
+				pixel_data <= rom_sprite2;
+			// Default pixel data (transparent color)
+			end else pixel_data <= TRANSPARENT_COLOR;
+		end
+
+		S_P2_WIN: begin
+			if (is_player_win_area) begin
+				pixel_data <= pixel_player_2_wins; // Display player 1 wins
+			ens else if (is_counter_area) begin
+				pixel_data <= pixel_data_counter; // Display counter
+			end else if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+				pixel_data <= heart_sprite_data;
+			end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+				pixel_data <= block_sprite_data;;
+			// Player 2 or Player 1 sprite pixel data selection
+			end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+				pixel_data <= rom_sprite;
+			end else if (inside_sprite2 && addr2 >= 0 && addr2 < IMAGE_SIZE) begin
+				pixel_data <= rom_sprite2;
+			// Default pixel data (transparent color)
+			end else pixel_data <= TRANSPARENT_COLOR;
+		end
+
+		*/
 	endcase
 end
 

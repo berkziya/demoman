@@ -481,10 +481,7 @@ def main():
             )
         return
 
-    if calculated_num_words == 1:
-        rom_addr_width = 1
-    else:
-        rom_addr_width = math.ceil(math.log2(calculated_num_words))
+    rom_addr_width = math.ceil(math.log2(calculated_num_words))
 
     mif_path_for_verilog_init_file = f"../sprites/{base_mif_filename_from_arg}"
 

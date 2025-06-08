@@ -120,8 +120,8 @@ always @(*) begin
       else next_state = game_state; // Stay in the current state
     end
 
-    default: next_state = S_IDLE; // Default case to handle unexpected states
-				 hex_state = hex_state;
+    default: begin next_state = S_IDLE; // Default case to handle unexpected states
+				 hex_state = hex_state; end
   endcase
 end
 

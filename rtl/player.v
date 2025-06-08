@@ -366,8 +366,8 @@ always @(posedge clk) begin
     case (current_state)
       S_MOVEFORWARD: begin
         if (~collision_detected) begin
-          if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
-          else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        if (SIDE == LEFT && posx < 517 && (posx < (otherPlayerposx-30))) posx <= posx + P_SPEED_FORW;
+        else if (posx > 10 && (posx > (otherPlayerposx+30))) posx <= posx - P_SPEED_FORW;
         end
 
       end

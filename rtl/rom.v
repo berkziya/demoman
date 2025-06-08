@@ -412,7 +412,7 @@ wire [7:0] countdown_pixel_1 = (rom_data_1[cd_bit_select]) ? CD_COLOR : CD_BG_CO
 wire [7:0] countdown_pixel_2 = (rom_data_2[cd_bit_select]) ? CD_COLOR : CD_BG_COLOR;
 wire [7:0] countdown_pixel_3 = (rom_data_3[cd_bit_select]) ? CD_COLOR : CD_BG_COLOR;
 
-/*
+
 //// Player win area  CHANGE LATER
 
 localparam PLAYER_WIN_SPRITE_WIDTH = 52;
@@ -444,7 +444,7 @@ rom_player_two_wins rom_player_two_wins_inst (
 	.clock(clk),
 	.q(pixel_player_2_wins) 
 );
-*/
+
 
 //// Counter
 localparam COUNTER_WIDTH = 60;
@@ -500,7 +500,7 @@ always @(posedge clk) begin
 			end else pixel_data <= TRANSPARENT_COLOR;
 		end
 
-		/*
+		
 		S_P1_WIN: begin
 			if (is_player_win_area) begin
 				pixel_data <= pixel_player_1_wins; // Display player 1 wins
@@ -522,7 +522,7 @@ always @(posedge clk) begin
 		S_P2_WIN: begin
 			if (is_player_win_area) begin
 				pixel_data <= pixel_player_2_wins; // Display player 1 wins
-			ens else if (is_counter_area) begin
+			end else if (is_counter_area) begin
 				pixel_data <= pixel_data_counter; // Display counter
 			end else if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
 				pixel_data <= heart_sprite_data;
@@ -537,7 +537,7 @@ always @(posedge clk) begin
 			end else pixel_data <= TRANSPARENT_COLOR;
 		end
 
-		*/
+		
 	endcase
 end
 

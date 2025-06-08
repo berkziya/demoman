@@ -9,6 +9,10 @@ module player #(
   input [2:0] health,
   input [2:0] block,
 
+  input [2:0] gamestate,
+  
+  input [9:0] otherPlayerposx,
+  
   output reg [9:0] posx,
   output     [9:0] posy,
   output reg [3:0] current_state,
@@ -339,13 +343,12 @@ end
 */
 
 always @(posedge clk) begin
-  if ((posx == 0) || rst) begin
-    posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
-  end else begin
+  if (rst) posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
+  else if(gamestate==3'd2) begin
     case (current_state)
       S_MOVEFORWARD: begin
-        if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
-        else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        if (SIDE == LEFT && posx < 517 && (posx < (otherPlayerposx-30))) posx <= posx + P_SPEED_FORW;
+        else if (posx > 10 && (posx > (otherPlayerposx+30))) posx <= posx - P_SPEED_FORW;
       end
       S_MOVEBACKWARDS: begin
         if (SIDE == LEFT && posx > 10) posx <= posx - P_SPEED_BACK;
@@ -353,7 +356,8 @@ always @(posedge clk) begin
       end
       default: posx <= posx;
     endcase
-  end
+	 end 
+  
 end
 
 endmodule

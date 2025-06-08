@@ -97,7 +97,7 @@ clock_divider #(
 // Instantiate the VGA driver
 vga_driver vga_inst (
   .clock(clk_25mhz),
-  .reset(reset),
+  .reset(1'b0),
   .color_in(color_to_vga_driver), // Color data for the current pixel
   .next_x(current_pixel_x),       // Output: X-coordinate of the pixel being drawn
   .next_y(current_pixel_y),       // Output: Y-coordinate of the pixel being drawn
@@ -144,6 +144,8 @@ health_status health_status_inst (
 player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
+  .gamestate(game_state),
+  .otherPlayerposx(posx2),
   .left(~KEY[3]), // Player 1's left control, can be controlled by a switch
   .right(~KEY[2]), // Player 1's right control, can be controlled by a switch
   .attack(~KEY[1]), // Player 1's attack control, can be controlled by a switch
@@ -153,6 +155,7 @@ player #(.SIDE(1'b0)) Player1 (
   .current_state(player1_state),
   .health(player1_health),
   .block(player1_block),
+
   .basic_hithurtbox_x1(hithurt_x1),
   .basic_hithurtbox_x2(hithurt_x2),
   .basic_hithurtbox_y1(hithurt_y1),
@@ -182,14 +185,16 @@ random_num random_gen (
   .rand_o(random_number)
 );
 
-wire player2_left = SW[3] ? ~GPIO[5] : random_number[0];
-wire player2_right = SW[3] ? ~GPIO[3] : random_number[1];
-wire player2_attack = SW[3] ? ~GPIO[1] : (random_number[2] & random_number[3]);
+wire player2_left = ~SW[0] ? ~GPIO[5] : random_number[0];
+wire player2_right = ~SW[0] ? ~GPIO[3] : random_number[1];
+wire player2_attack = ~SW[0] ? ~GPIO[1] : (random_number[2] & random_number[3]);
 
 
 player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),
   .rst(reset),
+  .gamestate(game_state),
+  .otherPlayerposx(posx),
   .left(player2_left), // Player 2's left control, can be controlled by a switch or random number
   .right(player2_right), // Player 2's right control, can be controlled by a switch or random number
   .attack(player2_attack), // Player 2's attack control, can be controlled by a switch or random number
@@ -199,6 +204,7 @@ player #(.SIDE(1'b1)) Player2 (
   .current_state(player2_state),
   .health(player2_health),
   .block(player2_block),
+  
   .basic_hithurtbox_x1(hithurt_x12),
   .basic_hithurtbox_x2(hithurt_x22),
   .basic_hithurtbox_y1(hithurt_y12),
@@ -212,6 +218,7 @@ player #(.SIDE(1'b1)) Player2 (
   .dir_hithurtbox_y1(dir_hithurt_y12),
   .dir_hithurtbox_y2(dir_hithurt_y22)
 );
+
 
 
 HitDetect hitdetector_inst (

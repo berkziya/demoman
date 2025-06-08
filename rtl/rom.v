@@ -353,23 +353,6 @@ wire pixel_present_1, pixel_present_2, pixel_present_3;
 wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET && current_pixel_x < COUNTDOWN_X_OFFSET + COUNT_DOWN_WIDTH &&
 													current_pixel_y >= COUNTDOWN_Y_OFFSET && current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
 
-rom_one rom_one_inst ( // 1bit
-	.address(countdown_pixel_addr >> 3),
-	.clock(clk),
-	.q(pixel_present_1) // Output pixel data for "1"
-);
-
-rom_two rom_two_inst ( // 1bit
-	.address(countdown_pixel_add >> 3),
-	.clock(clk),
-	.q(pixel_present_2) // Output pixel data for "2"
-);
-
-rom_three rom_three_inst ( // 1bit
-	.address(countdown_pixel_addr >> 3),
-	.clock(clk),
-	.q(pixel_present_3) // Output pixel data for "3"
-);
 
 //// Counter
 localparam COUNTER_WIDTH = 20;

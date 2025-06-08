@@ -17,6 +17,7 @@ localparam S_HEX_FIGHt = 3'd2;
 localparam S_HEX_P1_WIN = 3'd3;
 localparam S_HEX_P2_WIN = 3'd4;
 localparam S_HEX_Eq = 3'd5;
+localparam S_HEX_DEBUG = 3'd6;
 
 reg [6:0] HEX_0, HEX_1, HEX_2, HEX_3, HEX_4, HEX_5;
 assign HEX0 = HEX_0;
@@ -110,7 +111,15 @@ always @(*) begin
       HEX_1 = HEX_BDC_1s;
       HEX_0 = _DASH;
     end
-    default: begin // debug if you will
+    S_HEX_DEBUG: begin // Debug state
+      HEX_5 = _SPACE;
+      HEX_4 = _SPACE;
+      HEX_3 = _SPACE;
+      HEX_2 = _SPACE;
+      HEX_1 = HEX_BDC_10s; // Display tens digit of game duration
+      HEX_0 = HEX_BDC_1s;  // Display ones digit of game duration
+    end
+    default: begin
       HEX_5 = _SPACE;
       HEX_4 = _SPACE;
       HEX_3 = _SPACE;

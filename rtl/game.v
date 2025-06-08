@@ -35,6 +35,7 @@ localparam S_HEX_FIGHt = 3'd2;
 localparam S_HEX_P1_WIN = 3'd3;
 localparam S_HEX_P2_WIN = 3'd4;
 localparam S_HEX_Eq = 3'd5;
+localparam S_HEX_DEBUG = 3'd6;
 reg [2:0] hex_state;
 
 reg [1:0] counter_control; // 00: hold, 01: increment, 10: decrement, 11: reset
@@ -100,7 +101,7 @@ always @(*) begin
     end
 
     S_COUNTDOWN: begin
-	   hex_state = hex_state;
+    hex_state = S_HEX_DEBUG;
       if (game_duration == 7'd4) next_state = S_FIGHT;
       else next_state = S_COUNTDOWN;
     end
@@ -120,8 +121,10 @@ always @(*) begin
       else next_state = game_state; // Stay in the current state
     end
 
-    default: begin next_state = S_IDLE; // Default case to handle unexpected states
-				 hex_state = hex_state; end
+    default: begin
+      next_state = S_IDLE; // Default case to handle unexpected states
+      hex_state = hex_state;
+    end
   endcase
 end
 

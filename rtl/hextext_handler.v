@@ -30,7 +30,7 @@ assign HEX5 = HEX_5;
 wire [4:0] BCD_10s = game_duration / 10; // Tens digit
 wire [4:0] BCD_1s  = game_duration % 10; // Ones digit
 
-reg HEX_BDC_10s, HEX_BDC_1s;
+reg [6:0] HEX_BDC_10s, HEX_BDC_1s;
 
 always @(*) begin
   case (BCD_10s)

@@ -326,13 +326,13 @@ wire [7:0] heart_sprite_data;
 wire [7:0] block_sprite_data;
 
 rom_heart rom_heart_inst (
-  .address(heart_addr),
+  .address((heart_addr >> 3)),
   .clock(clk),
   .q(heart_sprite_data) // Output pixel data for heartbox
 );
 
 rom_shield rom_block_inst (
-  .address(block_addr),
+  .address((block_addr >> 3)),
   .clock(clk),
   .q(block_sprite_data) // Output pixel data for blockbox
 );
@@ -480,9 +480,9 @@ always @(posedge clk) begin
 			if (is_counter_area) begin
 				pixel_data <= pixel_data_counter; // Display counter
 			end else if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-				pixel_data <= heart_sprite_data;
+				pixel_data <= heart_sprite_data[heart_addr % 8] ? 8'b11100000 : TRANSPARENT_COLOR;
 			end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-				pixel_data <= block_sprite_data;;
+				pixel_data <= block_sprite_data[block_addr % 8] ? 8'b00000011 : TRANSPARENT_COLOR;
 			// Player 2 or Player 1 sprite pixel data selection
 			end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
 				pixel_data <= rom_sprite;

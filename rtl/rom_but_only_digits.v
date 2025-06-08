@@ -22,16 +22,16 @@ wire [10:0] address = (relative_x < SPRITE_WIDTH) ?
 
 wire [7:0] out0, out1, out2, out3, out4, out5, out6, out7, out8, out9;
 
-rom_digit0 u0 (.clock(clk), .address(address / 8), .q(out0));
-rom_digit1 u1 (.clock(clk), .address(address / 8), .q(out1));
-rom_digit2 u2 (.clock(clk), .address(address / 8), .q(out2));
-rom_digit3 u3 (.clock(clk), .address(address / 8), .q(out3));
-rom_digit4 u4 (.clock(clk), .address(address / 8), .q(out4));
-rom_digit5 u5 (.clock(clk), .address(address / 8), .q(out5));
-rom_digit6 u6 (.clock(clk), .address(address / 8), .q(out6));
-rom_digit7 u7 (.clock(clk), .address(address / 8), .q(out7));
-rom_digit8 u8 (.clock(clk), .address(address / 8), .q(out8));
-rom_digit9 u9 (.clock(clk), .address(address / 8), .q(out9));
+rom_digit0 u0 (.clock(clk), .address(address >> 3), .q(out0));
+rom_digit1 u1 (.clock(clk), .address(address >> 3), .q(out1));
+rom_digit2 u2 (.clock(clk), .address(address >> 3), .q(out2));
+rom_digit3 u3 (.clock(clk), .address(address >> 3), .q(out3));
+rom_digit4 u4 (.clock(clk), .address(address >> 3), .q(out4));
+rom_digit5 u5 (.clock(clk), .address(address >> 3), .q(out5));
+rom_digit6 u6 (.clock(clk), .address(address >> 3), .q(out6));
+rom_digit7 u7 (.clock(clk), .address(address >> 3), .q(out7));
+rom_digit8 u8 (.clock(clk), .address(address >> 3), .q(out8));
+rom_digit9 u9 (.clock(clk), .address(address >> 3), .q(out9));
 
 always @(*) begin
   if (relative_y >= SPRITE_HEIGHT) begin

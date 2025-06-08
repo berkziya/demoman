@@ -1,4 +1,4 @@
-module rom_digits_scaled (
+module rom_but_only_digits (
   input clk,
   input [9:0] relative_x,
   input [9:0] relative_y,
@@ -15,8 +15,8 @@ module rom_digits_scaled (
   localparam ROM_WIDTH         = 10;
   localparam ROM_HEIGHT        = 13;
   localparam ROM_PIXELS        = ROM_WIDTH * ROM_HEIGHT;
-  localparam ROM_DEPTH_WORDS   = 17
-  localparam ROM_ADDR_WIDTH    = 5
+  localparam ROM_DEPTH_WORDS   = 17;
+  localparam ROM_ADDR_WIDTH    = 5;
 
   // Scaled-up display dimensions
   localparam SCALE_FACTOR      = 4;

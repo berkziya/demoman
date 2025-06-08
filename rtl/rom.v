@@ -432,7 +432,7 @@ always @(posedge clk) begin
 					7'd0: pixel_data <= pixel_present_3[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
 					7'd1: pixel_data <= pixel_present_2[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
 					7'd2: pixel_data <= pixel_present_1[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
-					7'd4: pixel_data <= pixel_present_fight[fight_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "FIGHT"
+					//7'd4: pixel_data <= pixel_present_fight[fight_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "FIGHT"
 					default: pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
 				endcase
 			end else begin

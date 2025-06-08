@@ -154,10 +154,7 @@ player #(.SIDE(1'b0)) Player1 (
   .current_state(player1_state),
   .health(player1_health),
   .block(player1_block),
-  .main_hurtbox_x1_opp(hurt_x12),
-  .main_hurtbox_x2_opp(hurt_x22),
-  .main_hurtbox_y1_opp(hurt_y12),
-  .main_hurtbox_y2_opp(hurt_y22),
+
   .basic_hithurtbox_x1(hithurt_x1),
   .basic_hithurtbox_x2(hithurt_x2),
   .basic_hithurtbox_y1(hithurt_y1),
@@ -187,9 +184,9 @@ random_num random_gen (
   .rand_o(random_number)
 );
 
-wire player2_left = SW[3] ? ~GPIO[5] : random_number[0];
-wire player2_right = SW[3] ? ~GPIO[3] : random_number[1];
-wire player2_attack = SW[3] ? ~GPIO[1] : (random_number[2] & random_number[3]);
+wire player2_left = ~SW[0] ? ~GPIO[5] : random_number[0];
+wire player2_right = ~SW[0] ? ~GPIO[3] : random_number[1];
+wire player2_attack = ~SW[0] ? ~GPIO[1] : (random_number[2] & random_number[3]);
 
 
 player #(.SIDE(1'b1)) Player2 (
@@ -205,10 +202,7 @@ player #(.SIDE(1'b1)) Player2 (
   .current_state(player2_state),
   .health(player2_health),
   .block(player2_block),
-  .main_hurtbox_x1_opp(hurt_x1),
-  .main_hurtbox_x2_opp(hurt_x2),
-  .main_hurtbox_y1_opp(hurt_y1),
-  .main_hurtbox_y2_opp(hurt_y2),
+
   .basic_hithurtbox_x1(hithurt_x12),
   .basic_hithurtbox_x2(hithurt_x22),
   .basic_hithurtbox_y1(hithurt_y12),

@@ -248,6 +248,9 @@ localparam [9:0] X_OFFSET = 10'd40; // X offset for heartbox coordinates
 localparam [9:0] Y_OFFSET = 10'd40; // Y offset for heartbox coordinates
 localparam [9:0] SPACE_BETWEEN = HEARTBLOCK_SIZE + 10'd20; // Space between heartboxes
 
+localparam [7:0] HEARTBLOCK_COLOR = 8'b11100000; // Color for heartbox (red)
+localparam [7:0] BLOCKBLOCK_COLOR = 8'b00000011; // Color for blockbox (blue)
+
 wire [9:0] heart11x, heart11y, heart12x, heart12y, heart13x, heart13y; // Heartbox coordinates for player 1
 wire [9:0] heart21x, heart21y, heart22x, heart22y, heart23x, heart23y; // Heartbox coordinates for player 2
 
@@ -322,17 +325,16 @@ wire [9:0] where_in_blockbox_y = current_pixel_y - block11y;
 wire [11:0] heart_addr = (where_in_heartbox_y * HEARTBLOCK_SIZE + where_in_heartbox_x);
 wire [11:0] block_addr = (where_in_blockbox_y * HEARTBLOCK_SIZE + where_in_blockbox_x);
 
-wire [7:0] heart_sprite_data;
-wire [7:0] block_sprite_data;
+wire [7:0] heart_sprite_data, block_sprite_data;
 
 rom_heart rom_heart_inst (
-  .address(heart_addr),
+  .address(heart_addr >> 3),
   .clock(clk),
   .q(heart_sprite_data) // Output pixel data for heartbox
 );
 
 rom_shield rom_block_inst (
-  .address(block_addr),
+  .address(block_addr >> 3),
   .clock(clk),
   .q(block_sprite_data) // Output pixel data for blockbox
 );
@@ -396,11 +398,6 @@ always @(posedge clk) begin
 
 		S_COUNTDOWN: begin
 			if (is_countdown_area) begin
-				case (game_duration)
-					7'd0: pixel_data <= pixel_present_3[~countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
-					7'd1: pixel_data <= pixel_present_2[~countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
-					7'd2: pixel_data <= pixel_present_1[~countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
-				endcase
 			end else begin
 				pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
 			end
@@ -410,9 +407,9 @@ always @(posedge clk) begin
 			if (is_counter_area) begin
 				pixel_data <= pixel_data_counter; // Display counter
 			end else if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-				pixel_data <= heart_sprite_data;
+				pixel_data <= heart_sprite_data[~heart_addr % 8] ? HEARTBLOCK_COLOR : TRANSPARENT_COLOR;
 			end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-				pixel_data <= block_sprite_data;;
+				pixel_data <= block_sprite_data[~block_addr % 8] ? BLOCKBLOCK_COLOR : TRANSPARENT_COLOR;
 			// Player 2 or Player 1 sprite pixel data selection
 			end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
 				pixel_data <= rom_sprite;

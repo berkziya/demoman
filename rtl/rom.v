@@ -337,18 +337,6 @@ rom_shield rom_block_inst (
   .q(block_sprite_data) // Output pixel data for blockbox
 );
 
-
-//// Start menu sprite
-localparam ROM_IDLE_SIZE = 640 * 480; // Size of the start menu ROM
-wire [18:0] idle_pixel_addr = (current_pixel_y * 640 + current_pixel_x); // Address for start menu pixel data
-wire [7:0] idle_pixel_data; // Output pixel data for start menu
-
-rom_start rom_start_inst ( // 8-bit ROM for start menu but it's huge and didn't fit
-	.address(idle_pixel_addr),
-	.clock(clk),
-	.q(idle_pixel_data) // Output pixel data for start menu
-);
-
 //// Countdown sprites
 localparam COUNT_DOWN_WIDTH = 64;
 localparam COUNT_DOWN_HEIGHT = 78;
@@ -381,25 +369,6 @@ rom_three rom_three_inst ( // 1bit
 	.q(pixel_present_3) // Output pixel data for "3"
 );
 
-//// Fight text sprite
-localparam FIGHT_WIDTH = 260;
-localparam FIGHT_HEIGHT = 78;
-localparam FIGHT_SIZE = FIGHT_WIDTH * FIGHT_HEIGHT;
-localparam FIGHT_X_OFFSET = 320 - FIGHT_WIDTH / 2;
-localparam FIGHT_Y_OFFSET = 240 - FIGHT_HEIGHT / 2;
-wire [14:0] fight_pixel_addr = (current_pixel_y - FIGHT_Y_OFFSET) * FIGHT_WIDTH + (current_pixel_x - FIGHT_X_OFFSET);
-wire pixel_present_fight;
-
-wire is_fight_area = (current_pixel_x >= FIGHT_X_OFFSET && current_pixel_x < FIGHT_X_OFFSET + FIGHT_WIDTH &&
-											current_pixel_y >= FIGHT_Y_OFFSET && current_pixel_y < FIGHT_Y_OFFSET + FIGHT_HEIGHT);
-
-rom_fight rom_fight_inst ( // also 1bit
-	.address(fight_pixel_addr),
-	.clock(clk),
-	.q(pixel_present_fight) // Output pixel data for fight
-);
-
-
 //// Counter
 localparam COUNTER_WIDTH = 60;
 localparam COUNTER_HEIGHT = 40;
@@ -431,8 +400,6 @@ always @(posedge clk) begin
 					7'd0: pixel_data <= pixel_present_3 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
 					7'd1: pixel_data <= pixel_present_2 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
 					7'd2: pixel_data <= pixel_present_1 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
-					7'd4: pixel_data <= pixel_present_fight ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "FIGHT"
-					default: pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
 				endcase
 			end else begin
 				pixel_data <= COUNTDOWN_BG_COLOR; // Default background color

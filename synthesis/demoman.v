@@ -184,9 +184,9 @@ random_num random_gen (
   .rand_o(random_number)
 );
 
-wire player2_left = SW[3] ? ~GPIO[5] : random_number[0];
-wire player2_right = SW[3] ? ~GPIO[3] : random_number[1];
-wire player2_attack = SW[3] ? ~GPIO[1] : (random_number[2] & random_number[3]);
+wire player2_left = ~SW[0] ? ~GPIO[5] : random_number[0];
+wire player2_right = ~SW[0] ? ~GPIO[3] : random_number[1];
+wire player2_attack = ~SW[0] ? ~GPIO[1] : (random_number[2] & random_number[3]);
 
 
 player #(.SIDE(1'b1)) Player2 (

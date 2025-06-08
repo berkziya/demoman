@@ -5,6 +5,8 @@ module player #(
   input rst,
   input left, right, attack,
   
+  input [2:0] gamestate,
+  
   input [9:0] otherPlayerposx,
 
   input [1:0] hitFlag,
@@ -96,16 +98,30 @@ counter #(
   .count(counter)
 );
 
-always @(posedge clk) begin
-  if (rst) begin
+always @(posedge clk) 
+begin
+  if (rst) 
+  begin
     current_state <= S_IDLE;
     lastcountanchor <= 0;
-  end else begin
-    if (current_state != next_state) begin
-	lastcountanchor <= counter;
-	stunDurationValue <= nextStunDurationValue;
-	end
-    current_state <= next_state;
+  end 
+  else 
+  begin 
+		if(gamestate == 3'd2) 
+		begin
+			if (current_state != next_state) 
+			begin
+			lastcountanchor <= counter;
+			stunDurationValue <= nextStunDurationValue;
+		end
+			current_state <=next_state;
+		end
+		else  
+		begin
+		current_state <= current_state;
+		lastcountanchor <= counter;
+		stunDurationValue <= nextStunDurationValue;
+		end
   end
 end
 
@@ -348,9 +364,8 @@ end
 */
 
 always @(posedge clk) begin
-  if ((posx == 0) || rst) begin
-    posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
-  end else begin
+  case (gamestate)
+  3'd2: begin
     case (current_state)
       S_MOVEFORWARD: begin
         if (SIDE == LEFT && posx < 517 && (posx < (otherPlayerposx-30))) posx <= posx + P_SPEED_FORW;
@@ -362,7 +377,9 @@ always @(posedge clk) begin
       end
       default: posx <= posx;
     endcase
-  end
+	 end
+	default: posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
+  endcase
 end
 
 endmodule

@@ -144,6 +144,7 @@ health_status health_status_inst (
 player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
+  .gamestate(game_state),
   .otherPlayerposx(posx2),
   .left(~KEY[3]), // Player 1's left control, can be controlled by a switch
   .right(~KEY[2]), // Player 1's right control, can be controlled by a switch
@@ -192,6 +193,7 @@ wire player2_attack = ~SW[0] ? ~GPIO[1] : (random_number[2] & random_number[3]);
 player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),
   .rst(reset),
+  .gamestate(game_state),
   .otherPlayerposx(posx),
   .left(player2_left), // Player 2's left control, can be controlled by a switch or random number
   .right(player2_right), // Player 2's right control, can be controlled by a switch or random number
@@ -202,7 +204,7 @@ player #(.SIDE(1'b1)) Player2 (
   .current_state(player2_state),
   .health(player2_health),
   .block(player2_block),
-
+  
   .basic_hithurtbox_x1(hithurt_x12),
   .basic_hithurtbox_x2(hithurt_x22),
   .basic_hithurtbox_y1(hithurt_y12),

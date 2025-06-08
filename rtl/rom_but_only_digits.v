@@ -17,8 +17,8 @@ wire [3:0] digit_10s = game_duration / 10;
 wire [3:0] digit_1s = game_duration % 10;
 
 wire [10:0] address = (relative_x < SPRITE_WIDTH) ?
-                relative_y * SPRITE_WIDTH + relative_x :
-                relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH);
+                       relative_y * SPRITE_WIDTH + relative_x :
+                       relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH);
 
 wire [7:0] out0, out1, out2, out3, out4, out5, out6, out7, out8, out9;
 
@@ -38,7 +38,7 @@ always @(*) begin
     pixel_data = TRANSPARENT_COLOR; // Outside the sprite height
   end else if (relative_x >= SPRITE_WIDTH * 2) begin
     pixel_data = TRANSPARENT_COLOR; // Outside the sprite width
-  end else if (address >= ROM_SIZE) begin
+  end else if ((address >> 3) >= ROM_SIZE) begin
     pixel_data = TRANSPARENT_COLOR; // Invalid address
   end else if (relative_x < SPRITE_WIDTH) begin
     case (digit_10s)

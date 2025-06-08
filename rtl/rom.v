@@ -408,8 +408,8 @@ localparam X_OFFSET_COUNTER = 320 - COUNTER_WIDTH / 2;
 localparam Y_OFFSET_COUNTER = 60;
 wire [7:0] pixel_data_counter; // Output pixel data for counter
 
-wire counter_relative_x = current_pixel_x - X_OFFSET_COUNTER;
-wire counter_relative_y = current_pixel_y - Y_OFFSET_COUNTER;
+wire [9:0] counter_relative_x = current_pixel_x - X_OFFSET_COUNTER;
+wire [9:0] counter_relative_y = current_pixel_y - Y_OFFSET_COUNTER;
 wire is_counter_area = (current_pixel_x >= X_OFFSET_COUNTER && current_pixel_x < X_OFFSET_COUNTER + COUNTER_WIDTH &&
 												current_pixel_y >= Y_OFFSET_COUNTER && current_pixel_y < Y_OFFSET_COUNTER + COUNTER_HEIGHT);
 

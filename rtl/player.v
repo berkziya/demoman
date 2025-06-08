@@ -4,6 +4,8 @@ module player #(
   input clk,
   input rst,
   input left, right, attack,
+  
+  input [9:0] otherPlayerposx,
 
   input [1:0] hitFlag,
   input [2:0] health,
@@ -89,7 +91,6 @@ assign next_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign next_hurtbox_y1 = posy;
 assign next_hurtbox_y2 = posy + 150;
 
-assign collision_detected = (SIDE == LEFT) ? (main_hurtbox_x1_opp < next_hurtbox_x2) : (main_hurtbox_x2_opp > next_hurtbox_x1);
 
 reg juststarted;
 
@@ -365,11 +366,8 @@ always @(posedge clk) begin
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin
-        if (~collision_detected) begin
         if (SIDE == LEFT && posx < 517 && (posx < (otherPlayerposx-30))) posx <= posx + P_SPEED_FORW;
         else if (posx > 10 && (posx > (otherPlayerposx+30))) posx <= posx - P_SPEED_FORW;
-        end
-
       end
       S_MOVEBACKWARDS: begin
         if (SIDE == LEFT && posx > 10) posx <= posx - P_SPEED_BACK;

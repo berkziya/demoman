@@ -97,7 +97,7 @@ clock_divider #(
 // Instantiate the VGA driver
 vga_driver vga_inst (
   .clock(clk_25mhz),
-  .reset(reset),
+  .reset(1'b0),
   .color_in(color_to_vga_driver), // Color data for the current pixel
   .next_x(current_pixel_x),       // Output: X-coordinate of the pixel being drawn
   .next_y(current_pixel_y),       // Output: Y-coordinate of the pixel being drawn

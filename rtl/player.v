@@ -9,6 +9,11 @@ module player #(
   input [2:0] health,
   input [2:0] block,
 
+  input [9:0] main_hurtbox_x1_opp,
+  input [9:0] main_hurtbox_x2_opp,
+  input [9:0] main_hurtbox_y1_opp,
+  input [9:0] main_hurtbox_y2_opp,
+
   output reg [9:0] posx,
   output     [9:0] posy,
   output reg [3:0] current_state,
@@ -56,6 +61,12 @@ localparam P_SPEED_BACK = 2;
 
 reg [3:0] next_state;
 
+wire [9:0] next_hurtbox_x1;
+wire [9:0] next_hurtbox_x2;
+wire [9:0] next_hurtbox_y1;
+wire [9:0] next_hurtbox_y2;
+wire collision_detected;
+
 assign posy = 170; // Fixed Y position for the player
 
 assign basic_hithurtbox_x1 = (SIDE == LEFT) ? (posx + 35) : (posx);
@@ -72,6 +83,16 @@ assign main_hurtbox_x1 = (SIDE == LEFT) ? (posx + 28) : (posx + 113 - 81);
 assign main_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
+
+assign next_hurtbox_x1 = (SIDE == LEFT) ? (posx + 28) : (posx + 113 - 81);
+assign next_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
+assign next_hurtbox_y1 = posy;
+assign next_hurtbox_y2 = posy + 150;
+
+assign collision_detected = (
+  (main_hurtbox_x1_opp < next_hurtbox_x2 && main_hurtbox_x2_opp > next_hurtbox_x1) &&
+  (main_hurtbox_y1_opp < next_hurtbox_y2 && main_hurtbox_y2_opp > next_hurtbox_y1)
+);
 
 reg juststarted;
 
@@ -323,9 +344,12 @@ always @(posedge clk) begin
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin
-        if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
-        else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        if (~collision_detected) begin
+          if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
+          else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        end
       end
+
       S_MOVEBACKWARDS: begin
         if (SIDE == LEFT && posx > 10) posx <= posx - P_SPEED_BACK;
         else if (posx < 517) posx <= posx + P_SPEED_BACK;

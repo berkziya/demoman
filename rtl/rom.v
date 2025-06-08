@@ -340,8 +340,8 @@ rom_shield rom_block_inst (
   .q(block_sprite_data) // Output pixel data for blockbox
 );
 
-wire [7:0] pixel_present_heart = heart_sprite_data[heart_addr % 8] ? HEART_COLOR : TRANSPARENT_COLOR; // Heartbox pixel data
-wire [7:0] pixel_present_block = block_sprite_data[block_addr % 8] ? BLOCK_COLOR : TRANSPARENT_COLOR; // Blockbox pixel data
+wire [7:0] pixel_present_heart = heart_sprite_data[~(heart_addr % 8)] ? HEART_COLOR : TRANSPARENT_COLOR; // Heartbox pixel data
+wire [7:0] pixel_present_block = block_sprite_data[~(block_addr % 8)] ? BLOCK_COLOR : TRANSPARENT_COLOR; // Blockbox pixel data
 
 //// Countdown sprites
 localparam CD_ROM_WIDTH         = 10;
@@ -380,7 +380,7 @@ wire [7:0] cd_rom_pixel_addr = cd_rom_coord_y * CD_ROM_WIDTH + cd_rom_coord_x;
 
 // 5. Calculate the final byte address and bit index for the hardware ROM
 wire [CD_ROM_ADDR_WIDTH-1:0] cd_rom_byte_address = cd_rom_pixel_addr >> 3;
-wire [2:0]                   cd_bit_select       = cd_rom_pixel_addr[2:0];
+wire [2:0]                   cd_bit_select       = ~(cd_rom_pixel_addr % 8);
 
 // -- Countdown ROM Instantiations --
 // These instantiate your 10x13 "1", "2", and "3" sprites.

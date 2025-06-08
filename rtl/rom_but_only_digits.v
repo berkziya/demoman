@@ -38,7 +38,7 @@ module rom_but_only_digits (
 
   // 4. Calculate the final byte address and bit index for the ROM hardware
   wire [ROM_ADDR_WIDTH-1:0] rom_byte_address = rom_pixel_address >> 3;
-  wire [2:0]                bit_select       = rom_pixel_address[2:0];
+  wire [2:0]                bit_select       = ~(rom_pixel_address % 8);
 
   // --- ROM Instantiations ---
   // Note: These ROMs must be generated with DEPTH=17 and WIDTH_A=8, WIDTHAD_A=5

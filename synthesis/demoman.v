@@ -53,7 +53,7 @@ module demoman(
 //  REG/WIRE declarations
 //=======================================================
 
-wire reset; // Reset signal
+
 
 wire [3:0] player1_state; // First player's state
 wire [3:0] player2_state; // Second player's state
@@ -82,7 +82,9 @@ wire [2:0] game_state, game_duration; // Game state and duration
 //  Structural coding
 //=======================================================
 
-assign reset = 1'b0;
+wire reset;
+
+assign reset = SW[9];
 
 wire clk_25mhz;
 clock_divider #(

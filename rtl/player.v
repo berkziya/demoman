@@ -11,10 +11,6 @@ module player #(
   input [2:0] health,
   input [2:0] block,
 
-  input [9:0] main_hurtbox_x1_opp,
-  input [9:0] main_hurtbox_x2_opp,
-  input [9:0] main_hurtbox_y1_opp,
-  input [9:0] main_hurtbox_y2_opp,
 
   output reg [9:0] posx,
   output     [9:0] posy,
@@ -63,11 +59,6 @@ localparam P_SPEED_BACK = 2;
 
 reg [3:0] next_state;
 
-wire [9:0] next_hurtbox_x1;
-wire [9:0] next_hurtbox_x2;
-wire [9:0] next_hurtbox_y1;
-wire [9:0] next_hurtbox_y2;
-wire collision_detected;
 
 assign posy = 170; // Fixed Y position for the player
 
@@ -86,10 +77,6 @@ assign main_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
-assign next_hurtbox_x1 = (SIDE == LEFT) ? (posx + 28) : (posx + 113 - 81);
-assign next_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
-assign next_hurtbox_y1 = posy;
-assign next_hurtbox_y2 = posy + 150;
 
 
 reg juststarted;

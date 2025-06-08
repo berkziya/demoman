@@ -358,27 +358,28 @@ localparam COUNTDOWN_Y_OFFSET = 240 - COUNT_DOWN_HEIGHT / 2;
 localparam [7:0] COUNTDOWN_COLOR = 8'b11111111; // Color for countdown (magenta)
 localparam [7:0] COUNTDOWN_BG_COLOR = 8'b00000000; // Color for countdown (black)
 wire [12:0] countdown_pixel_addr = (current_pixel_y - COUNTDOWN_Y_OFFSET) * COUNT_DOWN_WIDTH + (current_pixel_x - COUNTDOWN_X_OFFSET);
-wire pixel_present_1, pixel_present_2, pixel_present_3;
 
 wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET && current_pixel_x < COUNTDOWN_X_OFFSET + COUNT_DOWN_WIDTH &&
 													current_pixel_y >= COUNTDOWN_Y_OFFSET && current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
 
-rom_one rom_one_inst ( // 1bit
-	.address(countdown_pixel_addr),
+wire [7:0] pixel_present_3, pixel_present_2, pixel_present_1;
+
+rom_one rom_one_inst (
+	.address(countdown_pixel_addr / 8),
 	.clock(clk),
-	.q(pixel_present_1) // Output pixel data for "1"
+	.q(pixel_present_1)
 );
 
-rom_two rom_two_inst ( // 1bit
-	.address(countdown_pixel_addr),
+rom_two rom_two_inst (
+	.address(countdown_pixel_addr / 8),
 	.clock(clk),
-	.q(pixel_present_2) // Output pixel data for "2"
+	.q(pixel_present_2)
 );
 
 rom_three rom_three_inst ( // 1bit
-	.address(countdown_pixel_addr),
+	.address(countdown_pixel_addr / 8),
 	.clock(clk),
-	.q(pixel_present_3) // Output pixel data for "3"
+	.q(pixel_present_3)
 );
 
 //// Fight text sprite
@@ -388,13 +389,13 @@ localparam FIGHT_SIZE = FIGHT_WIDTH * FIGHT_HEIGHT;
 localparam FIGHT_X_OFFSET = 320 - FIGHT_WIDTH / 2;
 localparam FIGHT_Y_OFFSET = 240 - FIGHT_HEIGHT / 2;
 wire [14:0] fight_pixel_addr = (current_pixel_y - FIGHT_Y_OFFSET) * FIGHT_WIDTH + (current_pixel_x - FIGHT_X_OFFSET);
-wire pixel_present_fight;
+wire [7:0] pixel_present_fight;
 
 wire is_fight_area = (current_pixel_x >= FIGHT_X_OFFSET && current_pixel_x < FIGHT_X_OFFSET + FIGHT_WIDTH &&
 											current_pixel_y >= FIGHT_Y_OFFSET && current_pixel_y < FIGHT_Y_OFFSET + FIGHT_HEIGHT);
 
 rom_fight rom_fight_inst ( // also 1bit
-	.address(fight_pixel_addr),
+	.address(fight_pixel_addr / 8),
 	.clock(clk),
 	.q(pixel_present_fight) // Output pixel data for fight
 );
@@ -428,10 +429,10 @@ always @(posedge clk) begin
 		S_COUNTDOWN: begin
 			if (is_countdown_area) begin
 				case (game_duration)
-					7'd0: pixel_data <= pixel_present_3 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
-					7'd1: pixel_data <= pixel_present_2 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
-					7'd2: pixel_data <= pixel_present_1 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
-					7'd4: pixel_data <= pixel_present_fight ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "FIGHT"
+					7'd0: pixel_data <= pixel_present_3[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
+					7'd1: pixel_data <= pixel_present_2[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
+					7'd2: pixel_data <= pixel_present_1[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
+					7'd4: pixel_data <= pixel_present_fight[fight_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "FIGHT"
 					default: pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
 				endcase
 			end else begin

@@ -9,7 +9,7 @@ module game (
   output [6:0] HEX3,
   output [6:0] HEX4,
   output [6:0] HEX5,
-  output [9:0] LEDR,
+
   input [9:0] SW,
   inout [35:0] GPIO,
 

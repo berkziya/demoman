@@ -321,7 +321,6 @@ game game_inst (
   .HEX3(HEX3),
   .HEX4(HEX4),
   .HEX5(HEX5),
-  .LEDR(LEDR), // LED outputs
   .SW(SW), // Switch inputs
   .GPIO(GPIO), // GPIO connections
   .player1_state(player1_state), // Player 1's state

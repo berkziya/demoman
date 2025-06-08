@@ -398,7 +398,6 @@ set_global_assignment -name SEARCH_PATH ../sprites
 set_global_assignment -name SEARCH_PATH ../sprites/digits
 set_global_assignment -name SEARCH_PATH ../rtl/utils
 set_global_assignment -name SEARCH_PATH ../rtl
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name VERILOG_FILE ../rtl/LEDhandler.v
 set_global_assignment -name MIF_FILE ../sprites/walkR.mif
 set_global_assignment -name HEX_FILE ../sprites/walkR.hex
@@ -533,3 +532,4 @@ set_global_assignment -name VERILOG_FILE ../rtl/hextext_handler.v
 set_global_assignment -name VERILOG_FILE ../rtl/game.v
 set_global_assignment -name SDC_FILE demoman.sdc
 set_global_assignment -name VERILOG_FILE demoman.v
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

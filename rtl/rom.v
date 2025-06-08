@@ -338,17 +338,6 @@ rom_shield rom_block_inst (
 );
 
 
-//// Start menu sprite
-localparam ROM_IDLE_SIZE = 640 * 480; // Size of the start menu ROM
-wire [18:0] idle_pixel_addr = (current_pixel_y * 640 + current_pixel_x); // Address for start menu pixel data
-wire [7:0] idle_pixel_data; // Output pixel data for start menu
-
-rom_start rom_start_inst ( // 8-bit ROM for start menu but it's huge and didn't fit
-	.address(idle_pixel_addr),
-	.clock(clk),
-	.q(idle_pixel_data) // Output pixel data for start menu
-);
-
 //// Countdown sprites
 localparam COUNT_DOWN_WIDTH = 64;
 localparam COUNT_DOWN_HEIGHT = 78;

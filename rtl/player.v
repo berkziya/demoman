@@ -4,6 +4,10 @@ module player #(
   input clk,
   input rst,
   input left, right, attack,
+  
+  input otherPlayerposx,
+  
+  input gamestate,
 
   input [1:0] hitFlag,
   input [2:0] health,
@@ -73,7 +77,6 @@ assign main_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
-reg juststarted;
 
 wire [COUNT_SIZE-1:0] counter;
 reg  [COUNT_SIZE-1:0] lastcountanchor;
@@ -99,7 +102,7 @@ always @(posedge clk or posedge rst) begin
 	lastcountanchor <= counter;
 	stunDurationValue <= nextStunDurationValue;
 	end
-    current_state <= next_state;
+    current_state <= (gamestate == 3'd2) ? current_state : next_state;
   end
 end
 
@@ -317,9 +320,8 @@ always @(*) begin
 end
 
 always @(posedge clk) begin
-  if ((~juststarted) || rst) begin
+  if (gamestate != 3'd2) begin
     posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
-    juststarted <= 1'b1;
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin

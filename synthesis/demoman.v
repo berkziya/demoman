@@ -142,6 +142,8 @@ health_status health_status_inst (
 player #(.SIDE(1'b0)) Player1 (
   .clk(effective_clk),
   .rst(reset),
+  .gamestate(game_state),
+  .otherPlayerposx(posx2),
   .left(~KEY[3]), // Player 1's left control, can be controlled by a switch
   .right(~KEY[2]), // Player 1's right control, can be controlled by a switch
   .attack(~KEY[1]), // Player 1's attack control, can be controlled by a switch
@@ -188,6 +190,8 @@ wire player2_attack = SW[3] ? ~GPIO[1] : (random_number[2] & random_number[3]);
 player #(.SIDE(1'b1)) Player2 (
   .clk(effective_clk),
   .rst(reset),
+  .gamestate(game_state),
+  .otherPlayerposx(posx),
   .left(player2_left), // Player 2's left control, can be controlled by a switch or random number
   .right(player2_right), // Player 2's right control, can be controlled by a switch or random number
   .attack(player2_attack), // Player 2's attack control, can be controlled by a switch or random number
@@ -262,6 +266,7 @@ rom rom_inst (
   .player1_block(player1_block),
   .player2_block(player2_block),
   .game_state(game_state), // Current game state
+  .game_duration(game_duration),
   .pixel_data(pixel_data), // Color data for the current pixel
 );
 
@@ -321,7 +326,6 @@ game game_inst (
   .HEX3(HEX3),
   .HEX4(HEX4),
   .HEX5(HEX5),
-  .LEDR(LEDR), // LED outputs
   .SW(SW), // Switch inputs
   .GPIO(GPIO), // GPIO connections
   .player1_state(player1_state), // Player 1's state

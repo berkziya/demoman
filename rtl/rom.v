@@ -399,6 +399,27 @@ rom_fight rom_fight_inst ( // also 1bit
 	.q(pixel_present_fight) // Output pixel data for fight
 );
 
+
+//// Counter
+localparam COUNTER_WIDTH = 60;
+localparam COUNTER_HEIGHT = 40;
+localparam X_OFFSET_COUNTER = 320 - COUNTER_WIDTH / 2;
+localparam Y_OFFSET_COUNTER = 60;
+wire [7:0] pixel_data_counter; // Output pixel data for counter
+
+wire counter_relative_x = current_pixel_x - X_OFFSET_COUNTER;
+wire counter_relative_y = current_pixel_y - Y_OFFSET_COUNTER;
+wire is_counter_area = (current_pixel_x >= X_OFFSET_COUNTER && current_pixel_x < X_OFFSET_COUNTER + COUNTER_WIDTH &&
+												current_pixel_y >= Y_OFFSET_COUNTER && current_pixel_y < Y_OFFSET_COUNTER + COUNTER_HEIGHT);
+
+rom_but_only_digits rom_counter_inst (
+	.clk(clk),
+	.relative_x(counter_relative_x),
+	.relative_y(counter_relative_y),
+	.game_duration(game_duration),
+	.pixel_data(pixel_data_counter) // Output pixel data for counter
+);
+
 always @(posedge clk) begin
 	// Heartbox and Blockbox pixel data selection
 	case (game_state)
@@ -419,7 +440,9 @@ always @(posedge clk) begin
 		end
 
 		S_FIGHT: begin
-			if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
+			if (is_counter_area) begin
+				pixel_data <= pixel_data_counter; // Display counter
+			end else if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
 				pixel_data <= heart_sprite_data;
 			end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
 				pixel_data <= block_sprite_data;;

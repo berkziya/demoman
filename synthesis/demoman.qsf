@@ -395,6 +395,7 @@ set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name SEARCH_PATH ../sprites
+set_global_assignment -name SEARCH_PATH ../sprites/digits
 set_global_assignment -name SEARCH_PATH ../rtl/utils
 set_global_assignment -name SEARCH_PATH ../rtl
 set_global_assignment -name MIF_FILE ../sprites/walkR.mif
@@ -455,6 +456,26 @@ set_global_assignment -name MIF_FILE ../sprites/three.mif
 set_global_assignment -name HEX_FILE ../sprites/three.hex
 set_global_assignment -name MIF_FILE ../sprites/fight.mif
 set_global_assignment -name HEX_FILE ../sprites/fight.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit0.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit0.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit1.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit1.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit2.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit2.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit3.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit3.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit4.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit4.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit5.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit5.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit6.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit6.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit7.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit7.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit8.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit8.hex
+set_global_assignment -name MIF_FILE ../sprites/digits/digit9.mif
+set_global_assignment -name HEX_FILE ../sprites/digits/digit9.hex
 set_global_assignment -name QIP_FILE ../sprites/rom_walkR.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_walkG.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_walkbackR.qip
@@ -483,7 +504,16 @@ set_global_assignment -name QIP_FILE ../sprites/rom_start.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_one.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_two.qip
 set_global_assignment -name QIP_FILE ../sprites/rom_three.qip
-set_global_assignment -name QIP_FILE ../sprites/rom_fight.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit0.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit1.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit2.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit3.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit4.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit5.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit6.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit7.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit8.qip
+set_global_assignment -name QIP_FILE ../sprites/digits/rom_digit9.qip
 set_global_assignment -name VERILOG_FILE ../rtl/utils/clock_divider.v
 set_global_assignment -name VERILOG_FILE ../rtl/utils/counter.v
 set_global_assignment -name VERILOG_FILE ../rtl/utils/vga_driver.v
@@ -491,6 +521,7 @@ set_global_assignment -name VERILOG_FILE ../rtl/utils/effective_clock_generator.
 set_global_assignment -name VERILOG_FILE ../rtl/utils/random_num.v
 set_global_assignment -name VERILOG_INCLUDE_FILE ../rtl/utils/charto7seg.vh
 set_global_assignment -name VERILOG_FILE ../rtl/rom.v
+set_global_assignment -name VERILOG_FILE ../rtl/rom_but_only_digits.v
 set_global_assignment -name VERILOG_FILE ../rtl/player.v
 set_global_assignment -name VERILOG_FILE ../rtl/hitdetector.v
 set_global_assignment -name VERILOG_FILE ../rtl/collisiondetector.v

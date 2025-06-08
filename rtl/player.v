@@ -344,7 +344,7 @@ end
 
 always @(posedge clk) begin
   if (rst) posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
-  else if(gamestate==3'd2) begin
+  else begin
     case (current_state)
       S_MOVEFORWARD: begin
         if (SIDE == LEFT && posx < 517 && (posx < (otherPlayerposx-30))) posx <= posx + P_SPEED_FORW;

@@ -303,6 +303,14 @@ color_decider color_decider_inst (
   .color_to_vga_driver(color_to_vga_driver) // Color to be sent to the VGA driver
 );
 
+LEDhandler leds_inst(
+	.game_state(game_state),
+	.clk(CLOCK_50),
+	.p1_health(player1_health),
+	.p2_health(player2_health),
+	.LEDvalues(LEDR)
+);
+
 game game_inst (
   .clk(effective_clk), // 60 Hz clock
   .reset(reset), // Reset signal

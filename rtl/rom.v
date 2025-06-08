@@ -352,26 +352,26 @@ wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET && current_pixel
 													current_pixel_y >= COUNTDOWN_Y_OFFSET && current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
 
 rom_one rom_one_inst ( // 1bit
-	.address(countdown_pixel_addr),
+	.address(countdown_pixel_addr >> 3),
 	.clock(clk),
 	.q(pixel_present_1) // Output pixel data for "1"
 );
 
 rom_two rom_two_inst ( // 1bit
-	.address(countdown_pixel_addr),
+	.address(countdown_pixel_add >> 3),
 	.clock(clk),
 	.q(pixel_present_2) // Output pixel data for "2"
 );
 
 rom_three rom_three_inst ( // 1bit
-	.address(countdown_pixel_addr),
+	.address(countdown_pixel_addr >> 3),
 	.clock(clk),
 	.q(pixel_present_3) // Output pixel data for "3"
 );
 
 //// Counter
-localparam COUNTER_WIDTH = 60;
-localparam COUNTER_HEIGHT = 40;
+localparam COUNTER_WIDTH = 20;
+localparam COUNTER_HEIGHT = 13;
 localparam X_OFFSET_COUNTER = 320 - COUNTER_WIDTH / 2;
 localparam Y_OFFSET_COUNTER = 60;
 wire [7:0] pixel_data_counter; // Output pixel data for counter
@@ -397,9 +397,9 @@ always @(posedge clk) begin
 		S_COUNTDOWN: begin
 			if (is_countdown_area) begin
 				case (game_duration)
-					7'd0: pixel_data <= pixel_present_3 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
-					7'd1: pixel_data <= pixel_present_2 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
-					7'd2: pixel_data <= pixel_present_1 ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
+					7'd0: pixel_data <= pixel_present_3[~countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
+					7'd1: pixel_data <= pixel_present_2[~countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
+					7'd2: pixel_data <= pixel_present_1[~countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
 				endcase
 			end else begin
 				pixel_data <= COUNTDOWN_BG_COLOR; // Default background color

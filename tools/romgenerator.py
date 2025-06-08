@@ -2,40 +2,46 @@
 import os
 import math
 import argparse
-from PIL import Image
+import re
 
 
-def get_rom_depth_from_png(mif_file_path: str) -> int | None:
+def get_rom_depth_from_mif(mif_file_path: str) -> int | None:
     """
-    Calculates ROM depth (number of words) from a PNG image.
-    Assumes the PNG has the same base name as the MIF file and is in the same directory.
-    Each pixel is considered one word.
+    Calculates ROM depth (number of words) by parsing the DEPTH attribute from a MIF file.
 
     Args:
         mif_file_path: The path to the MIF file.
 
     Returns:
-        The number of words (pixels), or None if an error occurs.
+        The number of words (depth) specified in the file, or None if an error occurs.
     """
     if not mif_file_path.lower().endswith(".mif"):
         print(f"Error: Expected a .mif file path, got {mif_file_path}")
         return None
 
-    base_path, _ = os.path.splitext(mif_file_path)  # Handles .mif, .MIF etc.
-    png_file_path = base_path + ".png"
-
-    if not os.path.exists(png_file_path):
-        print(
-            f"Error: PNG file not found at {png_file_path} (expected for MIF file {mif_file_path})"
-        )
+    if not os.path.exists(mif_file_path):
+        print(f"Error: MIF file not found at {mif_file_path}")
         return None
 
     try:
-        with Image.open(png_file_path) as img:
-            width, height = img.size
-            return width * height
+        with open(mif_file_path, "r") as f:
+            for line in f:
+                # Use regex to find "DEPTH = <number>;" or "DEPTH : <number>;"
+                # This is case-insensitive and handles various whitespace.
+                match = re.search(r"^\s*DEPTH\s*[:=]\s*(\d+)\s*;", line, re.IGNORECASE)
+                if match:
+                    depth = int(match.group(1))
+                    if depth > 0:
+                        return depth
+                    else:
+                        print(f"Error: DEPTH in {mif_file_path} must be positive.")
+                        return None
+        print(
+            f"Error: Could not find a valid 'DEPTH = <value>;' entry in {mif_file_path}"
+        )
+        return None
     except Exception as e:
-        print(f"Error reading PNG file {png_file_path}: {e}")
+        print(f"Error reading or parsing MIF file {mif_file_path}: {e}")
         return None
 
 
@@ -427,11 +433,11 @@ set_global_assignment -name MISC_FILE [file join $::quartus(qip_path) "{rom_name
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate Quartus 1-Port ROM IP files from a MIF file and its associated PNG."
+        description="Generate Quartus 1-Port ROM IP files from a MIF file."
     )
     parser.add_argument(
         "mif_file",
-        help="Path to the input .mif file. A .png file with the same base name must exist in the same directory to determine ROM depth.",
+        help="Path to the input .mif file. The script reads the DEPTH from this file.",
     )
     parser.add_argument(
         "-o",
@@ -456,7 +462,7 @@ def main():
             output_directory = "."
 
     # --- ROM Parameters (some are fixed/configurable here) ---
-    rom_data_width = 8  # Fixed at 8 bits per pixel/word
+    rom_data_width = 8  # Fixed at 8 bits per word
 
     # Update these to match your Quartus environment
     fpga_device_family = "Cyclone V"
@@ -464,36 +470,28 @@ def main():
     quartus_version_short_str = "24.1"
 
     # Derive rom_module_name and base MIF filename from the input MIF filename
-    base_mif_filename_from_arg = os.path.basename(mif_file_arg)  # e.g., "myimage.mif"
-    rom_module_name, _ = os.path.splitext(base_mif_filename_from_arg)  # e.g., "myimage"
+    base_mif_filename_from_arg = os.path.basename(mif_file_arg)
+    rom_module_name, _ = os.path.splitext(base_mif_filename_from_arg)
 
-    # Get ROM depth from the associated PNG file (using the actual input MIF file path)
-    calculated_num_words = get_rom_depth_from_png(mif_file_arg)
+    # Get ROM depth from the MIF file itself
+    calculated_num_words = get_rom_depth_from_mif(mif_file_arg)
 
-    if calculated_num_words is None or calculated_num_words < 1:
-        if calculated_num_words == 0:
-            print(
-                f"Error: PNG associated with {mif_file_arg} indicates zero depth. Cannot generate ROM."
-            )
-        else:
-            print(
-                f"Error: Could not determine ROM depth from PNG for {mif_file_arg}. Aborting."
-            )
+    if calculated_num_words is None:
+        print(f"Error: Could not determine ROM depth from {mif_file_arg}. Aborting.")
         return
 
-    if calculated_num_words == 1:
-        rom_addr_width = 1
-    else:
-        rom_addr_width = math.ceil(math.log2(calculated_num_words))
+    rom_addr_width = (
+        math.ceil(math.log2(calculated_num_words)) if calculated_num_words > 0 else 0
+    )
 
+    # This assumes the .mif file is located in a specific directory relative
+    # to the Quartus project root during compilation.
     mif_path_for_verilog_init_file = f"../sprites/{base_mif_filename_from_arg}"
 
-    print(f"  Input MIF for depth/name derivation: {mif_file_arg}")
+    print(f"  Input MIF: {mif_file_arg}")
     print(f"  Generated ROM Module Name: rom_{rom_module_name}")
     print(f"  Output Directory: {output_directory}")
-    print(
-        f"  Derived Depth (NumWords) from {base_mif_filename_from_arg}'s PNG: {calculated_num_words}"
-    )
+    print(f"  Derived Depth (NumWords) from MIF file: {calculated_num_words}")
     print(f"  Calculated Address Width: {rom_addr_width}")
     print(f"  Data Width (fixed): {rom_data_width}")
     print(f"  Target Device Family: {fpga_device_family}")
@@ -506,7 +504,7 @@ def main():
         addr_width=rom_addr_width,
         data_width=rom_data_width,
         num_words=calculated_num_words,
-        mif_file_path_for_verilog=mif_path_for_verilog_init_file,  # Use the dynamically constructed path here
+        mif_file_path_for_verilog=mif_path_for_verilog_init_file,
         device_family=fpga_device_family,
         quartus_version_full=quartus_version_full_str,
         quartus_version_short=quartus_version_short_str,

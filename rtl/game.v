@@ -100,15 +100,16 @@ always @(*) begin
     end
 
     S_COUNTDOWN: begin
+	   hex_state = hex_state;
       if (game_duration == 7'd4) next_state = S_FIGHT;
       else next_state = S_COUNTDOWN;
     end
 
     S_FIGHT: begin
       hex_state = S_HEX_FIGHt;
-      if (~player1_health) next_state = S_P2_WIN; // Player 2 wins
-      else if (~player2_health) next_state = S_P1_WIN; // Player 1 wins
-      else if (~player1_health && ~player2_health) next_state = S_EQ; // Draw
+      if ((~(player1_health>0)) && (player2_health>0)) next_state = S_P2_WIN; // Player 2 wins
+      else if ((player1_health>0) && (~(player2_health>0))) next_state = S_P1_WIN; // Player 1 wins
+      else if ((~(player1_health>0)) && (~(player2_health>0))) next_state = S_EQ; // Draw
       else next_state = S_FIGHT; // Continue fighting
     end
 
@@ -120,6 +121,7 @@ always @(*) begin
     end
 
     default: next_state = S_IDLE; // Default case to handle unexpected states
+				 hex_state = hex_state;
   endcase
 end
 

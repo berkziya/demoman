@@ -248,6 +248,9 @@ localparam [9:0] X_OFFSET = 10'd40; // X offset for heartbox coordinates
 localparam [9:0] Y_OFFSET = 10'd40; // Y offset for heartbox coordinates
 localparam [9:0] SPACE_BETWEEN = HEARTBLOCK_SIZE + 10'd20; // Space between heartboxes
 
+localparam [7:0] HEART_COLOR = 8'b11100000; // Heartbox color (red)
+localparam [7:0] BLOCK_COLOR = 8'b00000011; // Blockbox color (blue)
+
 wire [9:0] heart11x, heart11y, heart12x, heart12y, heart13x, heart13y; // Heartbox coordinates for player 1
 wire [9:0] heart21x, heart21y, heart22x, heart22y, heart23x, heart23y; // Heartbox coordinates for player 2
 
@@ -326,79 +329,88 @@ wire [7:0] heart_sprite_data;
 wire [7:0] block_sprite_data;
 
 rom_heart rom_heart_inst (
-  .address(heart_addr),
+  .address((heart_addr >> 3)),
   .clock(clk),
   .q(heart_sprite_data) // Output pixel data for heartbox
 );
 
 rom_shield rom_block_inst (
-  .address(block_addr),
+  .address((block_addr >> 3)),
   .clock(clk),
   .q(block_sprite_data) // Output pixel data for blockbox
 );
 
-
-//// Start menu sprite
-localparam ROM_IDLE_SIZE = 640 * 480; // Size of the start menu ROM
-wire [18:0] idle_pixel_addr = (current_pixel_y * 640 + current_pixel_x); // Address for start menu pixel data
-wire [7:0] idle_pixel_data; // Output pixel data for start menu
-
-rom_start rom_start_inst ( //8-bit ROM for start menu but it's huge and didn't fit
-	.address(idle_pixel_addr),
-	.clock(clk),
-	.q(idle_pixel_data) // Output pixel data for start menu
-);
+wire [7:0] pixel_present_heart = heart_sprite_data[~(heart_addr % 8)] ? HEART_COLOR : TRANSPARENT_COLOR; // Heartbox pixel data
+wire [7:0] pixel_present_block = block_sprite_data[~(block_addr % 8)] ? BLOCK_COLOR : TRANSPARENT_COLOR; // Blockbox pixel data
 
 //// Countdown sprites
-localparam COUNT_DOWN_WIDTH = 64;
-localparam COUNT_DOWN_HEIGHT = 78;
-localparam COUNTDOWN_SIZE = COUNT_DOWN_WIDTH * COUNT_DOWN_HEIGHT;
-localparam COUNTDOWN_X_OFFSET = 320 - COUNT_DOWN_WIDTH / 2;
-localparam COUNTDOWN_Y_OFFSET = 240 - COUNT_DOWN_HEIGHT / 2;
-localparam [7:0] COUNTDOWN_COLOR = 8'b11111111; // Color for countdown (magenta)
-localparam [7:0] COUNTDOWN_BG_COLOR = 8'b00000000; // Color for countdown (black)
-wire [12:0] countdown_pixel_addr = (current_pixel_y - COUNTDOWN_Y_OFFSET) * COUNT_DOWN_WIDTH + (current_pixel_x - COUNTDOWN_X_OFFSET);
+localparam CD_ROM_WIDTH         = 10;
+localparam CD_ROM_HEIGHT        = 13;
+localparam CD_ROM_PIXELS        = CD_ROM_WIDTH * CD_ROM_HEIGHT;   // 130 pixels
+localparam CD_ROM_DEPTH_WORDS   = (CD_ROM_PIXELS + 7) / 8;        // 17 words
+localparam CD_ROM_ADDR_WIDTH    = $clog2(CD_ROM_DEPTH_WORDS);     // 5 bits
 
-wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET && current_pixel_x < COUNTDOWN_X_OFFSET + COUNT_DOWN_WIDTH &&
-													current_pixel_y >= COUNTDOWN_Y_OFFSET && current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
+// Scaled-up display dimensions and colors
+localparam CD_SCALE_FACTOR      = 8;
+localparam CD_DISPLAY_WIDTH     = CD_ROM_WIDTH * CD_SCALE_FACTOR;  // 80 pixels
+localparam CD_DISPLAY_HEIGHT    = CD_ROM_HEIGHT * CD_SCALE_FACTOR; // 104 pixels
+localparam CD_COLOR             = 8'b11111111;
+localparam CD_BG_COLOR          = 8'h00000000; // Black
 
-wire [7:0] pixel_present_3, pixel_present_2, pixel_present_1;
+// Center the 80x104 sprite on a 640x480 screen
+localparam CD_X_OFFSET          = 320 - (CD_DISPLAY_WIDTH / 2);   // 320 - 40 = 280
+localparam CD_Y_OFFSET          = 240 - (CD_DISPLAY_HEIGHT / 2);  // 240 - 52 = 188
 
-rom_one rom_one_inst (
-	.address(countdown_pixel_addr >> 3),
-	.clock(clk),
-	.q(pixel_present_1)
+// -- Countdown Coordinate & Address Calculation --
+// 1. Check if the current pixel is within the new, larger countdown area
+wire is_countdown_area = (current_pixel_x >= CD_X_OFFSET && current_pixel_x < CD_X_OFFSET + CD_DISPLAY_WIDTH &&
+                          current_pixel_y >= CD_Y_OFFSET && current_pixel_y < CD_Y_OFFSET + CD_DISPLAY_HEIGHT);
+
+// 2. Calculate the pixel's coordinates relative to the top-left of the 80x104 display area
+wire [9:0] cd_relative_x = current_pixel_x - CD_X_OFFSET;
+wire [9:0] cd_relative_y = current_pixel_y - CD_Y_OFFSET;
+
+// 3. Scale down the relative coordinates to find the source 10x13 ROM coordinate
+//    (Division by 8 is a 3-bit right shift)
+wire [9:0] cd_rom_coord_x = cd_relative_x >> 3;
+wire [9:0] cd_rom_coord_y = cd_relative_y >> 3;
+
+// 4. Calculate the linear pixel address for the 10x13 ROM
+wire [7:0] cd_rom_pixel_addr = cd_rom_coord_y * CD_ROM_WIDTH + cd_rom_coord_x;
+
+// 5. Calculate the final byte address and bit index for the hardware ROM
+wire [CD_ROM_ADDR_WIDTH-1:0] cd_rom_byte_address = cd_rom_pixel_addr >> 3;
+wire [2:0]                   cd_bit_select       = ~(cd_rom_pixel_addr % 8);
+
+// -- Countdown ROM Instantiations --
+// These instantiate your 10x13 "1", "2", and "3" sprites.
+// IMPORTANT: These ROMs must be generated with DEPTH=17 and ADDR_WIDTH=5.
+wire [7:0] rom_data_1, rom_data_2, rom_data_3;
+
+rom_digit1 rom_one_inst (
+  .address (cd_rom_byte_address),
+  .clock   (clk),
+  .q       (rom_data_1)
 );
 
-rom_two rom_two_inst (
-	.address(countdown_pixel_addr >> 3),
-	.clock(clk),
-	.q(pixel_present_2)
+rom_digit2 rom_two_inst (
+  .address (cd_rom_byte_address),
+  .clock   (clk),
+  .q       (rom_data_2)
 );
 
-rom_three rom_three_inst ( // 1bit
-	.address(countdown_pixel_addr >> 3),
-	.clock(clk),
-	.q(pixel_present_3)
+rom_digit3 rom_three_inst (
+  .address (cd_rom_byte_address),
+  .clock   (clk),
+  .q       (rom_data_3)
 );
 
-//// Fight text sprite
-localparam FIGHT_WIDTH = 260;
-localparam FIGHT_HEIGHT = 78;
-localparam FIGHT_SIZE = FIGHT_WIDTH * FIGHT_HEIGHT;
-localparam FIGHT_X_OFFSET = 320 - FIGHT_WIDTH / 2;
-localparam FIGHT_Y_OFFSET = 240 - FIGHT_HEIGHT / 2;
-wire [14:0] fight_pixel_addr = (current_pixel_y - FIGHT_Y_OFFSET) * FIGHT_WIDTH + (current_pixel_x - FIGHT_X_OFFSET);
-wire [7:0] pixel_present_fight;
-
-wire is_fight_area = (current_pixel_x >= FIGHT_X_OFFSET && current_pixel_x < FIGHT_X_OFFSET + FIGHT_WIDTH &&
-											current_pixel_y >= FIGHT_Y_OFFSET && current_pixel_y < FIGHT_Y_OFFSET + FIGHT_HEIGHT);
-
-rom_fight rom_fight_inst ( // also 1bit
-	.address(fight_pixel_addr >> 3),
-	.clock(clk),
-	.q(pixel_present_fight) // Output pixel data for fight
-);
+// -- Countdown Pixel Generation --
+// These wires hold the final, colored pixel data for each digit.
+// They correctly handle the background color for "transparent" parts of the sprite.
+wire [7:0] countdown_pixel_1 = (rom_data_1[cd_bit_select]) ? CD_COLOR : CD_BG_COLOR;
+wire [7:0] countdown_pixel_2 = (rom_data_2[cd_bit_select]) ? CD_COLOR : CD_BG_COLOR;
+wire [7:0] countdown_pixel_3 = (rom_data_3[cd_bit_select]) ? CD_COLOR : CD_BG_COLOR;
 
 
 //// Counter
@@ -408,8 +420,8 @@ localparam X_OFFSET_COUNTER = 320 - COUNTER_WIDTH / 2;
 localparam Y_OFFSET_COUNTER = 60;
 wire [7:0] pixel_data_counter; // Output pixel data for counter
 
-wire counter_relative_x = current_pixel_x - X_OFFSET_COUNTER;
-wire counter_relative_y = current_pixel_y - Y_OFFSET_COUNTER;
+wire [9:0] counter_relative_x = current_pixel_x - X_OFFSET_COUNTER;
+wire [9:0] counter_relative_y = current_pixel_y - Y_OFFSET_COUNTER;
 wire is_counter_area = (current_pixel_x >= X_OFFSET_COUNTER && current_pixel_x < X_OFFSET_COUNTER + COUNTER_WIDTH &&
 												current_pixel_y >= Y_OFFSET_COUNTER && current_pixel_y < Y_OFFSET_COUNTER + COUNTER_HEIGHT);
 
@@ -429,14 +441,13 @@ always @(posedge clk) begin
 		S_COUNTDOWN: begin
 			if (is_countdown_area) begin
 				case (game_duration)
-					7'd0: pixel_data <= pixel_present_3[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "3"
-					7'd1: pixel_data <= pixel_present_2[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "2"
-					7'd2: pixel_data <= pixel_present_1[countdown_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "1"
-					7'd4: pixel_data <= pixel_present_fight[fight_pixel_addr % 8] ? COUNTDOWN_COLOR : COUNTDOWN_BG_COLOR; // Display "FIGHT"
-					default: pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
+					7'd0: pixel_data <= countdown_pixel_3;// Display "3"
+					7'd1: pixel_data <= countdown_pixel_2;// Display "2"
+					7'd2: pixel_data <= countdown_pixel_1;// Display "1"
+					default: pixel_data <= CD_BG_COLOR; // Default background color
 				endcase
 			end else begin
-				pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
+				pixel_data <= CD_BG_COLOR; // Default background color
 			end
 		end
 
@@ -444,9 +455,9 @@ always @(posedge clk) begin
 			if (is_counter_area) begin
 				pixel_data <= pixel_data_counter; // Display counter
 			end else if (is_heartbox && heart_addr >= 0 && heart_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-				pixel_data <= heart_sprite_data;
+				pixel_data <= pixel_present_heart;
 			end else if (is_blockbox && block_addr >= 0 && block_addr < HEARTBLOCK_SIZE * HEARTBLOCK_SIZE) begin
-				pixel_data <= block_sprite_data;;
+				pixel_data <= pixel_present_block;
 			// Player 2 or Player 1 sprite pixel data selection
 			end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
 				pixel_data <= rom_sprite;

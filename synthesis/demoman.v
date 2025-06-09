@@ -76,7 +76,8 @@ wire [9:0] dir_hithurt_x12, dir_hithurt_x22, dir_hithurt_y12, dir_hithurt_y22; /
 wire [1:0] hasbeenHit1; // Flag indicating if Player 1 has been hit
 wire [1:0] hasbeenHit2; // Flag indicating if Player 2 has been hit
 
-wire [2:0] game_state, game_duration; // Game state and duration
+wire [2:0] game_state
+wire [6:0] game_duration; // Game state and duration
 
 //=======================================================
 //  Structural coding
@@ -271,6 +272,7 @@ rom rom_inst (
   .player1_block(player1_block),
   .player2_block(player2_block),
   .game_state(game_state), // Current game state
+  .game_duration(game_duration),
   .pixel_data(pixel_data), // Color data for the current pixel
 );
 

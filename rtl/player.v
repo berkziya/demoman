@@ -4,15 +4,16 @@ module player #(
   input clk,
   input rst,
   input left, right, attack,
+  
+  input [2:0] gamestate,
+  
+  input [9:0] otherPlayerposx,
 
   input [1:0] hitFlag,
   input [2:0] health,
   input [2:0] block,
 
-  input [2:0] gamestate,
-  
-  input [9:0] otherPlayerposx,
-  
+
   output reg [9:0] posx,
   output     [9:0] posy,
   output reg [3:0] current_state,
@@ -60,6 +61,7 @@ localparam P_SPEED_BACK = 2;
 
 reg [3:0] next_state;
 
+
 assign posy = 170; // Fixed Y position for the player
 
 assign basic_hithurtbox_x1 = (SIDE == LEFT) ? (posx + 35) : (posx);
@@ -76,6 +78,8 @@ assign main_hurtbox_x1 = (SIDE == LEFT) ? (posx + 28) : (posx + 113 - 81);
 assign main_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
+
+
 
 reg juststarted;
 
@@ -94,16 +98,30 @@ counter #(
   .count(counter)
 );
 
-always @(posedge clk) begin
-  if (rst) begin
+always @(posedge clk) 
+begin
+  if (rst) 
+  begin
     current_state <= S_IDLE;
     lastcountanchor <= 0;
-  end else begin
-    if (current_state != next_state) begin
-	lastcountanchor <= counter;
-	stunDurationValue <= nextStunDurationValue;
-	end
-    current_state <= next_state;
+  end 
+  else 
+  begin 
+		if(gamestate == 3'd2) 
+		begin
+			if (current_state != next_state) 
+			begin
+			lastcountanchor <= counter;
+			stunDurationValue <= nextStunDurationValue;
+		end
+			current_state <=next_state;
+		end
+		else  
+		begin
+		current_state <= current_state;
+		lastcountanchor <= counter;
+		stunDurationValue <= nextStunDurationValue;
+		end
   end
 end
 
@@ -329,9 +347,12 @@ always @(posedge clk) begin
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin
-        if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
-        else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        if (~collision_detected) begin
+          if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
+          else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        end
       end
+
       S_MOVEBACKWARDS: begin
         if (SIDE == LEFT && posx > 10) posx <= posx - P_SPEED_BACK;
         else if (posx < 517) posx <= posx + P_SPEED_BACK;
@@ -343,8 +364,8 @@ end
 */
 
 always @(posedge clk) begin
-  if (rst) posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
-  else begin
+  case (gamestate)
+  3'd2: begin
     case (current_state)
       S_MOVEFORWARD: begin
         if (SIDE == LEFT && posx < 517 && (posx < (otherPlayerposx-30))) posx <= posx + P_SPEED_FORW;
@@ -356,8 +377,9 @@ always @(posedge clk) begin
       end
       default: posx <= posx;
     endcase
-	 end 
-  
+	 end
+	default: posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
+  endcase
 end
 
 endmodule

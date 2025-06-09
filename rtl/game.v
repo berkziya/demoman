@@ -59,35 +59,44 @@ clock_divider #(.DIV(60)) clk_div_inst ( // 60 Hz clock divider
   .clk_o(clk_1Hz)
 );
 
+reg counterreset;
+
 counter #(.W(7)) counter_inst ( // Game timer
   .clk(clk_1Hz),
-  .rst(reset),
+  .rst(counterreset),
   .control(counter_control),
   .count(game_duration)
 );
 
 reg [6:0] last_counter_anchor;
 
-always @(posedge clk or posedge reset) begin
+always @(posedge clk) begin
   if (reset) begin
     game_state <= S_IDLE;
-    counter_control <= 2'b11; // Reset the counter
+    counterreset <= 1'b1;
+	 counter_control <= 2'b11;
   end else begin
     if (next_state != game_state) begin
       if (next_state == S_COUNTDOWN || next_state == S_FIGHT) begin
-        counter_control <= 2'b11; // Reset the counter
+    counterreset <= 1'b1;
+	 counter_control <= 2'b11;
       end else if (next_state == S_P1_WIN || next_state == S_P2_WIN || next_state == S_EQ) begin
-        counter_control <= 2'b00; // Hold the counter
+    counterreset <= 1'b0;
+	 counter_control <= 2'b00;
       end else begin
-        counter_control <= 2'b11; // Reset the counter
+    counterreset <= 1'b1;
+	 counter_control <= 2'b11;
       end
     end else begin
       if (game_state == S_COUNTDOWN || game_state == S_FIGHT) begin
-        counter_control <= 2'b01; // Increment the counter
+      counterreset <= 1'b0;
+	 counter_control <= 2'b01;
       end else if (game_state == S_P1_WIN || game_state == S_P2_WIN || game_state == S_EQ) begin
-        counter_control <= 2'b00; // Hold the counter
+    counterreset <= 1'b0;
+	 counter_control <= 2'b00;
       end else begin
-        counter_control <= 2'b11; // Reset the counter
+    counterreset <= 1'b1;
+	 counter_control <= 2'b11;
       end
     end
     game_state <= next_state;

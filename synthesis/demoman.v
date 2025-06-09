@@ -84,7 +84,7 @@ wire [2:0] game_state, game_duration; // Game state and duration
 
 wire reset;
 
-assign reset = SW[9];
+assign reset = ((game_state==3'd0)|(game_state==3'd3)|(game_state==3'd4)|(game_state==3'd5))&((~KEY[3])|(~KEY[2])|(~KEY[1]));
 
 wire clk_25mhz;
 clock_divider #(
@@ -271,6 +271,7 @@ rom rom_inst (
   .player1_block(player1_block),
   .player2_block(player2_block),
   .game_state(game_state), // Current game state
+  .game_duration(game_duration),
   .pixel_data(pixel_data), // Color data for the current pixel
 );
 

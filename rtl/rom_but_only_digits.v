@@ -12,13 +12,19 @@ localparam TRANSPARENT_COLOR = 8'b11100011; // Color for transparency
 localparam SPRITE_WIDTH = 10;
 localparam SPRITE_HEIGHT = 13;
 localparam ROM_SIZE = SPRITE_WIDTH * SPRITE_HEIGHT;
+localparam ROM_BYTE_SIZE = (ROM_SIZE + 7) / 8;
+localparam ROM_ADDR_SIZE = $clog2(ROM_BYTE_SIZE);
 
 wire [3:0] digit_10s = game_duration / 10;
 wire [3:0] digit_1s = game_duration % 10;
 
-wire address = (relative_x < SPRITE_WIDTH) ?
-                relative_y * SPRITE_WIDTH + relative_x :
-                relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH);
+wire is_valid = (relative_x < SPRITE_WIDTH * 2) && (relative_y < SPRITE_HEIGHT);
+
+wire [ROM_ADDR_SIZE-1:0] address = is_valid ?
+                        (relative_x < SPRITE_WIDTH ?
+                        (relative_y * SPRITE_WIDTH + relative_x) :
+                        (relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH)) + ROM_SIZE) :
+                         0;
 
 wire [7:0] out0, out1, out2, out3, out4, out5, out6, out7, out8, out9;
 
@@ -38,34 +44,33 @@ always @(*) begin
     pixel_data = TRANSPARENT_COLOR; // Outside the sprite height
   end else if (relative_x >= SPRITE_WIDTH * 2) begin
     pixel_data = TRANSPARENT_COLOR; // Outside the sprite width
-  end else if ((address >> 3) >= ROM_SIZE) begin
+  end else if ((address >> 3) >= ROM_BYTE_SIZE) begin
     pixel_data = TRANSPARENT_COLOR; // Invalid address
   end else if (relative_x < SPRITE_WIDTH) begin
     case (digit_10s)
-      4'd0: pixel_data = TRANSPARENT_COLOR;
-      4'd1: pixel_data = out1[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd2: pixel_data = out2[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd3: pixel_data = out3[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd4: pixel_data = out4[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd5: pixel_data = out5[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd6: pixel_data = out6[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd7: pixel_data = out7[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd8: pixel_data = out8[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd9: pixel_data = out9[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd1: pixel_data = out1[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd2: pixel_data = out2[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd3: pixel_data = out3[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd4: pixel_data = out4[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd5: pixel_data = out5[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd6: pixel_data = out6[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd7: pixel_data = out7[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd8: pixel_data = out8[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd9: pixel_data = out9[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       default: pixel_data = TRANSPARENT_COLOR;
     endcase
   end else begin
     case (digit_1s)
-      4'd0: pixel_data = out0[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd1: pixel_data = out1[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd2: pixel_data = out2[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd3: pixel_data = out3[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd4: pixel_data = out4[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd5: pixel_data = out5[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd6: pixel_data = out6[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd7: pixel_data = out7[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd8: pixel_data = out8[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
-      4'd9: pixel_data = out9[~address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd0: pixel_data = out0[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd1: pixel_data = out1[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd2: pixel_data = out2[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd3: pixel_data = out3[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd4: pixel_data = out4[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd5: pixel_data = out5[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd6: pixel_data = out6[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd7: pixel_data = out7[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd8: pixel_data = out8[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd9: pixel_data = out9[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       default: pixel_data = TRANSPARENT_COLOR;
     endcase
   end

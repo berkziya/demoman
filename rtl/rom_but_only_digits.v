@@ -14,7 +14,7 @@ localparam ROM_SIZE = SPRITE_WIDTH * SPRITE_HEIGHT;
 wire [6:0] digit_10s = game_duration / 10;
 wire [6:0] digit_1s = game_duration % 10;
 
-wire [8:0] address = relative_x < SPRITE_WIDTH ?
+wire [7:0] address = relative_x < SPRITE_WIDTH ?
                     (relative_y * SPRITE_WIDTH + relative_x) :
                     (relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH));
 

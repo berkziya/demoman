@@ -293,7 +293,7 @@ wire is_main_screen_area = (current_pixel_x >= (640 - MAIN_SCREEN_SPRITE_WIDTH) 
                             current_pixel_y >= (480 - MAIN_SCREEN_SPRITE_HEIGHT) / 2 &&
                             current_pixel_y < (480 + MAIN_SCREEN_SPRITE_HEIGHT) / 2);
 
-wire [10:0] main_screen_addr = (main_screen_relative_y * MAIN_SCREEN_SPRITE_WIDTH) + main_screen_relative_x;
+wire [9:0] main_screen_addr = (main_screen_relative_y * MAIN_SCREEN_SPRITE_WIDTH) + main_screen_relative_x;
 wire [7:0] main_screen_pixel_data; // Output pixel data for main screen
 
 rom_menu_text rom_menu_text_inst (

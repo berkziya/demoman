@@ -271,7 +271,6 @@ rom rom_inst (
   .player1_block(player1_block),
   .player2_block(player2_block),
   .game_state(game_state), // Current game state
-  .game_duration(game_duration),
   .pixel_data(pixel_data), // Color data for the current pixel
 );
 

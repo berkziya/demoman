@@ -20,7 +20,7 @@ wire [3:0] digit_1s = game_duration % 10;
 
 wire [ROM_ADDR_SIZE-1:0] address = (relative_x < SPRITE_WIDTH ?
                                    (relative_y * SPRITE_WIDTH + relative_x) :
-                                   (relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH)) + ROM_SIZE) :
+                                   (relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH)) + ROM_SIZE);
 
 wire [7:0] out0, out1, out2, out3, out4, out5, out6, out7, out8, out9;
 

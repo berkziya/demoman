@@ -234,7 +234,7 @@ rom_shield rom_block_inst (
 localparam COUNT_DOWN_WIDTH = 10;
 localparam COUNT_DOWN_HEIGHT = 13;
 localparam COUNT_DOWN_SIZE = COUNT_DOWN_WIDTH * COUNT_DOWN_HEIGHT;
-localparam COUNT_DOWN_BYTE_SIZE = (COUNT_DOWN_SIZE + 7) / 8;
+localparam COUNT_DOWN_BYTE_SIZE = (COUNT_DOWN_SIZE + 7);
 localparam COUNT_DOWN_ADDR_SIZE = $clog2(COUNT_DOWN_BYTE_SIZE);
 localparam COUNTDOWN_SIZE = COUNT_DOWN_WIDTH * COUNT_DOWN_HEIGHT;
 localparam COUNTDOWN_X_OFFSET = 320 - COUNT_DOWN_WIDTH / 2;
@@ -249,13 +249,13 @@ wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET &&
                           current_pixel_y >= COUNTDOWN_Y_OFFSET &&
                           current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
 
-wire [COUNT_DOWN_ADDR_SIZE-1:0] count_down_addr = countdown_relative_y * COUNT_DOWN_WIDTH + countdown_relative_x;
+wire [8:0] count_down_addr = countdown_relative_y * COUNT_DOWN_WIDTH + countdown_relative_x;
 
 wire [7:0] pixel_data_countdown3, pixel_data_countdown2, pixel_data_countdown1; // Output pixel data for countdown
 
-rom_digit3 rom_digit3_inst (.clock(clk), .address(count_down_addr >> 3), .q(pixel_data_countdown3));
-rom_digit2 rom_digit2_inst (.clock(clk), .address(count_down_addr >> 3), .q(pixel_data_countdown2));
-rom_digit1 rom_digit1_inst (.clock(clk), .address(count_down_addr >> 3), .q(pixel_data_countdown1));
+rom_digit3 rom_digit3_inst (.clock(clk), .address(count_down_addr), .q(pixel_data_countdown3));
+rom_digit2 rom_digit2_inst (.clock(clk), .address(count_down_addr), .q(pixel_data_countdown2));
+rom_digit1 rom_digit1_inst (.clock(clk), .address(count_down_addr), .q(pixel_data_countdown1));
 
 //// Counter
 localparam COUNTER_WIDTH = 20;

@@ -280,12 +280,43 @@ rom_but_only_digits rom_counter_inst (
 );
 
 
+localparam MAIN_SCREEN_SPRITE_WIDTH = 191;
+localparam MAIN_SCREEN_SPRITE_HEIGHT = 88;
+localparam MAIN_SCREEN_SPRITE_SIZE = MAIN_SCREEN_SPRITE_WIDTH * MAIN_SCREEN_SPRITE_HEIGHT;
+localparam [7:0] MAIN_SCREEN_BG_COLOR = 8'b00000000; // Background color for main screen (black)
+localparam MAIN_SCREEN
+
+wire [9:0] main_screen_relative_x = current_pixel_x - (640 - MAIN_SCREEN_SPRITE_WIDTH) / 2;
+wire [9:0] main_screen_relative_y = current_pixel_y - (480 - MAIN_SCREEN_SPRITE_HEIGHT) / 2;
+
+wire is_main_screen_area = (current_pixel_x >= (640 - MAIN_SCREEN_SPRITE_WIDTH) / 2 &&
+                            current_pixel_x < (640 + MAIN_SCREEN_SPRITE_WIDTH) / 2 &&
+                            current_pixel_y >= (480 - MAIN_SCREEN_SPRITE_HEIGHT) / 2 &&
+                            current_pixel_y < (480 + MAIN_SCREEN_SPRITE_HEIGHT) / 2);
+
+wire [15:0] main_screen_addr = (main_screen_relative_y * MAIN_SCREEN_SPRITE_WIDTH) + main_screen_relative_x;
+wire [7:0] main_screen_pixel_data; // Output pixel data for main screen
+
+rom_main_screen rom_main_screen_inst (
+  .address(main_screen_addr),
+  .clock(clk),
+  .q(main_screen_pixel_data)
+);
+
+
 reg [7:0] next_pixel_data;
 
 always @(*) begin
   // Heartbox and Blockbox pixel data selection
   case (game_state)
-    S_IDLE: next_pixel_data <= 8'b00000000;
+    S_IDLE: begin
+      if (is_main_screen_area && ) begin
+        next_pixel_data <= main_screen_pixel_data != TRANSPARENT_COLOR ?
+                           main_screen_pixel_data : MAIN_SCREEN_BG_COLOR;
+      end else begin
+        next_pixel_data <= MAIN_SCREEN_BG_COLOR;
+      end
+    end
 
     S_COUNTDOWN: begin
       if (is_countdown_area) begin

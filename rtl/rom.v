@@ -290,15 +290,12 @@ always @(*) begin
     S_COUNTDOWN: begin
       if (is_countdown_area) begin
         case (game_duration)
-          7'd1: next_pixel_data <= pixel_data_countdown3[7 - (count_down_addr % 8)] ?
-                                   COUNTDOWN_COLOR :
-                                   COUNTDOWN_BG_COLOR;
-          7'd2: next_pixel_data <= pixel_data_countdown2[7 - (count_down_addr % 8)] ?
-                                   COUNTDOWN_COLOR :
-                                   COUNTDOWN_BG_COLOR;
-          7'd3: next_pixel_data <= pixel_data_countdown1[7 - (count_down_addr % 8)] ?
-                                   COUNTDOWN_COLOR :
-                                   COUNTDOWN_BG_COLOR;
+          7'd1: next_pixel_data <= pixel_data_countdown3 == TRANSPARENT_COLOR ?
+                                   COUNTDOWN_BG_COLOR : COUNTDOWN_COLOR;
+          7'd2: next_pixel_data <= pixel_data_countdown2 == TRANSPARENT_COLOR ?
+                                   COUNTDOWN_BG_COLOR : COUNTDOWN_COLOR;
+          7'd3: next_pixel_data <= pixel_data_countdown1 == TRANSPARENT_COLOR ?
+                                   COUNTDOWN_BG_COLOR : COUNTDOWN_COLOR;
           default: next_pixel_data <= COUNTDOWN_BG_COLOR;
         endcase
       end else next_pixel_data <= COUNTDOWN_BG_COLOR;

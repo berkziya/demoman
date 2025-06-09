@@ -68,15 +68,26 @@ counter #(.W(7)) counter_inst ( // Game timer
   .count(game_duration)
 );
 
-reg [6:0] last_counter_anchor;
+wire [4:0] countthing2;
+
+counter #(.W(5)) state_control_counter_inst ( // Game timer
+  .clk(clk_1Hz),
+  .rst(counter2reset),
+  .control(counter_control),
+  .count(countthing2)
+);
+
+reg [4:0] last_count_anchor;
 
 always @(posedge clk) begin
   if (reset) begin
     game_state <= S_IDLE;
     counterreset <= 1'b1;
 	 counter_control <= 2'b11;
+	 last_count_anchor <= 5'b00000;
   end else begin
     if (next_state != game_state) begin
+	 last_count_anchor <= 5'b00000;
       if (next_state == S_COUNTDOWN || next_state == S_FIGHT) begin
     counterreset <= 1'b1;
 	 counter_control <= 2'b11;
@@ -88,6 +99,7 @@ always @(posedge clk) begin
 	 counter_control <= 2'b11;
       end
     end else begin
+	 last_count_anchor <= last_count_anchor;
       if (game_state == S_COUNTDOWN || game_state == S_FIGHT) begin
       counterreset <= 1'b0;
 	 counter_control <= 2'b01;
@@ -107,7 +119,7 @@ always @(*) begin
   case (game_state)
     S_IDLE: begin
       hex_state = SW[0] ? S_HEX_1P : S_HEX_2P;
-      if (~(KEY[1]&KEY[2]&KEY[3])) next_state = S_COUNTDOWN; // Start game on any key press
+      if ((~(KEY[1]&KEY[2]&KEY[3])) && (countthing2-last_count_anchor > 1)) next_state = S_COUNTDOWN; // Start game on any key press
       else next_state = S_IDLE;
     end
 
@@ -128,7 +140,7 @@ always @(*) begin
     S_P1_WIN, S_P2_WIN, S_EQ: begin
       hex_state = (game_state == S_P1_WIN) ? S_HEX_P1_WIN :
                   (game_state == S_P2_WIN) ? S_HEX_P2_WIN : S_HEX_Eq;
-      if (~(KEY[1]&KEY[2]&KEY[3])) next_state = S_IDLE; // Reset game on key press
+      if (~(KEY[1]&KEY[2]&KEY[3]) && (countthing2-last_count_anchor > 1)) next_state = S_IDLE; // Reset game on key press
       else next_state = game_state; // Stay in the current state
     end
 

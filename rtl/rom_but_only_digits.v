@@ -6,21 +6,20 @@ module rom_but_only_digits (
 
   output reg [7:0] pixel_data
 );
-localparam COUNTER_COLOR = 8'b00000000; // Color for the digits
-localparam TRANSPARENT_COLOR = 8'b11100011; // Color for transparency
+localparam [7:0] COUNTER_COLOR = 8'b00000000; // Color for the digits
+localparam [7:0] TRANSPARENT_COLOR = 8'b11100011; // Color for transparency
 
 localparam SPRITE_WIDTH = 10;
 localparam SPRITE_HEIGHT = 13;
 localparam ROM_SIZE = SPRITE_WIDTH * SPRITE_HEIGHT;
-localparam ROM_BYTE_SIZE = (ROM_SIZE + 7) / 8;
-localparam ROM_ADDR_SIZE = $clog2(ROM_BYTE_SIZE);
+localparam ROM_BYTE_SIZE = 17;
 
 wire [3:0] digit_10s = game_duration / 10;
 wire [3:0] digit_1s = game_duration % 10;
 
-wire [ROM_ADDR_SIZE-1:0] address = (relative_x < SPRITE_WIDTH ?
-                                   (relative_y * SPRITE_WIDTH + relative_x) :
-                                   (relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH)) + ROM_SIZE);
+wire [4:0] address = relative_x < SPRITE_WIDTH ?
+                    (relative_y * SPRITE_WIDTH + relative_x) :
+                    (relative_y * SPRITE_WIDTH + (relative_x - SPRITE_WIDTH));
 
 wire [7:0] out0, out1, out2, out3, out4, out5, out6, out7, out8, out9;
 
@@ -44,7 +43,8 @@ always @(*) begin
     pixel_data = TRANSPARENT_COLOR; // Invalid address
   end else if (relative_x < SPRITE_WIDTH) begin
     case (digit_10s)
-      4'd1: pixel_data = out1[address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd0: pixel_data = out0[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd1: pixel_data = out1[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       4'd2: pixel_data = out2[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       4'd3: pixel_data = out3[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       4'd4: pixel_data = out4[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;

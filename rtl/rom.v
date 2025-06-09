@@ -299,9 +299,9 @@ always @(*) begin
           7'd3: next_pixel_data <= pixel_data_countdown1[7 - (count_down_addr % 8)] ?
                                    COUNTDOWN_COLOR :
                                    COUNTDOWN_BG_COLOR;
-          default: next_pixel_data <= COUNTDOWN_BG_COLOR; // Default background color
+          default: next_pixel_data <= COUNTDOWN_BG_COLOR;
         endcase
-      end
+      end else next_pixel_data <= COUNTDOWN_BG_COLOR;
     end
 
     S_FIGHT: begin

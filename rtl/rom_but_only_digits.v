@@ -6,6 +6,7 @@ module rom_but_only_digits (
 
   output reg [7:0] pixel_data
 );
+localparam TRANSPARENT_COLOR = 8'b11100011; // Transparent color (magenta)
 localparam SPRITE_WIDTH = 10;
 localparam SPRITE_HEIGHT = 13;
 localparam ROM_SIZE = SPRITE_WIDTH * SPRITE_HEIGHT;

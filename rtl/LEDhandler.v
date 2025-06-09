@@ -22,7 +22,7 @@ clock_divider #(.DIV(50000000)) ledclockinst(
 );
 
   always @(*) begin
-    case (LEDvalues)
+    case (game_state)
 		S_IDLE: LEDvalues[9:0] = 10'b0000000000; //menu mode, all leds off
 		S_FIGHT: begin //indicate lives
 			LEDvalues[6:3]=4'b0000;

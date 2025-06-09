@@ -322,8 +322,8 @@ wire [9:0] where_in_blockbox_x = current_pixel_x > block21x ? current_pixel_x - 
 
 wire [9:0] where_in_blockbox_y = current_pixel_y - block11y;
 
-wire [11:0] heart_addr = (where_in_heartbox_y * HEARTBLOCK_SIZE + where_in_heartbox_x);
-wire [11:0] block_addr = (where_in_blockbox_y * HEARTBLOCK_SIZE + where_in_blockbox_x);
+wire [11:0] heart_addr = (where_in_heartbox_y * HEARTBLOCK_SIZE + where_in_heartbox_x) + 1;
+wire [11:0] block_addr = (where_in_blockbox_y * HEARTBLOCK_SIZE + where_in_blockbox_x) - 1;
 
 wire [7:0] heart_sprite_data, block_sprite_data;
 

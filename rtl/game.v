@@ -1,6 +1,7 @@
 module game (
   input clk, // 60 Hz clock
   input reset,
+  
 
   input [3:0] KEY,
   output [6:0] HEX0,
@@ -9,14 +10,13 @@ module game (
   output [6:0] HEX3,
   output [6:0] HEX4,
   output [6:0] HEX5,
-  
-  output reg playerreset,
+
 
   input [9:0] SW,
   inout [35:0] GPIO,
 
-  input [2:0] player1_state,
-  input [2:0] player2_state,
+  input [3:0] player1_state,
+  input [3:0] player2_state,
   input [2:0] player1_health,
   input [2:0] player2_health,
 
@@ -100,18 +100,15 @@ always @(*) begin
       hex_state = SW[0] ? S_HEX_1P : S_HEX_2P;
       if (~(KEY[1]&KEY[2]&KEY[3])) next_state = S_COUNTDOWN; // Start game on any key press
       else next_state = S_IDLE;
-		playerreset = 1'b1; 
     end
 
     S_COUNTDOWN: begin
     hex_state = S_HEX_DEBUG;
       if (game_duration == 7'd4) next_state = S_FIGHT;
       else next_state = S_COUNTDOWN;
-		playerreset = 1'b1;
     end
 
     S_FIGHT: begin
-	   playerreset = 1'b0;
       hex_state = S_HEX_FIGHt;
       if ((~(player1_health>0)) && (player2_health>0)) next_state = S_P2_WIN; // Player 2 wins
       else if ((player1_health>0) && (~(player2_health>0))) next_state = S_P1_WIN; // Player 1 wins
@@ -120,18 +117,14 @@ always @(*) begin
     end
 
     S_P1_WIN, S_P2_WIN, S_EQ: begin
-	   
       hex_state = (game_state == S_P1_WIN) ? S_HEX_P1_WIN :
                   (game_state == S_P2_WIN) ? S_HEX_P2_WIN : S_HEX_Eq;
-      if (~(KEY[1]&KEY[2]&KEY[3])) begin next_state = S_IDLE; // Reset game on key press
-		playerreset = 1'b1; end
-      else begin next_state = game_state; // Stay in the current state
-		playerreset = 1'b0; end
+      if (~(KEY[1]&KEY[2]&KEY[3])) next_state = S_IDLE; // Reset game on key press
+      else next_state = game_state; // Stay in the current state
     end
 
     default: begin
       next_state = S_IDLE; // Default case to handle unexpected states
-		playerreset = 1'b1;
       hex_state = hex_state;
     end
   endcase

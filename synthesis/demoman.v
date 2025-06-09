@@ -146,9 +146,9 @@ player #(.SIDE(1'b0)) Player1 (
   .rst(reset),
   .gamestate(game_state),
   .otherPlayerposx(posx2),
-  .left(~KEY[3] && (game_state == 3'd2)), // Player 1's left control, can be controlled by a switch
-  .right(~KEY[2] && (game_state == 3'd2)), // Player 1's right control, can be controlled by a switch
-  .attack(~KEY[1] && (game_state == 3'd2)), // Player 1's attack control, can be controlled by a switch
+  .left(~KEY[3]), // Player 1's left control, can be controlled by a switch
+  .right(~KEY[2]), // Player 1's right control, can be controlled by a switch
+  .attack(~KEY[1]), // Player 1's attack control, can be controlled by a switch
   .hitFlag(hasbeenHit1), // Hit flag for Player 1
   .posx(posx),
   .posy(posy),
@@ -195,9 +195,9 @@ player #(.SIDE(1'b1)) Player2 (
   .rst(reset),
   .gamestate(game_state),
   .otherPlayerposx(posx),
-  .left(player2_left && (game_state == 3'd2)), // Player 2's left control, can be controlled by a switch or random number
-  .right(player2_right && (game_state == 3'd2)), // Player 2's right control, can be controlled by a switch or random number
-  .attack(player2_attack && (game_state == 3'd2)), // Player 2's attack control, can be controlled by a switch or random number
+  .left(player2_left), // Player 2's left control, can be controlled by a switch or random number
+  .right(player2_right), // Player 2's right control, can be controlled by a switch or random number
+  .attack(player2_attack), // Player 2's attack control, can be controlled by a switch or random number
   .hitFlag(hasbeenHit2), // Hit flag for Player 2
   .posx(posx2),
   .posy(posy2),
@@ -322,7 +322,7 @@ LEDhandler leds_inst(
 
 game game_inst (
   .clk(effective_clk), // 60 Hz clock
-  .reset(reset), // Reset signal
+  .reset(1'b0), // Reset signal
   .KEY(KEY), // Key inputs
   .HEX0(HEX0), // Seven-segment display outputs
   .HEX1(HEX1),

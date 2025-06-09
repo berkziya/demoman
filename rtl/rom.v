@@ -289,7 +289,6 @@ always @(*) begin
 
     S_COUNTDOWN: begin
       if (is_countdown_area) begin
-      end else begin
         case (game_duration)
           7'd1: next_pixel_data <= pixel_data_countdown3[7 - (count_down_addr % 8)] ?
                                    COUNTDOWN_COLOR :

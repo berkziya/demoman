@@ -11,8 +11,8 @@ localparam SPRITE_WIDTH = 10;
 localparam SPRITE_HEIGHT = 13;
 localparam ROM_SIZE = SPRITE_WIDTH * SPRITE_HEIGHT;
 
-wire [3:0] digit_10s = game_duration / 10;
-wire [3:0] digit_1s = game_duration % 10;
+wire [6:0] digit_10s = game_duration / 10;
+wire [6:0] digit_1s = game_duration % 10;
 
 wire [8:0] address = relative_x < SPRITE_WIDTH ?
                     (relative_y * SPRITE_WIDTH + relative_x) :
@@ -40,30 +40,30 @@ always @(*) begin
     pixel_data = TRANSPARENT_COLOR; // Invalid address
   end else if (relative_x < SPRITE_WIDTH) begin
     case (digit_10s)
-      4'd0: pixel_data = out0;
-      4'd1: pixel_data = out1;
-      4'd2: pixel_data = out2;
-      4'd3: pixel_data = out3;
-      4'd4: pixel_data = out4;
-      4'd5: pixel_data = out5;
-      4'd6: pixel_data = out6;
-      4'd7: pixel_data = out7;
-      4'd8: pixel_data = out8;
-      4'd9: pixel_data = out9;
+      7'd0: pixel_data = out0;
+      7'd1: pixel_data = out1;
+      7'd2: pixel_data = out2;
+      7'd3: pixel_data = out3;
+      7'd4: pixel_data = out4;
+      7'd5: pixel_data = out5;
+      7'd6: pixel_data = out6;
+      7'd7: pixel_data = out7;
+      7'd8: pixel_data = out8;
+      7'd9: pixel_data = out9;
       default: pixel_data = TRANSPARENT_COLOR;
     endcase
   end else begin
     case (digit_1s)
-      4'd0: pixel_data = out0;
-      4'd1: pixel_data = out1;
-      4'd2: pixel_data = out2;
-      4'd3: pixel_data = out3;
-      4'd4: pixel_data = out4;
-      4'd5: pixel_data = out5;
-      4'd6: pixel_data = out6;
-      4'd7: pixel_data = out7;
-      4'd8: pixel_data = out8;
-      4'd9: pixel_data = out9;
+      7'd0: pixel_data = out0;
+      7'd1: pixel_data = out1;
+      7'd2: pixel_data = out2;
+      7'd3: pixel_data = out3;
+      7'd4: pixel_data = out4;
+      7'd5: pixel_data = out5;
+      7'd6: pixel_data = out6;
+      7'd7: pixel_data = out7;
+      7'd8: pixel_data = out8;
+      7'd9: pixel_data = out9;
       default: pixel_data = TRANSPARENT_COLOR;
     endcase
   end

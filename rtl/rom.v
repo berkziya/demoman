@@ -284,7 +284,6 @@ localparam MAIN_SCREEN_SPRITE_WIDTH = 191;
 localparam MAIN_SCREEN_SPRITE_HEIGHT = 88;
 localparam MAIN_SCREEN_SPRITE_SIZE = MAIN_SCREEN_SPRITE_WIDTH * MAIN_SCREEN_SPRITE_HEIGHT;
 localparam [7:0] MAIN_SCREEN_BG_COLOR = 8'b00000000; // Background color for main screen (black)
-localparam MAIN_SCREEN
 
 wire [9:0] main_screen_relative_x = current_pixel_x - (640 - MAIN_SCREEN_SPRITE_WIDTH) / 2;
 wire [9:0] main_screen_relative_y = current_pixel_y - (480 - MAIN_SCREEN_SPRITE_HEIGHT) / 2;
@@ -310,7 +309,7 @@ always @(*) begin
   // Heartbox and Blockbox pixel data selection
   case (game_state)
     S_IDLE: begin
-      if (is_main_screen_area && ) begin
+      if (is_main_screen_area) begin
         next_pixel_data <= main_screen_pixel_data != TRANSPARENT_COLOR ?
                            main_screen_pixel_data : MAIN_SCREEN_BG_COLOR;
       end else begin

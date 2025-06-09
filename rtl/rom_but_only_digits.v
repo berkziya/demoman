@@ -48,7 +48,7 @@ always @(*) begin
     pixel_data = TRANSPARENT_COLOR; // Invalid address
   end else if (relative_x < SPRITE_WIDTH) begin
     case (digit_10s)
-      4'd1: pixel_data = out1[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
+      4'd1: pixel_data = out1[address % 8] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       4'd2: pixel_data = out2[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       4'd3: pixel_data = out3[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;
       4'd4: pixel_data = out4[7 - (address % 8)] ? COUNTER_COLOR : TRANSPARENT_COLOR;

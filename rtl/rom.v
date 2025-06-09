@@ -69,14 +69,11 @@ wire [14:0] addr, addr2;
 
 wire inside_sprite = (current_pixel_x >= posx && current_pixel_x < posx + SPRITE_WIDTH) &&
                      (current_pixel_y >= posy && current_pixel_y < posy + SPRITE_HEIGHT);
-wire is_player_addr_valid = (relative_x < SPRITE_WIDTH && relative_y < SPRITE_HEIGHT) &&
-                            (relative_x2 < SPRITE_WIDTH && relative_y2 < SPRITE_HEIGHT);
-assign addr = is_player_addr_valid ? (relative_y * SPRITE_WIDTH) + relative_x : 15'd0;
+assign addr = (relative_y * SPRITE_WIDTH) + relative_x;
 
-wire inside_sprite2 = (current_pixel_x >= posx2 && current_pixel_x < posx2 + SPRITE_WIDTH) && // Probably unnecessary, but for clarity
+wire inside_sprite2 = (current_pixel_x >= posx2 && current_pixel_x < posx2 + SPRITE_WIDTH) &&
                       (current_pixel_y >= posy2 && current_pixel_y < posy2 + SPRITE_HEIGHT);
-wire is_player2_addr_valid = (relative_x2 < SPRITE_WIDTH && relative_y2 < SPRITE_HEIGHT);
-assign addr2 = is_player2_addr_valid ? (relative_y2 * SPRITE_WIDTH) + relative_x2 : 15'd0;
+assign addr2 = (relative_y2 * SPRITE_WIDTH) + relative_x2;
 
 // Instantiate ROM modules for each sprite state
 // Each ROM module corresponds to a specific sprite state for each player
@@ -198,28 +195,26 @@ wire is_blockbox = ((current_pixel_x >= block11x && current_pixel_x < block11x +
                     (current_pixel_y >= block21y && current_pixel_y < block21y + HEARTBLOCK_SIZE);
 
 
-wire [9:0] where_in_heartbox_x = current_pixel_x > heart21x ? current_pixel_x - heart21x :
-                                 current_pixel_x > heart22x ? current_pixel_x - heart22x :
-                                 current_pixel_x > heart23x ? current_pixel_x - heart23x :
-                                 current_pixel_x > heart13x ? current_pixel_x - heart13x :
-                                 current_pixel_x > heart12x ? current_pixel_x - heart12x :
+wire [9:0] where_in_heartbox_x = current_pixel_x >= heart21x ? current_pixel_x - heart21x :
+                                 current_pixel_x >= heart22x ? current_pixel_x - heart22x :
+                                 current_pixel_x >= heart23x ? current_pixel_x - heart23x :
+                                 current_pixel_x >= heart13x ? current_pixel_x - heart13x :
+                                 current_pixel_x >= heart12x ? current_pixel_x - heart12x :
                                  current_pixel_x - heart11x;
 
 wire [9:0] where_in_heartbox_y = current_pixel_y - heart11y;
 
-wire [9:0] where_in_blockbox_x = current_pixel_x > block21x ? current_pixel_x - block21x :
-                                 current_pixel_x > block22x ? current_pixel_x - block22x :
-                                 current_pixel_x > block23x ? current_pixel_x - block23x :
-                                 current_pixel_x > block13x ? current_pixel_x - block13x :
-                                 current_pixel_x > block12x ? current_pixel_x - block12x :
+wire [9:0] where_in_blockbox_x = current_pixel_x >= block21x ? current_pixel_x - block21x :
+                                 current_pixel_x >= block22x ? current_pixel_x - block22x :
+                                 current_pixel_x >= block23x ? current_pixel_x - block23x :
+                                 current_pixel_x >= block13x ? current_pixel_x - block13x :
+                                 current_pixel_x >= block12x ? current_pixel_x - block12x :
                                  current_pixel_x - block11x;
 
 wire [9:0] where_in_blockbox_y = current_pixel_y - block11y;
 
-wire heart_addr_valid = (where_in_heartbox_x < HEARTBLOCK_SIZE && where_in_heartbox_y < HEARTBLOCK_SIZE);
-wire block_addr_valid = (where_in_blockbox_x < HEARTBLOCK_SIZE && where_in_blockbox_y < HEARTBLOCK_SIZE);
-wire [11:0] heart_addr = heart_addr_valid ? (where_in_heartbox_y * HEARTBLOCK_SIZE + where_in_heartbox_x) : 12'd0;
-wire [11:0] block_addr = block_addr_valid ? (where_in_blockbox_y * HEARTBLOCK_SIZE + where_in_blockbox_x) : 12'd0;
+wire [11:0] heart_addr = (where_in_heartbox_y * HEARTBLOCK_SIZE + where_in_heartbox_x);
+wire [11:0] block_addr = (where_in_blockbox_y * HEARTBLOCK_SIZE + where_in_blockbox_x);
 
 wire [7:0] heart_sprite_data, block_sprite_data;
 
@@ -254,12 +249,7 @@ wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET &&
                           current_pixel_y >= COUNTDOWN_Y_OFFSET &&
                           current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
 
-wire is_countdown_valid = (countdown_relative_x < COUNT_DOWN_WIDTH &&
-                           countdown_relative_y < COUNT_DOWN_HEIGHT);
-
-wire [COUNT_DOWN_ADDR_SIZE-1:0] count_down_addr = is_countdown_valid ?
-                                                  countdown_relative_y * COUNT_DOWN_WIDTH + countdown_relative_x :
-                                                  0;
+wire [COUNT_DOWN_ADDR_SIZE-1:0] count_down_addr = countdown_relative_y * COUNT_DOWN_WIDTH + countdown_relative_x;
 
 wire [7:0] pixel_data_countdown3, pixel_data_countdown2, pixel_data_countdown1; // Output pixel data for countdown
 
@@ -329,7 +319,7 @@ always @(*) begin
       // Player 2 or Player 1 sprite pixel data selection
       end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
         next_pixel_data <= rom_sprite;
-      end else if (inside_sprite2 && addr2 < IMAGE_SIZE) begin
+      end else if (inside_sprite2 && addr2 < IMAGE_SIZE && rom_sprite2 != TRANSPARENT_COLOR) begin
         next_pixel_data <= rom_sprite2;
       // Default pixel data (transparent color)
       end else next_pixel_data <= TRANSPARENT_COLOR;

@@ -302,6 +302,38 @@ rom_menu_text rom_menu_text_inst (
   .q(main_screen_pixel_data)
 );
 
+//// Player win area  CHANGE LATER
+
+localparam PLAYER_WIN_SPRITE_WIDTH = 52;
+localparam PLAYER_WIN_SPRITE_HEIGHT = 10;
+localparam PLAYER_WIN_WIDTH = PLAYER_WIN_SPRITE_WIDTH << 2;
+localparam PLAYER_WIN_HEIGHT = PLAYER_WIN_SPRITE_HEIGHT << 2;
+localparam PLAYER_WIN_SIZE = PLAYER_WIN_WIDTH * PLAYER_WIN_HEIGHT;
+localparam PLAYER_WIN_X_OFFSET = 320 - PLAYER_WIN_WIDTH / 2;
+localparam PLAYER_WIN_Y_OFFSET = 460 - PLAYER_WIN_HEIGHT / 2;
+localparam [7:0] PLAYER_WIN_BG_COLOR = 8'b00000000; // Color for player win area (black)
+
+wire [6:0] scaled_x = (current_pixel_x - PLAYER_WIN_X_OFFSET) >> 2;
+wire [5:0] scaled_y = (current_pixel_y - PLAYER_WIN_Y_OFFSET) >> 2;
+
+wire [9:0] player_win_pixel_addr = scaled_y * PLAYER_WIN_SPRITE_WIDTH + scaled_x;
+
+wire is_player_win_area = (current_pixel_x >= PLAYER_WIN_X_OFFSET && current_pixel_x < PLAYER_WIN_X_OFFSET + PLAYER_WIN_WIDTH &&
+                           current_pixel_y >= PLAYER_WIN_Y_OFFSET && current_pixel_y < PLAYER_WIN_Y_OFFSET + PLAYER_WIN_HEIGHT);
+
+wire [7:0] pixel_player_1_wins, pixel_player_2_wins;
+
+rom_player_1_wins rom_player_one_wins_inst (
+  .address(player_win_pixel_addr),
+  .clock(clk),
+  .q(pixel_player_1_wins)
+  );
+rom_player_2_wins rom_player_two_wins_inst (
+  .address(player_win_pixel_addr),
+  .clock(clk),
+  .q(pixel_player_2_wins)
+);
+
 
 reg [7:0] next_pixel_data;
 
@@ -350,6 +382,26 @@ always @(*) begin
       // Default pixel data (transparent color)
       end else next_pixel_data <= TRANSPARENT_COLOR;
     end
+
+    /* UNTESTED BUT READY TO IMPLEMENT
+    S_P1_WIN: begin
+      if (is_player_win_area) begin
+        next_pixel_data <= pixel_player_1_wins != TRANSPARENT_COLOR ?
+                           pixel_player_1_wins : PLAYER_WIN_BG_COLOR;
+      end else begin
+        next_pixel_data <= PLAYER_WIN_BG_COLOR;
+      end
+    end
+
+    S_P2_WIN: begin
+      if (is_player_win_area) begin
+        next_pixel_data <= pixel_player_2_wins != TRANSPARENT_COLOR ?
+                           pixel_player_2_wins : PLAYER_WIN_BG_COLOR;
+      end else begin
+        next_pixel_data <= PLAYER_WIN_BG_COLOR;
+      end
+    end
+    */
   endcase
 end
 

@@ -24,7 +24,7 @@ clock_divider #(.DIV(50000000)) ledclockinst(
   always @(*) begin
     case (game_state)
 		S_IDLE: LEDvalues[9:0] = 10'b0000000000; //menu mode, all leds off
-		S_FIGHT: begin //indicate lives
+		S_FIGHT, S_COUNTDOWN: begin //indicate lives
 			LEDvalues[6:3]=4'b0000;
 			case (p1_health)
 				3: LEDvalues[9:7] = 3'b111;

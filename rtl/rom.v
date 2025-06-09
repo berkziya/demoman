@@ -318,18 +318,18 @@ always @(*) begin
     S_FIGHT: begin
       if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
-      end else if (is_heartbox && heart_addr >= 0) begin
+      end else if (is_heartbox) begin
         next_pixel_data <= heart_sprite_data[7 - (heart_addr % 8)] ?
                            HEARTBLOCK_COLOR :
                            TRANSPARENT_COLOR;
-      end else if (is_blockbox && block_addr >= 0) begin
+      end else if (is_blockbox) begin
         next_pixel_data <= block_sprite_data[7 - (block_addr % 8)] ?
                            BLOCKBLOCK_COLOR :
                            TRANSPARENT_COLOR;
       // Player 2 or Player 1 sprite pixel data selection
-      end else if (inside_sprite && addr >= 0 && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+      end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
         next_pixel_data <= rom_sprite;
-      end else if (inside_sprite2 && addr2 >= 0 && addr2 < IMAGE_SIZE) begin
+      end else if (inside_sprite2 && addr2 < IMAGE_SIZE) begin
         next_pixel_data <= rom_sprite2;
       // Default pixel data (transparent color)
       end else next_pixel_data <= TRANSPARENT_COLOR;

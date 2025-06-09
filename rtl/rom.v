@@ -280,8 +280,8 @@ rom_but_only_digits rom_counter_inst (
 );
 
 
-localparam MAIN_SCREEN_SPRITE_WIDTH = 191;
-localparam MAIN_SCREEN_SPRITE_HEIGHT = 88;
+localparam MAIN_SCREEN_SPRITE_WIDTH = 43;
+localparam MAIN_SCREEN_SPRITE_HEIGHT = 13;
 localparam MAIN_SCREEN_SPRITE_SIZE = MAIN_SCREEN_SPRITE_WIDTH * MAIN_SCREEN_SPRITE_HEIGHT;
 localparam [7:0] MAIN_SCREEN_BG_COLOR = 8'b00000000; // Background color for main screen (black)
 
@@ -293,10 +293,10 @@ wire is_main_screen_area = (current_pixel_x >= (640 - MAIN_SCREEN_SPRITE_WIDTH) 
                             current_pixel_y >= (480 - MAIN_SCREEN_SPRITE_HEIGHT) / 2 &&
                             current_pixel_y < (480 + MAIN_SCREEN_SPRITE_HEIGHT) / 2);
 
-wire [15:0] main_screen_addr = (main_screen_relative_y * MAIN_SCREEN_SPRITE_WIDTH) + main_screen_relative_x;
+wire [10:0] main_screen_addr = (main_screen_relative_y * MAIN_SCREEN_SPRITE_WIDTH) + main_screen_relative_x;
 wire [7:0] main_screen_pixel_data; // Output pixel data for main screen
 
-rom_main_screen rom_main_screen_inst (
+rom_menu_text rom_menu_text_inst (
   .address(main_screen_addr),
   .clock(clk),
   .q(main_screen_pixel_data)

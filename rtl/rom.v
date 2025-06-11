@@ -231,26 +231,23 @@ rom_shield rom_block_inst (
 );
 
 //// Countdown sprites
-localparam COUNT_DOWN_WIDTH = 10;
-localparam COUNT_DOWN_HEIGHT = 13;
-localparam COUNT_DOWN_SIZE = COUNT_DOWN_WIDTH * COUNT_DOWN_HEIGHT;
-localparam COUNT_DOWN_BYTE_SIZE = (COUNT_DOWN_SIZE + 7);
-localparam COUNT_DOWN_ADDR_SIZE = $clog2(COUNT_DOWN_BYTE_SIZE);
-localparam COUNTDOWN_SIZE = COUNT_DOWN_WIDTH * COUNT_DOWN_HEIGHT;
-localparam COUNTDOWN_X_OFFSET = 320 - COUNT_DOWN_WIDTH / 2;
-localparam COUNTDOWN_Y_OFFSET = 240 - COUNT_DOWN_HEIGHT / 2;
+localparam COUNTDOWN_SPRITE_WIDTH = 10;
+localparam COUNTDOWN_SPRITE_HEIGHT = 13;
+localparam COUNTDOWN_WIDTH = COUNTDOWN_SPRITE_WIDTH << 2;
+localparam COUNTDOWN_HEIGHT = COUNTDOWN_SPRITE_HEIGHT << 2;
+localparam COUNTDOWN_X_OFFSET = 320 - COUNTDOWN_WIDTH / 2;
+localparam COUNTDOWN_Y_OFFSET = 240 - COUNTDOWN_HEIGHT / 2;
 localparam [7:0] COUNTDOWN_COLOR = 8'b11111111; // Color for countdown (magenta)
 localparam [7:0] COUNTDOWN_BG_COLOR = 8'b00000000; // Color for countdown (black)
 
-wire [9:0] countdown_relative_x = current_pixel_x - COUNTDOWN_X_OFFSET;
-wire [9:0] countdown_relative_y = current_pixel_y - COUNTDOWN_Y_OFFSET;
+wire [9:0] countdown_relative_x = (current_pixel_x - COUNTDOWN_X_OFFSET) >> 2;
+wire [9:0] countdown_relative_y = (current_pixel_y - COUNTDOWN_Y_OFFSET) >> 2;
 wire is_countdown_area = (current_pixel_x >= COUNTDOWN_X_OFFSET &&
-                          current_pixel_x < COUNTDOWN_X_OFFSET + COUNT_DOWN_WIDTH &&
+                          current_pixel_x < COUNTDOWN_X_OFFSET + COUNTDOWN_WIDTH &&
                           current_pixel_y >= COUNTDOWN_Y_OFFSET &&
-                          current_pixel_y < COUNTDOWN_Y_OFFSET + COUNT_DOWN_HEIGHT);
+                          current_pixel_y < COUNTDOWN_Y_OFFSET + COUNTDOWN_HEIGHT);
 
-wire [8:0] count_down_addr = countdown_relative_y * COUNT_DOWN_WIDTH + countdown_relative_x;
-
+wire [8:0] count_down_addr = countdown_relative_y * COUNTDOWN_SPRITE_WIDTH + countdown_relative_x;
 wire [7:0] pixel_data_countdown3, pixel_data_countdown2, pixel_data_countdown1; // Output pixel data for countdown
 
 rom_digit3 rom_digit3_inst (.clock(clk), .address(count_down_addr), .q(pixel_data_countdown3));
@@ -258,14 +255,16 @@ rom_digit2 rom_digit2_inst (.clock(clk), .address(count_down_addr), .q(pixel_dat
 rom_digit1 rom_digit1_inst (.clock(clk), .address(count_down_addr), .q(pixel_data_countdown1));
 
 //// Counter
-localparam COUNTER_WIDTH = 20;
-localparam COUNTER_HEIGHT = 13;
+localparam COUNTER_SPRITE_WIDTH = 20;
+localparam COUNTER_SPRITE_HEIGHT = 13;
+localparam COUNTER_WIDTH = COUNTER_SPRITE_WIDTH << 2;
+localparam COUNTER_HEIGHT = COUNTER_SPRITE_HEIGHT << 2;
 localparam X_OFFSET_COUNTER = 320 - COUNTER_WIDTH / 2;
 localparam Y_OFFSET_COUNTER = 60;
 wire [7:0] pixel_data_counter; // Output pixel data for counter
 
-wire [9:0] counter_relative_x = current_pixel_x - X_OFFSET_COUNTER;
-wire [9:0] counter_relative_y = current_pixel_y - Y_OFFSET_COUNTER;
+wire [9:0] counter_scaledx = (current_pixel_x - X_OFFSET_COUNTER) >> 2;
+wire [9:0] counter_scaledy = (current_pixel_y - Y_OFFSET_COUNTER) >> 2;
 wire is_counter_area = (current_pixel_x >= X_OFFSET_COUNTER &&
                         current_pixel_x < X_OFFSET_COUNTER + COUNTER_WIDTH &&
                         current_pixel_y >= Y_OFFSET_COUNTER &&
@@ -273,33 +272,35 @@ wire is_counter_area = (current_pixel_x >= X_OFFSET_COUNTER &&
 
 rom_but_only_digits rom_counter_inst (
   .clk(clk),
-  .relative_x(counter_relative_x),
-  .relative_y(counter_relative_y),
+  .relative_x(counter_scaledx),
+  .relative_y(counter_scaledy),
   .game_duration(game_duration),
   .pixel_data(pixel_data_counter) // Output pixel data for counter
 );
 
 
-localparam MAIN_SCREEN_SPRITE_WIDTH = 43;
-localparam MAIN_SCREEN_SPRITE_HEIGHT = 13;
-localparam MAIN_SCREEN_SPRITE_SIZE = MAIN_SCREEN_SPRITE_WIDTH * MAIN_SCREEN_SPRITE_HEIGHT;
-localparam [7:0] MAIN_SCREEN_BG_COLOR = 8'b00000000; // Background color for main screen (black)
+localparam MENU_TEXT_SPRITE_WIDTH = 43;
+localparam MENU_TEXT_SPRITE_HEIGHT = 13;
+localparam MENU_TEXT_WIDTH = MENU_TEXT_SPRITE_WIDTH << 2;
+localparam MENU_TEXT_HEIGHT = MENU_TEXT_SPRITE_HEIGHT << 2;
+localparam MENU_TEXT_SIZE = MENU_TEXT_WIDTH * MENU_TEXT_HEIGHT;
+localparam [7:0] MENU_TEXT_BG_COLOR = 8'b00000000; // Background color for main screen (black)
 
-wire [9:0] main_screen_relative_x = current_pixel_x - (640 - MAIN_SCREEN_SPRITE_WIDTH) / 2;
-wire [9:0] main_screen_relative_y = current_pixel_y - (480 - MAIN_SCREEN_SPRITE_HEIGHT) / 2;
+wire [9:0] menu_text_scaledx = (current_pixel_x - (640 - MENU_TEXT_WIDTH) / 2) >> 2;
+wire [9:0] menu_text_scaledy = (current_pixel_y - (480 - MENU_TEXT_HEIGHT) / 2) >> 2;
 
-wire is_main_screen_area = (current_pixel_x >= (640 - MAIN_SCREEN_SPRITE_WIDTH) / 2 &&
-                            current_pixel_x < (640 + MAIN_SCREEN_SPRITE_WIDTH) / 2 &&
-                            current_pixel_y >= (480 - MAIN_SCREEN_SPRITE_HEIGHT) / 2 &&
-                            current_pixel_y < (480 + MAIN_SCREEN_SPRITE_HEIGHT) / 2);
+wire is_menu_text_area = (current_pixel_x >= (640 - MENU_TEXT_WIDTH) / 2 &&
+                            current_pixel_x < (640 + MENU_TEXT_WIDTH) / 2 &&
+                            current_pixel_y >= (480 - MENU_TEXT_HEIGHT) / 2 &&
+                            current_pixel_y < (480 + MENU_TEXT_HEIGHT) / 2);
 
-wire [9:0] main_screen_addr = (main_screen_relative_y * MAIN_SCREEN_SPRITE_WIDTH) + main_screen_relative_x;
-wire [7:0] main_screen_pixel_data; // Output pixel data for main screen
+wire [9:0] menu_text_addr = (menu_text_scaledy * MENU_TEXT_SPRITE_WIDTH) + menu_text_scaledx;
+wire [7:0] menu_text_pixel_data; // Output pixel data for main screen
 
 rom_menu_text rom_menu_text_inst (
-  .address(main_screen_addr),
+  .address(menu_text_addr),
   .clock(clk),
-  .q(main_screen_pixel_data)
+  .q(menu_text_pixel_data)
 );
 
 //// Player win area  CHANGE LATER
@@ -310,7 +311,7 @@ localparam PLAYER_WIN_WIDTH = PLAYER_WIN_SPRITE_WIDTH << 2;
 localparam PLAYER_WIN_HEIGHT = PLAYER_WIN_SPRITE_HEIGHT << 2;
 localparam PLAYER_WIN_SIZE = PLAYER_WIN_WIDTH * PLAYER_WIN_HEIGHT;
 localparam PLAYER_WIN_X_OFFSET = 320 - PLAYER_WIN_WIDTH / 2;
-localparam PLAYER_WIN_Y_OFFSET = 460 - PLAYER_WIN_HEIGHT / 2;
+localparam PLAYER_WIN_Y_OFFSET = 240 - PLAYER_WIN_HEIGHT / 2;
 localparam [7:0] PLAYER_WIN_BG_COLOR = 8'b00000000; // Color for player win area (black)
 
 wire [6:0] scaled_x = (current_pixel_x - PLAYER_WIN_X_OFFSET) >> 2;
@@ -327,7 +328,8 @@ rom_player_1_wins rom_player_one_wins_inst (
   .address(player_win_pixel_addr),
   .clock(clk),
   .q(pixel_player_1_wins)
-  );
+);
+
 rom_player_2_wins rom_player_two_wins_inst (
   .address(player_win_pixel_addr),
   .clock(clk),
@@ -341,11 +343,11 @@ always @(*) begin
   // Heartbox and Blockbox pixel data selection
   case (game_state)
     S_IDLE: begin
-      if (is_main_screen_area) begin
-        next_pixel_data <= main_screen_pixel_data != TRANSPARENT_COLOR ?
-                           main_screen_pixel_data : MAIN_SCREEN_BG_COLOR;
+      if (is_menu_text_area) begin
+        next_pixel_data <= menu_text_pixel_data != TRANSPARENT_COLOR ?
+                           menu_text_pixel_data : MENU_TEXT_BG_COLOR;
       end else begin
-        next_pixel_data <= MAIN_SCREEN_BG_COLOR;
+        next_pixel_data <= MENU_TEXT_BG_COLOR;
       end
     end
 
@@ -383,7 +385,6 @@ always @(*) begin
       end else next_pixel_data <= TRANSPARENT_COLOR;
     end
 
-    /* UNTESTED BUT READY TO IMPLEMENT
     S_P1_WIN: begin
       if (is_player_win_area) begin
         next_pixel_data <= pixel_player_1_wins != TRANSPARENT_COLOR ?
@@ -401,7 +402,6 @@ always @(*) begin
         next_pixel_data <= PLAYER_WIN_BG_COLOR;
       end
     end
-    */
   endcase
 end
 

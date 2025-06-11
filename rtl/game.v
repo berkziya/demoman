@@ -1,7 +1,6 @@
 module game (
   input clk, // 60 Hz clock
   input reset,
-  
 
   input [3:0] KEY,
   output [6:0] HEX0,
@@ -68,36 +67,46 @@ counter #(.W(7)) counter_inst ( // Game timer
   .count(game_duration)
 );
 
-reg [6:0] last_counter_anchor;
+
+wire [6:0] since_lsc;
+reg lsc_rst;
+counter #(.W(7)) since_last_state_change ( // State change stabilizer
+  .clk(clk_1Hz),
+  .rst(lsc_rst),
+  .control(2'b01),
+  .count(since_lsc)
+);
 
 always @(posedge clk) begin
   if (reset) begin
     game_state <= S_IDLE;
     counterreset <= 1'b1;
-	 counter_control <= 2'b11;
+    counter_control <= 2'b11;
   end else begin
     if (next_state != game_state) begin
       if (next_state == S_COUNTDOWN || next_state == S_FIGHT) begin
-    counterreset <= 1'b1;
-	 counter_control <= 2'b11;
+        counterreset <= 1'b1;
+        counter_control <= 2'b11;
       end else if (next_state == S_P1_WIN || next_state == S_P2_WIN || next_state == S_EQ) begin
-    counterreset <= 1'b0;
-	 counter_control <= 2'b00;
+        counterreset <= 1'b0;
+        counter_control <= 2'b00;
       end else begin
-    counterreset <= 1'b1;
-	 counter_control <= 2'b11;
+        counterreset <= 1'b1;
+        counter_control <= 2'b11;
       end
+      lsc_rst <= 1'b1;
     end else begin
       if (game_state == S_COUNTDOWN || game_state == S_FIGHT) begin
-      counterreset <= 1'b0;
-	 counter_control <= 2'b01;
+        counterreset <= 1'b0;
+        counter_control <= 2'b01;
       end else if (game_state == S_P1_WIN || game_state == S_P2_WIN || game_state == S_EQ) begin
-    counterreset <= 1'b0;
-	 counter_control <= 2'b00;
+        counterreset <= 1'b0;
+        counter_control <= 2'b00;
       end else begin
-    counterreset <= 1'b1;
-	 counter_control <= 2'b11;
+        counterreset <= 1'b1;
+        counter_control <= 2'b11;
       end
+      lsc_rst <= 1'b0;
     end
     game_state <= next_state;
   end
@@ -107,7 +116,7 @@ always @(*) begin
   case (game_state)
     S_IDLE: begin
       hex_state = SW[0] ? S_HEX_1P : S_HEX_2P;
-      if ((~(KEY[1]&KEY[2]&KEY[3])) ) next_state = S_COUNTDOWN; // Start game on any key press
+      if (~(KEY[1]&KEY[2]&KEY[3]) && (since_lsc > 2)) next_state = S_COUNTDOWN; // Start game on any key press
       else next_state = S_IDLE;
     end
 
@@ -119,16 +128,16 @@ always @(*) begin
 
     S_FIGHT: begin
       hex_state = S_HEX_FIGHt;
-      if ((~(player1_health>0)) && (player2_health>0)) next_state = S_P2_WIN; // Player 2 wins
-      else if ((player1_health>0) && (~(player2_health>0))) next_state = S_P1_WIN; // Player 1 wins
-      else if ((~(player1_health>0)) && (~(player2_health>0))) next_state = S_EQ; // Draw
+      if (~(player1_health>0) && (player2_health>0)) next_state = S_P2_WIN; // Player 2 wins
+      else if ((player1_health>0) && ~(player2_health>0)) next_state = S_P1_WIN; // Player 1 wins
+      else if (~(player1_health>0) && ~(player2_health>0)) next_state = S_EQ; // Draw
       else next_state = S_FIGHT; // Continue fighting
     end
 
     S_P1_WIN, S_P2_WIN, S_EQ: begin
       hex_state = (game_state == S_P1_WIN) ? S_HEX_P1_WIN :
                   (game_state == S_P2_WIN) ? S_HEX_P2_WIN : S_HEX_Eq;
-      if (~(KEY[1]&KEY[2]&KEY[3])) next_state = S_IDLE; // Reset game on key press
+      if (~(KEY[1]&KEY[2]&KEY[3]) && (since_lsc > 2)) next_state = S_IDLE; // Reset game on key press
       else next_state = game_state; // Stay in the current state
     end
 

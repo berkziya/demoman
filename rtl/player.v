@@ -383,7 +383,8 @@ always @(posedge clk) begin
       default: posx <= posx;
     endcase
 	 end
-	default: posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
+	3'd0: posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
+	default: posx <= posx;
   endcase
 end
 

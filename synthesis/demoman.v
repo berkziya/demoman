@@ -85,7 +85,7 @@ wire [6:0] game_duration; // Game state and duration
 
 wire reset;
 
-assign reset = ((game_state==3'd0)|(game_state==3'd3)|(game_state==3'd4)|(game_state==3'd5))&((~KEY[3])|(~KEY[2])|(~KEY[1]));
+assign reset = ((game_state==3'd0))&((~KEY[3])|(~KEY[2])|(~KEY[1]));
 
 wire clk_25mhz;
 clock_divider #(

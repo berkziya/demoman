@@ -391,7 +391,23 @@ always @(*) begin
                            pixel_player_1_wins : PLAYER_WIN_BG_COLOR;
       end else begin
         next_pixel_data <= PLAYER_WIN_BG_COLOR;
-      end
+      end else if (is_counter_area) begin
+        next_pixel_data <= pixel_data_counter; // Display counter
+      end else if (is_heartbox) begin
+        next_pixel_data <= heart_sprite_data[7 - (heart_addr % 8)] ?
+                           HEARTBLOCK_COLOR :
+                           TRANSPARENT_COLOR;
+      end else if (is_blockbox) begin
+        next_pixel_data <= block_sprite_data[7 - (block_addr % 8)] ?
+                           BLOCKBLOCK_COLOR :
+                           TRANSPARENT_COLOR;
+      // Player 2 or Player 1 sprite pixel data selection
+      end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+        next_pixel_data <= rom_sprite;
+      end else if (inside_sprite2 && addr2 < IMAGE_SIZE && rom_sprite2 != TRANSPARENT_COLOR) begin
+        next_pixel_data <= rom_sprite_gothitR;
+      // Default pixel data (transparent color)
+      end else next_pixel_data <= TRANSPARENT_COLOR;
     end
 
     S_P2_WIN: begin
@@ -400,7 +416,53 @@ always @(*) begin
                            pixel_player_2_wins : PLAYER_WIN_BG_COLOR;
       end else begin
         next_pixel_data <= PLAYER_WIN_BG_COLOR;
-      end
+      end else if (is_counter_area) begin
+        next_pixel_data <= pixel_data_counter; // Display counter
+      end else if (is_heartbox) begin
+        next_pixel_data <= heart_sprite_data[7 - (heart_addr % 8)] ?
+                           HEARTBLOCK_COLOR :
+                           TRANSPARENT_COLOR;
+      end else if (is_blockbox) begin
+        next_pixel_data <= block_sprite_data[7 - (block_addr % 8)] ?
+                           BLOCKBLOCK_COLOR :
+                           TRANSPARENT_COLOR;
+      // Player 2 or Player 1 sprite pixel data selection
+      end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+        next_pixel_data <= rom_sprite_gothitG;
+      end else if (inside_sprite2 && addr2 < IMAGE_SIZE && rom_sprite2 != TRANSPARENT_COLOR) begin
+        next_pixel_data <= rom_sprite2;
+      // Default pixel data (transparent color)
+      end else next_pixel_data <= TRANSPARENT_COLOR;
+    end
+
+    S_EQ: begin
+      if (is_player_win_area) begin
+        if (current_pixel_x % 2 == 0) begin // Flash effect for equal state
+          next_pixel_data <= pixel_player_1_wins != TRANSPARENT_COLOR ?
+                             pixel_player_1_wins : PLAYER_WIN_BG_COLOR;
+        end else begin
+          next_pixel_data <= pixel_player_2_wins != TRANSPARENT_COLOR ?
+                             pixel_player_2_wins : PLAYER_WIN_BG_COLOR;
+        end
+      end else begin
+        next_pixel_data <= PLAYER_WIN_BG_COLOR;
+      end else if (is_counter_area) begin
+        next_pixel_data <= pixel_data_counter; // Display counter
+      end else if (is_heartbox) begin
+        next_pixel_data <= heart_sprite_data[7 - (heart_addr % 8)] ?
+                           HEARTBLOCK_COLOR :
+                           TRANSPARENT_COLOR;
+      end else if (is_blockbox) begin
+        next_pixel_data <= block_sprite_data[7 - (block_addr % 8)] ?
+                           BLOCKBLOCK_COLOR :
+                           TRANSPARENT_COLOR;
+      // Player 2 or Player 1 sprite pixel data selection
+      end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
+        next_pixel_data <= rom_sprite_gothitG;
+      end else if (inside_sprite2 && addr2 < IMAGE_SIZE && rom_sprite2 != TRANSPARENT_COLOR) begin
+        next_pixel_data <= rom_sprite_gothitR;
+      // Default pixel data (transparent color)
+      end else next_pixel_data <= TRANSPARENT_COLOR;
     end
   endcase
 end

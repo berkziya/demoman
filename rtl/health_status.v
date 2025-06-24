@@ -25,8 +25,8 @@ end
 
 wire player1_hitstun = player1_state != p1_prev_state && (player1_state == S_HITSTUN) ? 2'b01 : 2'b00;
 wire player2_hitstun = player2_state != p2_prev_state && (player2_state == S_HITSTUN) ? 2'b01 : 2'b00;
-wire player1_blockstun = player1_state != p1_prev_state && (player1_state != S_HITSTUN) && (player1_state == S_BLOCKSTUN) ? 2'b01 : 2'b00;
-wire player2_blockstun = player2_state != p2_prev_state && (player2_state != S_HITSTUN) && (player2_state == S_BLOCKSTUN) ? 2'b01 : 2'b00;
+wire player1_blockstun = player1_state != p1_prev_state && (p1_prev_state != S_HITSTUN) && (player1_state == S_BLOCKSTUN) ? 2'b01 : 2'b00;
+wire player2_blockstun = player2_state != p2_prev_state && (p1_prev_state != S_HITSTUN) && (player2_state == S_BLOCKSTUN) ? 2'b01 : 2'b00;
 
 counter #(
   .W(3)

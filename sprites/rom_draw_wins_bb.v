@@ -1,11 +1,11 @@
-// rom_player_2_wins.v
-// megafunction wizard: %ROM: 1-PORT%
+// rom_draw_wins_bb.v
+// megafunction wizard: %ROM: 1-PORT%VBB%
 // GENERATION: STANDARD
 // VERSION: WM1.0
 // MODULE: altsyncram
 
 // ============================================================
-// File Name: rom_player_2_wins.v
+// File Name: rom_draw_wins.v
 // Megafunction Name(s):
 //      altsyncram
 //
@@ -18,7 +18,7 @@
 // 24.1std.0 Build 1077 03/04/2025 SC Lite Edition
 // ************************************************************
 
-//Copyright (C) 2025  Altera Corporation. All rights reserved.
+//Copyright (C) 2025 Altera Corporation. All rights reserved.
 //Your use of Altera Corporation's design tools, logic functions
 //and other software and tools, and any partner logic
 //functions, and any output files from any of the foregoing
@@ -33,10 +33,7 @@
 //refer to the Altera Software License Subscription Agreements
 //on the Quartus Prime software download page.
 
-// synopsys translate_off
-`timescale 1 ps / 1 ps
-// synopsys translate_on
-module rom_player_2_wins (
+module rom_draw_wins (
   address,
   clock,
   q);
@@ -51,49 +48,6 @@ module rom_player_2_wins (
 `ifndef ALTERA_RESERVED_QIS
 // synopsys translate_on
 `endif
-
-  wire [7:0] sub_wire0;
-  wire [7:0] q = sub_wire0[7:0];
-
-  altsyncram  altsyncram_component (
-        .address_a (address),
-        .clock0 (clock),
-        .q_a (sub_wire0),
-        .aclr0 (1'b0),
-        .aclr1 (1'b0),
-        .address_b (1'b1),
-        .addressstall_a (1'b0),
-        .addressstall_b (1'b0),
-        .byteena_a (1'b1),
-        .byteena_b (1'b1),
-        .clock1 (1'b1),
-        .clocken0 (1'b1),
-        .clocken1 (1'b1),
-        .clocken2 (1'b1),
-        .clocken3 (1'b1),
-        .data_a ({8{1'b1}}),
-        .data_b (1'b1),
-        .eccstatus (),
-        .q_b (),
-        .rden_a (1'b1),
-        .rden_b (1'b1),
-        .wren_a (1'b0),
-        .wren_b (1'b0));
-  defparam
-    altsyncram_component.address_aclr_a = "NONE",
-    altsyncram_component.clock_enable_input_a = "BYPASS",
-    altsyncram_component.clock_enable_output_a = "BYPASS",
-    altsyncram_component.init_file = "../sprites/player_2_wins.mif",
-    altsyncram_component.intended_device_family = "Cyclone V",
-    altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
-    altsyncram_component.lpm_type = "altsyncram",
-    altsyncram_component.numwords_a = 300,
-    altsyncram_component.operation_mode = "ROM",
-    altsyncram_component.outdata_aclr_a = "NONE",
-    altsyncram_component.outdata_reg_a = "CLOCK0",
-    altsyncram_component.widthad_a = 9,
-    altsyncram_component.width_a = 8,
-    altsyncram_component.width_byteena_a = 1;
 
 endmodule
 
@@ -117,7 +71,7 @@ endmodule
 // Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
-// Retrieval info: PRIVATE: MIFfilename STRING "../sprites/player_2_wins.mif"
+// Retrieval info: PRIVATE: MIFfilename STRING "../sprites/draw_wins.mif"
 // Retrieval info: PRIVATE: NUMWORDS_A NUMERIC "300"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
 // Retrieval info: PRIVATE: RegAddr NUMERIC "1"
@@ -132,7 +86,7 @@ endmodule
 // Retrieval info: CONSTANT: ADDRESS_ACLR_A STRING "NONE"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_A STRING "BYPASS"
-// Retrieval info: CONSTANT: INIT_FILE STRING "../sprites/player_2_wins.mif"
+// Retrieval info: CONSTANT: INIT_FILE STRING "../sprites/draw_wins.mif"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
 // Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=NO"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
@@ -149,10 +103,10 @@ endmodule
 // Retrieval info: CONNECT: @address_a 0 0 9 0 address 0 0 9 0
 // Retrieval info: CONNECT: @clock0 0 0 0 0 clock 0 0 0 0
 // Retrieval info: CONNECT: q 0 0 8 0 @q_a 0 0 8 0
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.v TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.inc FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.cmp FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.bsf FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.inc FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.cmp FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.bsf FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins_inst.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf

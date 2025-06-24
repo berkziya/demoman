@@ -305,24 +305,23 @@ rom_menu_text rom_menu_text_inst (
 
 //// Player win area  CHANGE LATER
 
-localparam PLAYER_WIN_SPRITE_WIDTH = 52;
+localparam PLAYER_WIN_SPRITE_WIDTH = 30;
 localparam PLAYER_WIN_SPRITE_HEIGHT = 10;
 localparam PLAYER_WIN_WIDTH = PLAYER_WIN_SPRITE_WIDTH << 2;
 localparam PLAYER_WIN_HEIGHT = PLAYER_WIN_SPRITE_HEIGHT << 2;
 localparam PLAYER_WIN_SIZE = PLAYER_WIN_WIDTH * PLAYER_WIN_HEIGHT;
 localparam PLAYER_WIN_X_OFFSET = 320 - PLAYER_WIN_WIDTH / 2;
 localparam PLAYER_WIN_Y_OFFSET = 240 - PLAYER_WIN_HEIGHT / 2;
-localparam [7:0] PLAYER_WIN_BG_COLOR = 8'b00000000; // Color for player win area (black)
 
 wire [6:0] scaled_x = (current_pixel_x - PLAYER_WIN_X_OFFSET) >> 2;
 wire [5:0] scaled_y = (current_pixel_y - PLAYER_WIN_Y_OFFSET) >> 2;
 
-wire [9:0] player_win_pixel_addr = scaled_y * PLAYER_WIN_SPRITE_WIDTH + scaled_x;
+wire [8:0] player_win_pixel_addr = scaled_y * PLAYER_WIN_SPRITE_WIDTH + scaled_x;
 
 wire is_player_win_area = (current_pixel_x >= PLAYER_WIN_X_OFFSET && current_pixel_x < PLAYER_WIN_X_OFFSET + PLAYER_WIN_WIDTH &&
                            current_pixel_y >= PLAYER_WIN_Y_OFFSET && current_pixel_y < PLAYER_WIN_Y_OFFSET + PLAYER_WIN_HEIGHT);
 
-wire [7:0] pixel_player_1_wins, pixel_player_2_wins;
+wire [7:0] pixel_player_1_wins, pixel_player_2_wins, pixel_draw_wins;
 
 rom_player_1_wins rom_player_one_wins_inst (
   .address(player_win_pixel_addr),
@@ -336,6 +335,11 @@ rom_player_2_wins rom_player_two_wins_inst (
   .q(pixel_player_2_wins)
 );
 
+rom_draw_wins rom_draw_wins_inst (
+  .address(player_win_pixel_addr),
+  .clock(clk),
+  .q(pixel_draw_wins)
+);
 
 reg [7:0] next_pixel_data;
 
@@ -430,12 +434,8 @@ always @(*) begin
     end
 
     S_EQ: begin
-      if (is_player_win_area && (pixel_player_1_wins != TRANSPARENT_COLOR || pixel_player_2_wins != TRANSPARENT_COLOR)) begin
-        if (current_pixel_x % 2 == 0) begin
-          next_pixel_data <= pixel_player_1_wins; // Display Player 1 win text
-        end else begin
-          next_pixel_data <= pixel_player_2_wins; // Display Player 2 win text
-        end
+      if (is_player_win_area && (pixel_draw_wins != TRANSPARENT_COLOR)) begin
+        next_pixel_data <= pixel_draw_wins;
       end else if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
       end else if (is_heartbox) begin

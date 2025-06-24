@@ -13,27 +13,62 @@ module health_status (
 );
 localparam S_HITSTUN = 4'd9;
 localparam S_BLOCKSTUN = 4'd10;
+reg [3:0] p1_prev_state, p2_prev_state;
 
-always @(posedge clk or posedge rst) begin
-  if (rst) begin
-    player1_health <= 3'b011;
-    player2_health <= 3'b011;
-    player1_block <= 3'b011;
-    player2_block <= 3'b011;
-  end else begin
-    if (player1_state == S_HITSTUN) begin
-      player1_health <= player1_health - 1;
-    end else if (player1_state == S_BLOCKSTUN) begin
-      player1_block <= player1_block - 1;
-    end
+wire [2:0] player1_health_count, player2_health_count;
+wire [2:0] player1_block_count, player2_block_count;
 
-    // Player 2 health and block logic
-    if (player2_state == S_HITSTUN) begin
-      player2_health <= player2_health - 1;
-    end else if (player2_state == S_BLOCKSTUN) begin
-      player2_block <= player2_block - 1;
-    end
-  end
+always @(posedge clk) begin
+  p1_prev_state <= player1_state;
+  p2_prev_state <= player2_state;
+end
+
+wire player1_hitstun = player1_state != p1_prev_state && (player1_state == S_HITSTUN) ? 2'b01 : 2'b00;
+wire player2_hitstun = player2_state != p2_prev_state && (player2_state == S_HITSTUN) ? 2'b01 : 2'b00;
+wire player1_blockstun = player1_state != p1_prev_state && (player1_state == S_BLOCKSTUN) ? 2'b01 : 2'b00;
+wire player2_blockstun = player2_state != p2_prev_state && (player2_state == S_BLOCKSTUN) ? 2'b01 : 2'b00;
+
+counter #(
+  .W(3)
+) health_counter1 (
+  .clk(clk),
+  .rst(rst),
+  .control(player1_hitstun),
+  .count(player1_health_count)
+);
+
+counter #(
+  .W(3)
+) health_counter2 (
+  .clk(clk),
+  .rst(rst),
+  .control(player2_hitstun),
+  .count(player2_health_count)
+);
+
+counter #(
+  .W(3)
+) block_counter1 (
+  .clk(clk),
+  .rst(rst),
+  .control(player1_blockstun),
+  .count(player1_block_count)
+);
+
+counter #(
+  .W(3)
+) block_counter2 (
+  .clk(clk),
+  .rst(rst),
+  .control(player2_blockstun),
+  .count(player2_block_count)
+);
+
+always @(*) begin
+  player1_health = 3'd3 - player1_health_count;
+  player2_health = 3'd3 - player2_health_count;
+  player1_block = 3'd3 - player1_block_count;
+  player2_block = 3'd3 - player2_block_count;
 end
 
 endmodule

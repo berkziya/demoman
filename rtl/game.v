@@ -116,7 +116,7 @@ always @(*) begin
   case (game_state)
     S_IDLE: begin
       hex_state = SW[0] ? S_HEX_1P : S_HEX_2P;
-      if (~(KEY[1]&KEY[2]&KEY[3]) && (since_lsc > 2)) next_state = S_COUNTDOWN; // Start game on any key press
+      if (~(KEY[1]&KEY[2]&KEY[3]) && (since_lsc > 1)) next_state = S_COUNTDOWN; // Start game on any key press
       else next_state = S_IDLE;
     end
 
@@ -128,7 +128,8 @@ always @(*) begin
 
     S_FIGHT: begin
       hex_state = S_HEX_FIGHt;
-      if (~(player1_health>0) && (player2_health>0)) next_state = S_P2_WIN; // Player 2 wins
+      if (game_duration == 7'd99) next_state = S_EQ; // End fight after 99 seconds
+      else if (~(player1_health>0) && (player2_health>0)) next_state = S_P2_WIN; // Player 2 wins
       else if ((player1_health>0) && ~(player2_health>0)) next_state = S_P1_WIN; // Player 1 wins
       else if (~(player1_health>0) && ~(player2_health>0)) next_state = S_EQ; // Draw
       else next_state = S_FIGHT; // Continue fighting
@@ -137,7 +138,7 @@ always @(*) begin
     S_P1_WIN, S_P2_WIN, S_EQ: begin
       hex_state = (game_state == S_P1_WIN) ? S_HEX_P1_WIN :
                   (game_state == S_P2_WIN) ? S_HEX_P2_WIN : S_HEX_Eq;
-      if (~(KEY[1]&KEY[2]&KEY[3]) && (since_lsc > 2)) next_state = S_IDLE; // Reset game on key press
+      if (~(KEY[1]&KEY[2]&KEY[3]) && (since_lsc > 1)) next_state = S_IDLE; // Reset game on key press
       else next_state = game_state; // Stay in the current state
     end
 

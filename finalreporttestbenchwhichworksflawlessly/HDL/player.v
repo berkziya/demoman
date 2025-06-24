@@ -4,10 +4,15 @@ module player #(
   input clk,
   input rst,
   input left, right, attack,
+  
+  input [2:0] gamestate,
+  
+  input [9:0] otherPlayerposx,
 
   input [1:0] hitFlag,
   input [2:0] health,
   input [2:0] block,
+
 
   output reg [9:0] posx,
   output     [9:0] posy,
@@ -28,6 +33,11 @@ module player #(
   output wire [9:0] main_hurtbox_y1,
   output wire [9:0] main_hurtbox_y2
 );
+
+localparam rec11 = 5'd16;
+localparam rec12 = 5'd14;
+localparam rec21 = 5'd16;
+localparam rec22 = 5'd14;
 
 localparam LEFT = 1'b0;
 localparam RIGHT = 1'b1;
@@ -56,6 +66,7 @@ localparam P_SPEED_BACK = 2;
 
 reg [3:0] next_state;
 
+
 assign posy = 170; // Fixed Y position for the player
 
 assign basic_hithurtbox_x1 = (SIDE == LEFT) ? (posx + 35) : (posx);
@@ -73,13 +84,15 @@ assign main_hurtbox_x2 = (SIDE == LEFT) ? (posx + 81) : (posx + 113 - 28);
 assign main_hurtbox_y1 = posy;
 assign main_hurtbox_y2 = posy + 150;
 
+
+
 reg juststarted;
 
 wire [COUNT_SIZE-1:0] counter;
 reg  [COUNT_SIZE-1:0] lastcountanchor;
 
-reg [3:0] stunDurationValue;
-reg [3:0] nextStunDurationValue;
+reg [4:0] stunDurationValue;
+reg [4:0] nextStunDurationValue;
 
 counter #(
   .W(COUNT_SIZE)
@@ -90,16 +103,31 @@ counter #(
   .count(counter)
 );
 
-always @(posedge clk or posedge rst) begin
-  if (rst) begin
+always @(posedge clk) 
+begin
+  if (rst) 
+  begin
     current_state <= S_IDLE;
     lastcountanchor <= 0;
-  end else begin
-    if (current_state != next_state) begin
-	lastcountanchor <= counter;
-	stunDurationValue <= nextStunDurationValue;
-	end
-    current_state <= next_state;
+	stunDurationValue <= 16;
+  end 
+  else 
+  begin 
+		if(gamestate == 3'd2) 
+		begin
+			if (current_state != next_state) 
+			begin
+			lastcountanchor <= counter;
+			stunDurationValue <= nextStunDurationValue;
+		end
+			current_state <=next_state;
+		end
+		else  
+		begin
+		current_state <= current_state;
+		lastcountanchor <= counter;
+		stunDurationValue <= nextStunDurationValue;
+		end
   end
 end
 
@@ -109,11 +137,11 @@ always @(*) begin
     S_IDLE: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -129,11 +157,11 @@ always @(*) begin
     S_MOVEFORWARD: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -149,19 +177,19 @@ always @(*) begin
       if (hitFlag == hitByBasic) begin
         if (block > 0) begin
           next_state = S_BLOCKSTUN;
-          nextStunDurationValue = 13;
+          nextStunDurationValue = rec12;
         end else begin
           next_state = S_HITSTUN;
-          nextStunDurationValue = 15;
+          nextStunDurationValue = rec11;
         end
       end
       else if (hitFlag == hitByDirectional) begin
         if (block > 0) begin
           next_state = S_BLOCKSTUN;
-          nextStunDurationValue = 12;
+          nextStunDurationValue = rec22;
         end else begin
           next_state = S_HITSTUN;
-          nextStunDurationValue = 14;
+          nextStunDurationValue = rec21;
         end
       end
       else begin
@@ -178,11 +206,11 @@ always @(*) begin
     S_B_ATTACK_START: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -194,11 +222,11 @@ always @(*) begin
     S_B_ATTACK_END: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -210,11 +238,11 @@ always @(*) begin
     S_B_ATTACK_PULL: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -233,11 +261,11 @@ always @(*) begin
     S_D_ATTACK_START: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -249,11 +277,11 @@ always @(*) begin
     S_D_ATTACK_END: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -265,11 +293,11 @@ always @(*) begin
     S_D_ATTACK_PULL: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -310,12 +338,28 @@ always @(*) begin
     end
 
     default: begin
-      nextStunDurationValue = stunDurationValue;
-      next_state = S_IDLE;
+      if (hitFlag == hitByBasic) begin
+        next_state = S_HITSTUN;
+        nextStunDurationValue = rec11;
+      end
+      else if (hitFlag == hitByDirectional) begin
+        next_state = S_HITSTUN;
+        nextStunDurationValue = rec21;
+      end
+      else begin
+        nextStunDurationValue = stunDurationValue;
+        if (attack) next_state = S_B_ATTACK_START;
+        else if (left && right) next_state = S_MOVEBACKWARDS;
+        else if (left && ~right) next_state = (SIDE == LEFT) ? S_MOVEBACKWARDS : S_MOVEFORWARD;
+        else if (~left && right) next_state = (SIDE == LEFT) ? S_MOVEFORWARD : S_MOVEBACKWARDS;
+        else next_state = S_IDLE;
+      end
     end
   endcase
 end
 
+
+/*
 always @(posedge clk) begin
   if ((~juststarted) || rst) begin
     posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
@@ -323,9 +367,12 @@ always @(posedge clk) begin
   end else begin
     case (current_state)
       S_MOVEFORWARD: begin
-        if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
-        else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        if (~collision_detected) begin
+          if (SIDE == LEFT && posx < 517) posx <= posx + P_SPEED_FORW;
+          else if (posx > 10) posx <= posx - P_SPEED_FORW;
+        end
       end
+
       S_MOVEBACKWARDS: begin
         if (SIDE == LEFT && posx > 10) posx <= posx - P_SPEED_BACK;
         else if (posx < 517) posx <= posx + P_SPEED_BACK;
@@ -333,6 +380,27 @@ always @(posedge clk) begin
       default: posx <= posx;
     endcase
   end
+end
+*/
+
+always @(posedge clk) begin
+  case (gamestate)
+  3'd2: begin
+    case (current_state)
+      S_MOVEFORWARD: begin
+        if (SIDE == LEFT && posx < 517 && (posx < (otherPlayerposx-30))) posx <= posx + P_SPEED_FORW;
+        else if (posx > 10 && (posx > (otherPlayerposx+30))) posx <= posx - P_SPEED_FORW;
+      end
+      S_MOVEBACKWARDS: begin
+        if (SIDE == LEFT && posx > 10) posx <= posx - P_SPEED_BACK;
+        else if (posx < 517) posx <= posx + P_SPEED_BACK;
+      end
+      default: posx <= posx;
+    endcase
+	 end
+	3'd0: posx <= (SIDE == LEFT) ? 10'd100 : 10'd427;
+	default: posx <= posx;
+  endcase
 end
 
 endmodule

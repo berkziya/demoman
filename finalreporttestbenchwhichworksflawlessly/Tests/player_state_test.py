@@ -50,11 +50,13 @@ async def player_state_test(dut):
     dut.attack.value = 0
     dut.hitFlag.value = 0 #0 = no hit, 1 = hit by basic attack, 2 = hit by directional attack
     dut.block.value = 3
+    dut.gamestate.value = 2
 
     await RisingEdge(dut.clk)
     await RisingEdge(dut.clk)
     await RisingEdge(dut.clk)
     await Timer(1, units="us")
+
 
     # 0 idle, 1 right, 2 left, 3 basic attack start, 4 basic attack active, 5 basic attack pull
     # 6 direcional attack start, 7 direcional attack active, 8 direcional attack pull
@@ -68,8 +70,8 @@ async def player_state_test(dut):
     blocksleft = 3
 
     currentstunlength = 0 
-    #15 when bacic attack lands, 13 when basic attack is blocked
-    #14 when directional attack lands, 12 when directional attack is blocked
+    #16 when bacic attack lands, 14 when basic attack is blocked
+    #16 when directional attack lands, 14 when directional attack is blocked
 
     hitFlagValtoSet = 0
 
@@ -338,7 +340,7 @@ async def player_state_test(dut):
                 dut.attack.value = 0
 
         elif hitFlagValtoSet == 1: #hit by basic attack
-            currentstunlength = 15
+            currentstunlength = 16
             match dut.current_state.value:
                 case 0:
                     expected_next_state = 9
@@ -348,12 +350,12 @@ async def player_state_test(dut):
                     jlastswitch = j
                 case 2:
                     if blocksleft > 0:
-                        currentstunlength = 13
+                        currentstunlength = 14
                         expected_next_state = 10
                         blocksleft -= 1
                         jlastswitch = j
                     else:
-                        currentstunlength = 15
+                        currentstunlength = 16
                         expected_next_state = 9
                         jlastswitch = j
                 case 3:
@@ -382,7 +384,7 @@ async def player_state_test(dut):
                     jlastswitch = j
 
         else: #hit by directional attack
-            currentstunlength = 14
+            currentstunlength = 16
             match dut.current_state.value:
                 case 0:
                     expected_next_state = 9
@@ -392,12 +394,12 @@ async def player_state_test(dut):
                     jlastswitch = j
                 case 2:
                     if blocksleft > 0:
-                        currentstunlength = 12
+                        currentstunlength = 14
                         expected_next_state = 10
                         blocksleft -= 1
                         jlastswitch = j
                     else:
-                        currentstunlength = 14
+                        currentstunlength = 16
                         expected_next_state = 9
                         jlastswitch = j
                 case 3:

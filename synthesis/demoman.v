@@ -311,7 +311,6 @@ color_decider color_decider_inst (
   .player1_state(player1_state), // Current state of the sprite
   .player2_state(player2_state), // Current state of the second sprite
   .pixel_data(pixel_data), // Pixel data for the sprite
-  .game_state(game_state), // Current game state
   .color_to_vga_driver(color_to_vga_driver) // Color to be sent to the VGA driver
 );
 

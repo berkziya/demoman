@@ -264,7 +264,7 @@ always @(*) begin
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = rec2;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;

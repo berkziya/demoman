@@ -32,6 +32,7 @@ module color_decider(
   input [3:0] player1_state,
   input [3:0] player2_state,
   input [7:0] pixel_data,
+  input [2:0] game_state,
   output reg [7:0] color_to_vga_driver
 );
 localparam [7:0] TRANSPARENT_COLOR = 8'b11100011;
@@ -65,21 +66,22 @@ wire on_dir_hithurt_border2 = (((current_pixel_x == dir_hithurt_x12 || current_p
 
 always @(*) begin
   // Hitboxes and Hurtboxes
-	if (((player1_state == 4'd4) && (on_hithurt_border)) ||
-      ((player2_state == 4'd4) && (on_hithurt_border2))) begin
-		color_to_vga_driver = 8'b11100000; // Red color for active hithurtbox border
-	end else if (((player1_state == 4'd5) && (on_hithurt_border)) ||
-               ((player2_state == 4'd5) && (on_hithurt_border2))) begin
-		color_to_vga_driver = 8'b11111100; // Yellow color for passive hithurtbox border
-	end else if (((player1_state == 4'd7) && (on_dir_hithurt_border)) ||
-               ((player2_state == 4'd7) && (on_dir_hithurt_border2))) begin
-		color_to_vga_driver = 8'b11100000; // Red color for active directional hithurtbox border
-	end else if (((player1_state == 4'd8) && (on_dir_hithurt_border)) ||
-               ((player2_state == 4'd8) && (on_dir_hithurt_border2))) begin
-		color_to_vga_driver = 8'b11111100; // Yellow color for passive directional hithurtbox border
-	end else if ((on_hurt_border) || (on_hurt_border2)) begin
-		color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
-  // Is it the background?
+  if (game_state == 3'd2) begin
+    if (((player1_state == 4'd4) && (on_hithurt_border)) ||
+        ((player2_state == 4'd4) && (on_hithurt_border2))) begin
+      color_to_vga_driver = 8'b11100000; // Red color for active hithurtbox border
+    end else if (((player1_state == 4'd5) && (on_hithurt_border)) ||
+                ((player2_state == 4'd5) && (on_hithurt_border2))) begin
+      color_to_vga_driver = 8'b11111100; // Yellow color for passive hithurtbox border
+    end else if (((player1_state == 4'd7) && (on_dir_hithurt_border)) ||
+                ((player2_state == 4'd7) && (on_dir_hithurt_border2))) begin
+      color_to_vga_driver = 8'b11100000; // Red color for active directional hithurtbox border
+    end else if (((player1_state == 4'd8) && (on_dir_hithurt_border)) ||
+                ((player2_state == 4'd8) && (on_dir_hithurt_border2))) begin
+      color_to_vga_driver = 8'b11111100; // Yellow color for passive directional hithurtbox border
+    end else if ((on_hurt_border) || (on_hurt_border2)) begin
+      color_to_vga_driver = 8'b11111100; // Yellow color for main hurtbox border
+    end
 	end else if (pixel_data == TRANSPARENT_COLOR) begin
 		color_to_vga_driver = BACKGROUND_COLOR;
   // Use the pixel data

@@ -1,11 +1,11 @@
-// rom_player_2_wins.v
+// rom_draw_wins.v
 // megafunction wizard: %ROM: 1-PORT%
 // GENERATION: STANDARD
 // VERSION: WM1.0
 // MODULE: altsyncram
 
 // ============================================================
-// File Name: rom_player_2_wins.v
+// File Name: rom_draw_wins.v
 // Megafunction Name(s):
 //      altsyncram
 //
@@ -36,7 +36,7 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module rom_player_2_wins (
+module rom_draw_wins (
   address,
   clock,
   q);
@@ -83,7 +83,7 @@ module rom_player_2_wins (
     altsyncram_component.address_aclr_a = "NONE",
     altsyncram_component.clock_enable_input_a = "BYPASS",
     altsyncram_component.clock_enable_output_a = "BYPASS",
-    altsyncram_component.init_file = "../sprites/player_2_wins.mif",
+    altsyncram_component.init_file = "../sprites/draw_wins.mif",
     altsyncram_component.intended_device_family = "Cyclone V",
     altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
     altsyncram_component.lpm_type = "altsyncram",
@@ -117,7 +117,7 @@ endmodule
 // Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
-// Retrieval info: PRIVATE: MIFfilename STRING "../sprites/player_2_wins.mif"
+// Retrieval info: PRIVATE: MIFfilename STRING "../sprites/draw_wins.mif"
 // Retrieval info: PRIVATE: NUMWORDS_A NUMERIC "300"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
 // Retrieval info: PRIVATE: RegAddr NUMERIC "1"
@@ -132,7 +132,7 @@ endmodule
 // Retrieval info: CONSTANT: ADDRESS_ACLR_A STRING "NONE"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_A STRING "BYPASS"
-// Retrieval info: CONSTANT: INIT_FILE STRING "../sprites/player_2_wins.mif"
+// Retrieval info: CONSTANT: INIT_FILE STRING "../sprites/draw_wins.mif"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
 // Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=NO"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
@@ -149,10 +149,10 @@ endmodule
 // Retrieval info: CONNECT: @address_a 0 0 9 0 address 0 0 9 0
 // Retrieval info: CONNECT: @clock0 0 0 0 0 clock 0 0 0 0
 // Retrieval info: CONNECT: q 0 0 8 0 @q_a 0 0 8 0
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.v TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.inc FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.cmp FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins.bsf FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL rom_player_2_wins_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.inc FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.cmp FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins.bsf FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins_inst.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL rom_draw_wins_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf

@@ -34,6 +34,11 @@ module player #(
   output wire [9:0] main_hurtbox_y2
 );
 
+localparam rec11 = 16;
+localparam rec12 = 14;
+localparam rec21 = 16;
+localparam rec22 = 14;
+
 localparam LEFT = 1'b0;
 localparam RIGHT = 1'b1;
 
@@ -131,11 +136,11 @@ always @(*) begin
     S_IDLE: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -151,11 +156,11 @@ always @(*) begin
     S_MOVEFORWARD: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -171,19 +176,19 @@ always @(*) begin
       if (hitFlag == hitByBasic) begin
         if (block > 0) begin
           next_state = S_BLOCKSTUN;
-          nextStunDurationValue = 13;
+          nextStunDurationValue = rec12;
         end else begin
           next_state = S_HITSTUN;
-          nextStunDurationValue = 15;
+          nextStunDurationValue = rec11;
         end
       end
       else if (hitFlag == hitByDirectional) begin
         if (block > 0) begin
           next_state = S_BLOCKSTUN;
-          nextStunDurationValue = 12;
+          nextStunDurationValue = rec22;
         end else begin
           next_state = S_HITSTUN;
-          nextStunDurationValue = 14;
+          nextStunDurationValue = rec21;
         end
       end
       else begin
@@ -200,11 +205,11 @@ always @(*) begin
     S_B_ATTACK_START: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -216,11 +221,11 @@ always @(*) begin
     S_B_ATTACK_END: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -232,11 +237,11 @@ always @(*) begin
     S_B_ATTACK_PULL: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -255,11 +260,11 @@ always @(*) begin
     S_D_ATTACK_START: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec2;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -271,11 +276,11 @@ always @(*) begin
     S_D_ATTACK_END: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;
@@ -287,11 +292,11 @@ always @(*) begin
     S_D_ATTACK_PULL: begin
       if (hitFlag == hitByBasic) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 15;
+        nextStunDurationValue = rec11;
       end
       else if (hitFlag == hitByDirectional) begin
         next_state = S_HITSTUN;
-        nextStunDurationValue = 14;
+        nextStunDurationValue = rec21;
       end
       else begin
         nextStunDurationValue = stunDurationValue;

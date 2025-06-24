@@ -34,10 +34,10 @@ module player #(
   output wire [9:0] main_hurtbox_y2
 );
 
-localparam rec11 = 16;
-localparam rec12 = 14;
-localparam rec21 = 16;
-localparam rec22 = 14;
+localparam rec11 = 5'd16;
+localparam rec12 = 5'd14;
+localparam rec21 = 5'd16;
+localparam rec22 = 5'd14;
 
 localparam LEFT = 1'b0;
 localparam RIGHT = 1'b1;
@@ -91,8 +91,8 @@ reg juststarted;
 wire [COUNT_SIZE-1:0] counter;
 reg  [COUNT_SIZE-1:0] lastcountanchor;
 
-reg [3:0] stunDurationValue;
-reg [3:0] nextStunDurationValue;
+reg [4:0] stunDurationValue;
+reg [4:0] nextStunDurationValue;
 
 counter #(
   .W(COUNT_SIZE)

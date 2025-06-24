@@ -18,15 +18,18 @@ reg [3:0] p1_prev_state, p2_prev_state;
 wire [2:0] player1_health_count, player2_health_count;
 wire [2:0] player1_block_count, player2_block_count;
 
+reg [1:0] player1_hitstun, player2_hitstun;
+reg [1:0] player1_blockstun, player2_blockstun;
+
 always @(posedge clk) begin
+  player1_hitstun <= ((p1_prev_state != S_HITSTUN) && (player1_state == S_HITSTUN)) ? 2'b01 : 2'b00;
+  player2_hitstun <= ((p2_prev_state != S_HITSTUN) && (player2_state == S_HITSTUN)) ? 2'b01 : 2'b00;
+  player1_blockstun <= ((p1_prev_state != S_BLOCKSTUN) && (player1_state == S_BLOCKSTUN)) ? 2'b01 : 2'b00;
+  player2_blockstun <= ((p2_prev_state != S_BLOCKSTUN) && (player2_state == S_BLOCKSTUN)) ? 2'b01 : 2'b00;
   p1_prev_state <= player1_state;
   p2_prev_state <= player2_state;
 end
 
-wire player1_hitstun = ((p1_prev_state != S_HITSTUN) && (player1_state == S_HITSTUN)) ? 2'b01 : 2'b00;
-wire player2_hitstun = ((p2_prev_state != S_HITSTUN) && (player2_state == S_HITSTUN)) ? 2'b01 : 2'b00;
-wire player1_blockstun = ((p1_prev_state != S_BLOCKSTUN) && (player1_state == S_BLOCKSTUN)) ? 2'b01 : 2'b00;
-wire player2_blockstun = ((p2_prev_state != S_BLOCKSTUN) && (player2_state == S_BLOCKSTUN)) ? 2'b01 : 2'b00;
 
 counter #(
   .W(3)

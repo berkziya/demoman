@@ -284,7 +284,7 @@ localparam MENU_TEXT_SPRITE_HEIGHT = 13;
 localparam MENU_TEXT_WIDTH = MENU_TEXT_SPRITE_WIDTH << 2;
 localparam MENU_TEXT_HEIGHT = MENU_TEXT_SPRITE_HEIGHT << 2;
 localparam MENU_TEXT_SIZE = MENU_TEXT_WIDTH * MENU_TEXT_HEIGHT;
-localparam [7:0] MENU_TEXT_BG_COLOR = 8'b00000000; // Background color for main screen (black)
+localparam [7:0] MENU_TEXT_BG_COLOR = 8'b10000010; // Background color for main screen (black)
 
 wire [9:0] menu_text_scaledx = (current_pixel_x - (640 - MENU_TEXT_WIDTH) / 2) >> 2;
 wire [9:0] menu_text_scaledy = (current_pixel_y - (480 - MENU_TEXT_HEIGHT) / 2) >> 2;

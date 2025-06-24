@@ -389,8 +389,6 @@ always @(*) begin
       if (is_player_win_area) begin
         next_pixel_data <= pixel_player_1_wins != TRANSPARENT_COLOR ?
                            pixel_player_1_wins : PLAYER_WIN_BG_COLOR;
-      end else begin
-        next_pixel_data <= PLAYER_WIN_BG_COLOR;
       end else if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
       end else if (is_heartbox) begin
@@ -414,8 +412,6 @@ always @(*) begin
       if (is_player_win_area) begin
         next_pixel_data <= pixel_player_2_wins != TRANSPARENT_COLOR ?
                            pixel_player_2_wins : PLAYER_WIN_BG_COLOR;
-      end else begin
-        next_pixel_data <= PLAYER_WIN_BG_COLOR;
       end else if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
       end else if (is_heartbox) begin
@@ -444,8 +440,6 @@ always @(*) begin
           next_pixel_data <= pixel_player_2_wins != TRANSPARENT_COLOR ?
                              pixel_player_2_wins : PLAYER_WIN_BG_COLOR;
         end
-      end else begin
-        next_pixel_data <= PLAYER_WIN_BG_COLOR;
       end else if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
       end else if (is_heartbox) begin

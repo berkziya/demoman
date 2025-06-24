@@ -386,9 +386,8 @@ always @(*) begin
     end
 
     S_P1_WIN: begin
-      if (is_player_win_area) begin
-        next_pixel_data <= pixel_player_1_wins != TRANSPARENT_COLOR ?
-                           pixel_player_1_wins : PLAYER_WIN_BG_COLOR;
+      if (is_player_win_area && pixel_player_1_wins != TRANSPARENT_COLOR) begin
+        next_pixel_data <= pixel_player_1_wins;
       end else if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
       end else if (is_heartbox) begin
@@ -403,15 +402,14 @@ always @(*) begin
       end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
         next_pixel_data <= rom_sprite;
       end else if (inside_sprite2 && addr2 < IMAGE_SIZE && rom_sprite2 != TRANSPARENT_COLOR) begin
-        next_pixel_data <= rom_sprite_gothitR;
+        next_pixel_data <= rom_sprite2;
       // Default pixel data (transparent color)
       end else next_pixel_data <= TRANSPARENT_COLOR;
     end
 
     S_P2_WIN: begin
-      if (is_player_win_area) begin
-        next_pixel_data <= pixel_player_2_wins != TRANSPARENT_COLOR ?
-                           pixel_player_2_wins : PLAYER_WIN_BG_COLOR;
+      if (is_player_win_area && (pixel_player_2_wins != TRANSPARENT_COLOR)) begin
+        next_pixel_data <= pixel_player_2_wins;
       end else if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
       end else if (is_heartbox) begin
@@ -424,7 +422,7 @@ always @(*) begin
                            TRANSPARENT_COLOR;
       // Player 2 or Player 1 sprite pixel data selection
       end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
-        next_pixel_data <= rom_sprite_gothitG;
+        next_pixel_data <= rom_sprite;
       end else if (inside_sprite2 && addr2 < IMAGE_SIZE && rom_sprite2 != TRANSPARENT_COLOR) begin
         next_pixel_data <= rom_sprite2;
       // Default pixel data (transparent color)
@@ -432,13 +430,11 @@ always @(*) begin
     end
 
     S_EQ: begin
-      if (is_player_win_area) begin
-        if (current_pixel_x % 2 == 0) begin // Flash effect for equal state
-          next_pixel_data <= pixel_player_1_wins != TRANSPARENT_COLOR ?
-                             pixel_player_1_wins : PLAYER_WIN_BG_COLOR;
+      if (is_player_win_area && (pixel_player_1_wins != TRANSPARENT_COLOR || pixel_player_2_wins != TRANSPARENT_COLOR)) begin
+        if (current_pixel_x % 2 == 0) begin
+          next_pixel_data <= pixel_player_1_wins; // Display Player 1 win text
         end else begin
-          next_pixel_data <= pixel_player_2_wins != TRANSPARENT_COLOR ?
-                             pixel_player_2_wins : PLAYER_WIN_BG_COLOR;
+          next_pixel_data <= pixel_player_2_wins; // Display Player 2 win text
         end
       end else if (is_counter_area) begin
         next_pixel_data <= pixel_data_counter; // Display counter
@@ -452,9 +448,9 @@ always @(*) begin
                            TRANSPARENT_COLOR;
       // Player 2 or Player 1 sprite pixel data selection
       end else if (inside_sprite && addr < IMAGE_SIZE && rom_sprite != TRANSPARENT_COLOR) begin
-        next_pixel_data <= rom_sprite_gothitG;
+        next_pixel_data <= rom_sprite;
       end else if (inside_sprite2 && addr2 < IMAGE_SIZE && rom_sprite2 != TRANSPARENT_COLOR) begin
-        next_pixel_data <= rom_sprite_gothitR;
+        next_pixel_data <= rom_sprite2;
       // Default pixel data (transparent color)
       end else next_pixel_data <= TRANSPARENT_COLOR;
     end
